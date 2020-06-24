@@ -1,0 +1,22 @@
+module Collections.Traits.WritableContainer {
+
+    // A writable-container is a trait of a container that can be used to store things. It is the lowest
+    // common denominator for writable collections.
+
+    private container:WritableContainer[int]
+
+    function insert_value() { container = container.insert("value") }
+    function remove_required_value() { container = container.remove("value") }
+    function remove_optional_value() { container = container.maybe.remove("value") }
+    function clear() { container = container.clear }
+
+    function union() { container = container.union(other_container) }
+    function intersection() { container = container.intersection(other_container) }
+    function difference() { container = container.without(other_container) }
+
+    // to update a mutable container, use the 'inplace' chaining operator
+    function update_inplace { container.inplace.insert("value") }
+
+    // getting the previous value in an inplace container mutation
+    function prev() { previous = container.inplace.remove("value") }
+}

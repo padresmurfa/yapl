@@ -1,0 +1,60 @@
+#!/usr/bin/env yapl
+
+process StringInterpolation {
+
+    function using_identifiers() {
+        a = 1
+        b = "asdf"
+        output = "$b=$a"
+    }
+
+    function using_curlies() {
+        a = 1
+        b = "asdf"
+        output = "${b}=${a}"
+    }
+
+    function multiline_strings() {
+        a = 1
+        b = "asdf"
+        output = """
+            ${b}
+                =
+            ${a}
+        """
+    }
+
+    function format_specifier_scientific_notation() {
+        foo = 1.1
+        assert("${foo:E}").equals("0.11E+1")
+    }
+
+    function format_specifier_maybe_scientific_notation() {
+        four = 1000
+        assert("${four:G}").equals("1000")
+        five = 10000
+        assert("${five:G}").equals("1E+4")
+    }
+
+    function format_specifier_octal_notation() {
+        decimal = 237
+        assert("${decimal:o}").equals("347")
+    }
+
+    function format_specifier_hexadecimal_notation() {
+        decimal = 61453
+        assert("${decimal:X}").equals("F00D")
+    }
+
+    function format_specifier_precision() {
+        foo = 1.1
+        assert("${foo:.3E}").equals("0.110E+1")
+        five = 12345
+        assert("${five:.3G}").equals("12300")
+        x = "asdf"
+        assert("${x:.3G}").equals("asd")
+        x = "asdf"
+        assert("${x:.3G}").equals("asd")
+    }
+
+}

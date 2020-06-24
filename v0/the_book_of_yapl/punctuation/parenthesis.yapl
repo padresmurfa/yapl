@@ -1,0 +1,38 @@
+module Parenthesis {
+
+    function function_with_no_arguments() {}
+    function function_with_arguments(i:int) {}
+    function function_invocation() { function_with_no_arguments() }
+
+    closure closure_over() over (i:int) {}
+
+    function dependency_single() dependency (i:int) {}
+    function dependency_injection_single() {
+        x = int(1)
+        inject (x) into { dependency_single() }
+    }
+    function dependency_plural() dependencies (i:int, j:bool) {}
+    function dependency_injection_plural() {
+        x = int(1)
+        f = false
+        inject (f, x) into { dependency_plural() }
+    }
+
+    class constructor_arguments { constructor default(i:int) {} }
+
+    class disowned_declaration { disowned() {} }
+
+    class destructor_declaration { destructor() {} }
+
+    function typed_instantiation() { i = int(0) }
+
+    function exception_handling() { try {} catch (e:Exception) {}}
+
+    private arithmetic_expression:int = (1 + 2)
+    private arithmetic_expression_that_is_superfluous:int = (1)
+    private arithmetic_subExpression:int = 1 + (2 + (3 + 4 + (5)))
+
+    private logical_expression:bool = (true or false)
+    private logical_expression_that_is_superfluous:bool = (true)
+    private logical_subexpression:bool = true or (false or (true))
+}

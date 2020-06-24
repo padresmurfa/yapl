@@ -1,0 +1,9 @@
+# ignore .idea directory entirely
+.idea
+
+# ignore build output from yapl
+.yapl-build-output
+
+# ignore python build files
+*.pyc
+*.pyo

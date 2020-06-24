@@ -1,0 +1,47 @@
+module DataTypes.Primitive.String.Case {
+
+    test(String) {
+        "upper-camel-case" {
+            test(as_upper_camel_case) {
+                "should be able to convert to upper-camel-case from" {
+                    "snake-case" {
+                        upper_camel_case = "upper_camel_case".as_upper_camel_case
+                        assert(upper_camel_case).equals("upperCamelCase")
+                    }
+                    "lower-camel-case" {
+                        upper_camel_case = "upperCamelCase".as_upper_camel_case
+                        assert(upper_camel_case).equals("upperCamelCase")
+                    }
+                    "kebab-case" {
+                        upper_camel_case = "upper-camel-case".as_upper_camel_case
+                        assert(upper_camel_case).equals("upperCamelCase")
+                    }
+                    "title-case" {
+                        upper_camel_case = "Upper Camel Case".as_upper_camel_case
+                        assert(upper_camel_case).equals("upperCamelCase")
+                    }
+                    "a sentence" {
+                        upper_camel_case = "Upper camel case".as_upper_camel_case
+                        assert(upper_camel_case).equals("upperCamelCase")
+                    }
+                    "a single word" {
+                        upper_camel_case = "uppercamelcase".as_upper_camel_case
+                        assert(upper_camel_case).equals("Uppercamelcase")
+                    }
+                }
+            }
+           test(is_upper_camel_case) {
+                "should be able to determine if a string is in upper-camel-case, when it" {
+                    "is" {
+                        is_upper_camel_case = "UpperCamelCase".is_upper_camel_case
+                        assert(is_upper_camel_case).is.true
+                    }
+                    "is not" {
+                        is_upper_camel_case = "notUpperCamelCase".is_upper_camel_case
+                        assert(is_upper_camel_case).is.false
+                    }
+                }
+            }
+        }
+    }
+}

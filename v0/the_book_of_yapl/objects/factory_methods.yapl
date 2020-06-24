@@ -1,0 +1,26 @@
+module FactoryMethods {
+    class Foo {
+        private f:string
+        private b:Optional[string]
+
+        factory bar() {
+            this.f = "bar"
+            this.b = None
+        }
+
+        factory baz(blat:string) {
+            this.f = "baz"
+            this.b = Some(blat)
+        }
+
+        factory blat(bark:string) {
+            baz(bark)
+        }
+    }
+
+    function do_something() {
+        bar = Foo.bar()
+        baz = Foo.baz("blat")
+        blat = Foo.blat("bark")
+    }
+}

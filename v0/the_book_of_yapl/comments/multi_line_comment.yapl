@@ -1,0 +1,5 @@
+module MultiLineComment {
+    /*
+        this is a multi-line comment
+    */
+}

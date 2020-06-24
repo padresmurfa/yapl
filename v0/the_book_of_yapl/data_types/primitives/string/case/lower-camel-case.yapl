@@ -1,0 +1,47 @@
+module DataTypes.Primitive.String.Case {
+
+    test(String) {
+        "lower-camel-case" {
+            test(as_lower_camel_case) {
+                "should be able to convert to lower-camel-case from" {
+                    "snake-case" {
+                        lower_camel_case = "lower_camel_case".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowerCamelCase")
+                    }
+                    "upper-camel-case" {
+                        lower_camel_case = "LowerCamelCase".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowerCamelCase")
+                    }
+                    "kebab-case" {
+                        lower_camel_case = "lower-camel-case".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowerCamelCase")
+                    }
+                    "title-case" {
+                        lower_camel_case = "Lower Camel Case".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowerCamelCase")
+                    }
+                    "a sentence" {
+                        lower_camel_case = "Lower camel case".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowerCamelCase")
+                    }
+                    "a single word" {
+                        lower_camel_case = "LOWERcamelcase".as_lower_camel_case
+                        assert(lower_camel_case).equals("lowercamelcase")
+                    }
+                }
+            }
+            test(is_lower_camel_case) {
+                "should be able to determine if a string is in lower-camel-case, when it" {
+                    "is" {
+                        is_lower_camel_case = "lowerCamelCase".is_lower_camel_case
+                        assert(is_lower_camel_case).is.true
+                    }
+                    "is not" {
+                        is_lower_camel_case = "NotLowerCamelCase".is_lower_camel_case
+                        assert(is_lower_camel_case).is.false
+                    }
+                }
+            }
+        }
+    }
+}

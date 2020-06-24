@@ -1,0 +1,35 @@
+module DataTypes.Primitive.String.Contains {
+
+    test starts_with {
+        test yes {
+            starts_with = "asdf".starts_with("a")
+            assert(starts_with).is.true
+        }
+        test no {
+            starts_with = "fdsa".starts_with("a")
+            assert(starts_with).is.false
+        }
+    }
+
+    test ends_with {
+        test yes {
+            ends_with = "fdsa".ends_with("a")
+            assert(ends_with).is.true
+        }
+        test no {
+            ends_with = "asdf".starts_with("a")
+            assert(ends_with).is.false
+        }
+    }
+
+    test contains {
+        test yes {
+            contains = "asdf".contains("a")
+            assert(contains).is.true
+        }
+        test no {
+            contains = "asdf".contains("x")
+            assert(contains).is.false
+        }
+    }
+}

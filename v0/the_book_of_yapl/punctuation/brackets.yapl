@@ -1,0 +1,9 @@
+module Brackets {
+
+    function sequence_shorthand() { seq = [1, 2] }
+    function multi_dimensional_sequence_shorthand() { seq = [[1, 2], [3, 4]] }
+
+    function template_parameters_single() { s = Array[string]() }
+    function template_parameters_plural() { s = Foo[string,int]() }
+    function template_parameters_embedded() { s = Foo[Array[int]]() }
+}

@@ -1,0 +1,43 @@
+module DataTypes.Primitives.Numeric.FloatingPoint {
+
+    function synonyms() {
+        f32:float32 = 0
+        f64:float64 = 0
+    }
+
+    function floating_point_32_operations() {
+        f:floating_point_32 := 0.0
+        f := f + 1.3
+        f := f - 1.2
+        f := f * 2.2
+        f := f / 2.3
+        f += 13.1
+        f -= 12.1
+        f *= 22.1
+        f /= 23.1
+        ma = FloatingPoint32.max
+        mi = FloatingPoint32.min
+    }
+
+    function floating_point_64_operations() {
+        f:floating_point_64 := 0.1
+        f := f + 1.2
+        f := f - 1.3
+        f := f * 2.4
+        f := f / 2.5
+        f += 13.1
+        f -= 12.1
+        f *= 22.1
+        f /= 23.1
+        ma = FloatingPoint64.max
+        mi = FloatingPoint64.min
+    }
+
+    function conversion() {
+        f:float64 := 0.1
+        f32 = f.as[float32]
+        d32 = f.as[dec32]
+        d32 = f.as[dec32]
+        d32 = f.as[dec32].with_precision(2)
+    }
+}

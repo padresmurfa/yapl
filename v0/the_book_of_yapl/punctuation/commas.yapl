@@ -1,0 +1,37 @@
+module Comma {
+
+    function function_arguments(i:int, j:int) {}
+    function function_arguments_trailing(i:int, j:int,) {}
+
+    function function_invocation() { function_arguments(0,1) }
+    function function_invocation_trailing() { function_arguments(0,1,) }
+
+    closure closure_over() over (i:int, j:int) {}
+    closure closure_over_trailing() over (i:int, j:int,) {}
+
+    function dependency_plural() dependencies (i:int, j:bool) {}
+    function dependency_plural_trailing() dependencies (i:int, j:bool,) {}
+
+    function dependency_injection_plural() {
+        x = int(1)
+        f = false
+        inject (f, x) into { dependency_plural() }
+    }
+    function dependency_injection_plural_trailing() {
+        x = int(1)
+        f = false
+        inject (f, x,) into { dependency_plural() }
+    }
+
+    function template_parameters_trailing() { s = Foo[string,]() }
+    function template_parameters_plural() { s = Foo[string,int]() }
+
+    function sequence_literal() { f = [1, 2] }
+    function sequence_literal_trailing() { f = [1, 2, ] }
+
+    function mapping() { f = { 1 -> 2, 3 -> 4 } }
+    function mapping_trailing() { f = { 1 -> 2, 3 -> 4, } }
+
+    function tuple() { f = tuple(1, 2) }
+
+}

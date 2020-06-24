@@ -1,0 +1,26 @@
+module Collections.Traits.Dictionary {
+
+    // a dictionary is a countable, iterable container of keyvals
+
+    // mapping dereferencing via [] operator is a source of bugs, as it is a convenient
+    // syntax that encourages accessing the mapping without checking whether or not
+    // the accessed key is actually in the array, or definining the behaviour in case
+    // it is not there
+
+    private m:Dictionary[key=int,value=string]
+        
+    function get() { v = d.get(1) }
+    function get_keys() { k = d.keys }
+    function get_values() { v = d.values }
+    function get_keyval_pairs() { kv = d.keyvals }
+
+    // keys is a countable, iterable container
+    function contains_key() { e = d.keys.contains(3) }
+
+    // values is a countable, iterable container
+    function contains_value() { e = d.values.contains("value") }
+
+    // keyvals is a countable, iterable container
+    function contains_keyval() { e = d.keyvals.contains(3, "value") }
+
+}

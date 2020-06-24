@@ -1,0 +1,198 @@
+module DataTypes.Primitive.String.Case {
+
+    test(String) {
+        "snake-case" {
+            test(as_snake_case) {
+                "should be able to convert to snake-case from" {
+                    "lower-camel-case" {
+                        snake_case = "snakeCase".as_snake_case
+                        assert(snake_case).equals("snake_case")
+                    }
+                    "upper-camel-case" {
+                        snake_case = "SnakeCase".as_snake_case
+                        assert(snake_case).equals("snake_case")
+                    }
+                    "kebab-case" {
+                        snake_case = "snake-case".as_snake_case
+                        assert(snake_case).equals("snake_case")
+                    }
+                    "title-case" {
+                        snake_case = "Snake Case".as_snake_case
+                        assert(snake_case).equals("snake_case")
+                    }
+                    "a sentence" {
+                        snake_case = "Snake case".as_snake_case
+                        assert(snake_case).equals("snake_case")
+                    }
+                    "a single word" {
+                        snake_case = "Snake".as_snake_case
+                        assert(snake_case).equals("snake")
+                    }
+                }
+            }
+            test(is_snake_case) {
+                "should be able to determine if a string is in lower-camel-case, when it" {
+                    "is" {
+                        is_snake_case = "snake_case".is_snake_case
+                        assert(is_snake_case).is.true
+                    }
+                    "is not" {
+                        is_snake_case = "snake".is_snake_case
+                        assert(is_snake_case).is.true
+                    }
+                }
+                "should not return true if the string contains upper-case letters" {
+                    is_snake_case = "not_snake_Case".is_snake_case
+                    assert(is_snake_case).is.false
+                }
+            }
+        }
+    
+        "kebab-case" {
+            test(as_kebab_case) {
+                "should be able to convert to snake-case from" {
+                    "lower-camel-case" {
+                        kebab_case = "kebabCase".as_kebab_case
+                        assert(kebab_case).equals("kebab-case")
+                    }
+                    "upper-camel-case" {
+                        kebab_case = "KebabCase".as_kebab_case
+                        assert(kebab_case).equals("kebab-case")
+                    }
+                    "snake-case" {
+                        kebab_case = "kebab-case".as_kebab_case
+                        assert(kebab_case).equals("kebab-case")
+                    }
+                    "title-case" {
+                        kebab_case = "Kebab Case".as_kebab_case
+                        assert(kebab_case).equals("kebab-case")
+                    }
+                    "a sentence" {
+                        kebab_case = "Kebab case".as_kebab_case
+                        assert(kebab_case).equals("kebab-case")
+                    }
+                    "a single word" {
+                        kebab_case = "Kebab".as_kebab_case
+                        assert(kebab_case).equals("kebab")
+                    }
+                }
+            }
+            test(is_kebab_case) {
+                "should be able to determine if a string is in lower-camel-case, when it" {
+                    "is" {
+                        is_kebab_case = "kebab-case".is_kebab_case
+                        assert(is_kebab_case).is.true
+                    }
+                    "is not" {
+                        is_kebab_case = "kebabCase".is_kebab_case
+                        assert(is_kebab_case).is.false
+                    }
+                }
+            }
+        }
+    
+    
+        "title-case" {
+            test(as_title_case) {
+                test "can convert lower-camel-case" {
+                    title_case = "titleCase".as_title_case
+                    assert(title_case).equals("Title Case")
+                }
+                test "can convert upper-camel-case" {
+                    title_case = "TitleCase".as_title_case
+                    assert(title_case).equals("Title Case")
+                }
+                test "can convert snake-case" {
+                    title_case = "title_case".as_title_case
+                    assert(title_case).equals("Title Case")
+                }
+                test "can convert kebab-case" {
+                    title_case = "title-case".as_title_case
+                    assert(title_case).equals("Title Case")
+                }
+                test "can convert sentence" {
+                    title_case = "Title case".as_title_case
+                    assert(title_case).equals("Title Case")
+                }
+            }
+            test is {
+                test yes {
+                    test "may contain multiple words" {
+                        is_title_case = "Title Case".is_title_case
+                        assert(is_title_case).is.true
+                    }
+                    test "may contain a single word" {
+                        is_title_case = "Title".is_title_case
+                        assert(is_title_case).is.true
+                    }
+                }
+                test no {
+                    test "must only contain lower-case letters" {
+                        is_title_case = "not_kebab_Case".is_title_case
+                        assert(is_title_case).is.false
+                    }
+                }
+            }
+        }
+    
+        test capitalised {
+            test as {
+                s = "capitalised string"
+                capitalised = s.as_capitalised
+                assert(capitalised).equals("Capitalised string")
+            }
+            test is {
+                test yes {
+                    is_capitalised = "Capitalised".is_capitalised
+                    assert(is_capitalised).is.true
+                }
+                test no {
+                    is_capitalised = "capitalised".is_capitalised
+                    assert(is_capitalised).is.false
+                }
+            }
+        }
+    
+        test lower_case {
+            test as {
+                s = "Lower-case String"
+                lower_case = s.as_lower_case
+                assert(lower_case).equals("lower-case string")
+            }
+            test is {
+                test yes {
+                    is_lower_case = "lowercase".is_lower_case
+                    assert(is_lower_case).is.true
+                }
+                test no {
+                    is_lower_case = "Lowercase".is_lower_case
+                    assert(is_lower_case).is.false
+                }
+            }
+        }
+    
+        test upper_case {
+            test as {
+                s = "Upper-case String"
+                upper_case = s.as_upper_case
+                assert(upper_case).equals("UPPER-CASE STRING")
+            }
+            test is {
+                test yes {
+                    is_upper_case = "UPPERCASE".is_upper_case
+                    assert(is_upper_case).is.true
+                }
+                test no {
+                    is_upper_case = "uPpercase".is_upper_case
+                    assert(is_upper_case).is.false
+                }
+            }
+        }
+    
+        test swap_case {
+            s = "sWaP cAsE"
+            swapped_case = s.as_swapped_case
+            assert(swapped_case).equals("SwAp CaSe")
+        }
+    }
+}

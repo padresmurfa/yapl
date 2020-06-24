@@ -1,0 +1,15 @@
+module Collections.Stack {
+
+    // A stack is a countable container
+
+    private s:Stack[string]
+
+    function instantiation_empty() { s = Stack[int]() }
+    function instantiation_with_initial_values_from_seq() { s = Stack([1, 2]) }
+
+    function push() { s.push(1) }
+    function pop() { i = s.pop() }
+    function pop_many() { m = s.pop(3) }
+    function peek() { i = s.peek() }
+
+}

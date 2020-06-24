@@ -1,0 +1,26 @@
+module DataTypes.Primitives.Numeric.Math.Rational {
+
+    // An unconstrained rational number, adhering to the rules of mathematics, i.e. a pair of
+    // Math.Integer's, one being interpreted as a numerator and another as a denominator
+
+    function mathematical_rational_operations() {
+        r:Math.Rational := Math.Rational(numerator=1, denominator=2)
+        r := r + 2
+        r := r - 1
+        r := r * 3
+        r := r / 2
+        r += 13
+        r -= 12
+        r *= 2
+        r /= 2
+
+        assert(Math.Rational(1,2) * Math.Rational(2,3)).equals(Math.Rational(2,6))
+    }
+    
+    function conversion() {
+        r:Math.Rational := Math.Rational(numerator=1, denominator=2)
+
+        f32 = r.as[float32]
+        f64 = r.as[float64]
+    }
+}

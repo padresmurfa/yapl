@@ -1,0 +1,36 @@
+module Collections.Traits.Iterable {
+
+    private iterable:Iterable[string]
+
+    function sort_by() { s = iterable.ordered_by(comparator) }
+    function group_by() { g = iterable.grouped_by(value_function) }
+    function partition_by() { g = iterable.partitioned_by(partitioning_function) }
+    function count_by() { c = iterable.count_by(inclusion_function) }
+
+    function shuffle() { s = iterable.shuffled() }
+    function sample() { s = iterable.sample(3) }
+
+    function skip() { i = iterable.skip(3) }
+    function take() { i = iterable.take(3) }
+    function initial() { i = iterable.initial(3) }
+    function final() { i = iterable.final(3) }
+
+    function find_by_required_value() { i = iterable.find("value") }
+    function find_by_optional_value() { i = iterable.maybe.find("value") }
+
+    function map() { i = iterable.map(mapping_function) }
+    function reduce() { i = iterable.reduce(0, reducing_function) }
+    function where() { i = iterable.where(filtering_function) }
+    function excluding() { i = iterable.excluding(filtering_function) }
+
+    function all() { b = iterable.all(matching_function) }
+    function exists() { b = iterable.exists(matching_function) }
+
+    function for_each() { iterable.for_each(invoke_function) }
+
+    function greatest_value() { b = iterable.greatest_value(value_function) }
+    function smallest_value() { b = iterable.smallest_value(value_function) }
+
+    function typecast_to_iterator() { iterable.iterator }
+
+}

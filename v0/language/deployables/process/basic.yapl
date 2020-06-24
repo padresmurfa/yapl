@@ -1,0 +1,9 @@
+#!/usr/bin/env yapl
+
+process BasicProcess {
+    // @main:
+    //   This is the most basic form of a process entry point, taking no arguments and returning an errno value of 0
+    //   unless an uncaught exception is thrown past main.
+    function main() {
+    }
+}

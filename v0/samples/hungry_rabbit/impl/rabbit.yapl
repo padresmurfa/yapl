@@ -1,0 +1,48 @@
+module Rabbit {
+    import Types
+
+    // @Rabbit: an abstraction for a hungry, foraging rabbit
+    class Rabbit {
+
+        // @garden: the 'Garden' that this Rabbit is foraging in
+        private garden:Garden
+
+        // @position: the position of the Rabbit within 'garden'
+        private position:Position
+
+        // @default: Default constructor for Rabbit
+        // @garden: the 'Garden' that the Rabbit should forage in
+        constructor default(garden:Garden) {
+            this.garden = args.garden
+            position := choose_best_square(this.garden.get_possible_centers())
+        }
+
+        // @forage: Let the rabbit go foraging for carrots in the garden.
+        // @eaten: the number of carrots that the rabbit ate during its foraging spree.
+        method forage() returns eaten:Carrots {
+            foraged := 0
+            do {
+                foraged += eat_carrots()
+            } while (rabbit.move())
+            eaten = foraged
+        }
+
+        private method choose_best_square(squares:Enumerable[Position]) returns best_square:Position {
+            best_square = squares.max(garden.get_carrots_at)
+        }
+
+        private method eat_carrots() returns eaten:Carrots {
+            eaten = garden.eat_carrots_at(position)
+        }
+
+        private method move() returns moved:boolean {
+            squares = garden.get_possible_moves()
+            if (choices.is_empty) {
+                moved = false
+            } else {
+                position := choose_best_square(squares)
+                moved = true
+            }
+        }
+    }
+}

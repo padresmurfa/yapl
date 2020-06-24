@@ -1,0 +1,17 @@
+module Collections.Dictionary {
+
+    // a dictionary is an iterable, countable container of keyvals
+
+    // dictionary dereferencing via [] operator is a source of bugs, as it is a convenient
+    // syntax that encourages accessing the mapping without checking whether or not
+    // the accessed key is actually in the array, or defining the behaviour in case
+    // it is not there
+
+    private m:Dictionary[key=int,value=string]
+
+    function instantiation_empty() { m = Dictionary[key=int, value=string]() }
+    function instantiation_with_initial_values_from_seq() { m = Dictionary[key=int, value=string]([
+        [1, "one"],
+        [2, "two"]
+    ])}
+}

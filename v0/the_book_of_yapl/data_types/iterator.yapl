@@ -1,0 +1,10 @@
+module DataTypes.Iterator {
+
+    private iterator:Iterator[string]
+
+    function has_next_element() { iterator.has_next }
+    function get_next_element() { iterator.next }
+
+    function to_iterable() { iterator.as[iterable] }
+
+}

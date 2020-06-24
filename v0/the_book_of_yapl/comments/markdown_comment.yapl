@@ -1,0 +1,5 @@
+module MarkdownComment {
+    /#
+        **This** is a *markdown* comment.
+    #/
+}

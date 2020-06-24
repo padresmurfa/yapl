@@ -1,0 +1,9 @@
+module Collections.Traits.Countable {
+
+    // a countable is a container with a known number of elements
+
+    private countable:Countable[string]
+
+    function count() { countable.count }
+
+}

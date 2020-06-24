@@ -1,0 +1,67 @@
+module DataTypes.Primitives.Numeric.Unsigned {
+
+    // warning: not all target languages will enforce this at runtime (e.g. Java, Scala, Python, Ruby, PHP)
+
+    function synonyms() {
+        u8:uint8 = 0
+        u16:uint16 = 0
+        u32:uint32 = 0
+        u64:uint64 = 0
+    }
+    
+    function unsigned8_operations() {
+        u:unsigned8 := 0
+        u := u + 2
+        u := u - 1
+        u := u * 3
+        u := u / 2
+        u += 13
+        u -= 12
+        u *= 2
+        u /= 2
+        ma = Unsigned8.max
+        mi = Unsigned8.min
+    }
+
+    function unsigned16_operations() {
+        u:unsigned16 := 0
+        u := u + 2
+        u := u - 1
+        u := u * 3
+        u := u / 2
+        u += 13
+        u -= 12
+        u *= 2
+        u /= 2
+        ma = Unsigned16.max
+        mi = Unsigned16.min
+    }
+        
+    function unsigned32_operations() {
+        u:unsigned32 := 0.0
+        u := u + 1.3
+        u := u - 1.2
+        u := u * 2.2
+        u := u / 2.3
+        u += 13.1
+        u -= 12.1
+        u *= 22.1
+        u /= 23.1
+        ma = Unsigned32.max
+        mi = Unsigned32.min
+    }
+
+    function unsigned64_operations() {
+        u:unsigned64 := 0.1
+        u := u + 1.2
+        u := u - 1.3
+        u := u * 2.4
+        u := u / 2.5
+        u += 13.1
+        u -= 12.1
+        u *= 22.1
+        u /= 23.1
+        ma = Unsigned64.max
+        mi = Unsigned64.min
+    }
+}

@@ -1,0 +1,21 @@
+/*
+    A container for type definitions used in this solution
+*/
+module Types {
+
+    // @Carrots: an unsigned integer, representing a number of carrots
+    alias Carrots:uint
+
+    // @Matrix: a 2-dimensional array, representing a garden. Each value in the array represents the number of carrots
+    //         that can be found in that square of the garden.
+    alias Matrix:Array[Array[Carrots]]
+
+    // @Position: an abstraction for a (possibly out-of-bounds) square position within a garden
+    structure Position {
+        // @row: the row offset, corresponding to the outermost array in the 2-dimensional array that represents a garden
+        public row:int
+
+        // @col: the column offset, corresponding to the innermost array in the 2-dimensional array that represents a garden
+        public col:int
+    }
+}

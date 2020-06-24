@@ -1,0 +1,12 @@
+#!/usr/bin/env yapl
+
+process ClassicProcess {
+    from FileSystem import Filename
+
+    // @main:
+    //     This is the traditional form of main, accepting the program name and an array of arguments
+    // @program: The filename of this program
+    // @clargs: The command line arguments passed to the program
+    function main(program:Filename, clargs:Array[String]) returns error_number:int {
+    }
+}

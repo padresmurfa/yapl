@@ -1,0 +1,30 @@
+#!/usr/bin/env yapl
+
+process DependencyInjectionProcess {
+
+    structure User {
+        // id: the user-id of the user
+        public id:Identifier
+    }
+
+    // @do_something: Does something cool, in the context of a user
+    // @what: The cool thing
+    // @user: The user that is doing the cool thing
+    function do_something(what:String) dependency (user:Optional[User]) {
+    }
+
+    // @proves_the_point:
+    //     Proves the point that context variables traverse down the stack implicitly, and look like global variables
+    //     to code further down the call stack, which can access them by closing over them. They are not truly global
+    //     however, as they are stack-based.
+    function proves_the_point() {
+        do_something("asdf")
+    }
+
+    function main() {
+        user = User(Identifier("padre"))
+        inject (user) into {
+            proves_the_point()
+        }
+    }
+}

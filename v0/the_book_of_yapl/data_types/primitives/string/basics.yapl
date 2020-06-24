@@ -1,0 +1,69 @@
+module DataTypes.Primitive.String.Basics {
+
+    // see: https://vocajs.com/
+
+    // BASICS
+
+    test String.to_char {
+        "should convert a string of length 1 to a character" {
+            s = "a"
+            c = s.to_char
+            assert(c).equals('a')
+        }
+
+        "should fail to convert a string of length 2+ to a character" {
+            s = "as"
+            function foo() {
+                c = s.to_char
+            }
+            assert(foo).throws(String.to_char.string_too_long)
+        }
+
+        "should fail to convert an empty string to a character" {
+            s = ""
+            function foo() {
+                c = s.to_char
+            }
+            assert(foo).throws(String.to_char.string_is_empty)
+        }
+    }
+
+    test String.length {
+        "should return 0 for an empty string" {
+            s = ""
+            length = s.length
+            assert(length).equals(0)
+        }
+        "should return the string length" {
+            s = "asdf"
+            length = s.length
+            assert(length).equals(4)
+        }
+    }
+
+    test String.is_empty {
+        "should return false if the string is not empty" {
+            non_empty = "asdf"
+            is_empty = non_empty.is_empty
+            assert(is_empty).is.false
+        }
+        "should return true if the string is empty" {
+            empty = ""
+            is_empty = empty.is_empty
+            assert(is_empty).is.true
+        }
+    }
+
+    test String.is_not_empty {
+        "should return true if the string is not empty" {
+            non_empty = "asdf"
+            is_empty = non_empty.is_not_empty
+            assert(is_empty).is.true
+        }
+        "should return false if the string is empty" {
+            empty = ""
+            is_empty = empty.is_not_empty
+            assert(is_empty).is.false
+        }
+    }
+}

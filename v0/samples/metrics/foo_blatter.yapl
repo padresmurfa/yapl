@@ -1,0 +1,12 @@
+module FooBlatter {
+
+    from DataDog import Counter
+
+    private c_bar_foo_baz:Counter = Counter("bar.foo.baz")
+
+    function foo() {
+        c_bar_foo_baz.inc()
+        c = Counter("bar.foo.bark[foobar=1234]")
+        c.inc()
+    }
+}

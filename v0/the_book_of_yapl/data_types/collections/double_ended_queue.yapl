@@ -1,0 +1,19 @@
+module Collections.DoubleEndedQueue {
+
+    // A double-ended-queue is a countable container
+
+    private s:DoubleEndedQueue[string]
+
+    function instantiation_empty() { s = DoubleEndedQueue[int]() }
+    function instantiation_with_initial_values_from_seq() { s = DoubleEndedQueue([1, 2]) }
+
+    function front_enqueue() { s.front.enqueue(1) }
+    function front_dequeue() { i = s.front.dequeue() }
+    function front_dequeue_many() { m = s.front.dequeue(3) }
+    function front_peek() { i = s.front.peek() }
+
+    function rear_enqueue() { s.rear.enqueue(1) }
+    function rear_dequeue() { i = s.rear.dequeue() }
+    function rear_dequeue_many() { m = s.rear.dequeue(3) }
+    function rear_peek() { i = s.rear.peek() }
+}

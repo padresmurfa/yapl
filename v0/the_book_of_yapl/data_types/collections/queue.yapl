@@ -1,0 +1,15 @@
+module Collections.Queue {
+
+    // A queue is a countable container
+
+    private s:Queue[string]
+
+    function instantiation_empty() { s = Queue[int]() }
+    function instantiation_with_initial_values_from_seq() { s = Queue([1, 2]) }
+
+    function enqueue() { s.enqueue(1) }
+    function dequeue() { i = s.dequeue() }
+    function dequeue_many() { m = s.dequeue(3) }
+    function peek() { i = s.peek() }
+
+}

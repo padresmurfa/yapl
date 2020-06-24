@@ -1,0 +1,25 @@
+Formula to calculate compound interest annually is given by:
+
+Compound Interest = P(1 + R/100)r
+Where,
+P is principle amount
+R is the rate and
+T is the time span
+
+#!/usr/bin/env yapl
+
+process CompoundInterest {
+
+    from StandardIO import StandardInput, StandardOutput
+
+    function main() dependency (stdin:StandardInput, stdout:StandardOutput) {
+        principal = stdin.read_line[decimal32]("Principal:  ")
+        time = stdin.read_line[decimal32]("Time:  ")
+        interest_rate = stdin.read_line[decimal32]("Interest:  ")
+
+        compound_interest = principle * Math.power((1 + interest_rate / 100), time)
+
+        stdout.write_line("Compound interest: ${compound_interest:.2}")
+    }
+
+}

@@ -1,0 +1,23 @@
+#!/usr/bin/env yapl
+
+module Main {
+
+    class TestArgs {
+        // input is a private variable
+        input = Argument(help="the input yapl file")
+    }
+
+    // main function
+    function main(a:TestArgs) {
+        if (not a.input.isEmpty()) {
+            // see if we can open the file
+            // args is a keyword, so args.input is a property access.
+            // Rvalue doesn't seem to like that.
+            f = File.open(a.input, File.Mode.READONLY)
+            l = 1.2323E+3
+            j = 12323
+        } else {
+            x = false
+        }
+    }
+}

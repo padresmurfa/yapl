@@ -1,0 +1,19 @@
+module Collections.Array {
+
+    // Arrays are containers that are iterable, enumerable and countable.
+    //
+    // An array is ordered by item-index and uses a packed-index, (i.e. no holes, starts at the default value)
+
+    // indexable arrays are overused and inferior to other collections in many cases
+    // also it is unclear whether a mutable or immutable array should be used, and
+    // a resizable or fixed size one.
+    // yapl does not provide array-indexing operator to encourage the use of the
+    // correct collection type for each purpose, rather than a generic array
+    // array indexing syntax also is poor for removals
+    
+    private a:Array[string]
+
+    function instantiation_empty() { a = Array[int]() }
+    function instantiation_with_initial_values_from_seq() { a = Array([1, 2]) }
+
+}

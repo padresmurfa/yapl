@@ -1,0 +1,30 @@
+module Collections.Traits.Enumerable {
+
+    // enumerable is an iterable, countable container
+
+    // it is a linter error to use 'get' or 'at' with a known constant value of first/last
+    // it is a linter error to use 'after' with a known constant value that is the last index
+    // it is a linter error to use 'before' with a known constant first value
+    // it is a linter error to uses reversed.find
+
+    private enumerable:Enumerable[string]
+
+    function get() { enumerable.first.get }
+
+    function reference_at() { v = enumerable.at(0) }
+    function reference_after() { v = enumerable.after(0) }
+    function reference_before() { v = enumerable.before(1) }
+    function reference_last() { x = enumerable.last }
+    function reference_first() { x = enumerable.first }
+
+    // the maybe operator can be used before any relative offset, to return
+    // an optional value
+    function reference_if_not_out_of_bounds() { maybe_x = enumerable.maybe.last }
+
+    function iterate_from_end() { ri = enumerable.reversed }
+    function reduce_right() { rv = enumerable.reversed.reduce(0, reducing_function) }
+    function find_by_required_value_reversed() { i = iterable.find_last("value") }
+
+    function bounds_checking() { e = enumerable.bounds.within(3) }
+
+}

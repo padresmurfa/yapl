@@ -1,0 +1,13 @@
+module DataTypes.Constrained {
+
+    // constraints support compile-time checking
+
+    alias ascii_char:constrained[base=int16, min=0, max=255]
+    alias celsius:constrained[base=float32, min=-237.15]
+    alias name:constrained[base=string, max_length=200]
+    alias cats_and_dogs:constrained[base=string, enumerates=["cat","dog"]]
+
+    alias math_natural_numbers:constrained[base=Math.Integer, min=1]
+    alias math_whole_numbers:constrained[base=Math.Integer, min=0]
+    alias math_negative_integers:constrained[base=Math.Integer, max=-1]
+}

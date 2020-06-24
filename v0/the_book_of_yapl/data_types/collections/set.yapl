@@ -1,0 +1,9 @@
+module Collections.Set {
+
+    // a set is an iterable, countable, container of keys
+
+    private m:Set[key=int]
+
+    function instantiation_empty() { m = Set[key=int]() }
+    function instantiation_with_initial_values_from_seq() { m = Set[key=int]([1,2])}
+}

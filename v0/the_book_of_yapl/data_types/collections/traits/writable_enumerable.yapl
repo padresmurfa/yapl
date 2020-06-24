@@ -1,0 +1,18 @@
+module Collections.Traits.WritableEnumerable {
+
+    private enumerable:WritableEnumerable[string]
+
+    function replace() { enumerable = enumerable.at(0).set(v) }
+    function replace() { enumerable = enumerable.set(0, v) }
+    function append() { enumerable = enumerable.append(v) }
+    function prepend() { enumerable = enumerable.prepend(v) }
+    function remove_at() { enumerable = enumerable.at(0).remove }
+    function remove_optional() { enumerable = enumerable.maybe.at(0).remove }
+    function replace_all(0 { enumerable = enumerable.all.set(v) }
+
+    // updating mutable enumerables, use the inplace chaining operator
+    function update { enumerable.inplace.set(0, "value") }
+
+    // getting the previous value in an inplace enumerable mutation
+    function prev() { previous = enumerable.inplace.last.remove("value") }
+}

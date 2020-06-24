@@ -1,0 +1,13 @@
+module Collections.Traits.Container {
+
+    // A container is a content-addressable collection. It is the lowest common denominator for collections
+
+    private container:Container[int]
+
+    function is_empty() { container.is_empty() }
+    function is_not_empty() { container.is_not_empty() }
+
+    function contains_value() { e = container.contains("value") }
+
+    function typecast_to_iterable() { x in container }
+}

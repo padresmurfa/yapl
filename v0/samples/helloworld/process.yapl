@@ -1,0 +1,10 @@
+#!/usr/bin/env yapl
+
+process HelloWorld {
+
+    from StandardIO import StandardOutput
+
+    function main() dependency (stdout:StandardOutput) {
+        stdout.write_line("Hello World!")
+    }
+}

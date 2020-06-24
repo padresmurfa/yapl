@@ -1,0 +1,15 @@
+#!/usr/bin/env yapl
+
+process NouveauProcess {
+    from FileSystem import Filename
+    from Process import CommandLineArguments, ErrorNumber
+
+    /* TODO: solve the command line arguments declaration concept */
+
+    // @main:
+    //   This is the neuveau form of main, with a standard arguments parser
+    // @clargs:
+    //    The command line arguments, as an object.
+    function main(clargs:CommandLineArguments) throws ErrorNumber {
+    }
+}

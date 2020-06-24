@@ -1,0 +1,44 @@
+module DataTypes.Primitives.Numeric.Decimal {
+
+    // see: https://en.wikipedia.org/wiki/Decimal32_floating-point_format
+    // warning: this is not a platform-independent representation
+
+    function synonyms() {
+        d32:dec32 = 0
+        d64:dec64 = 0
+    }
+
+    function decimal32_operations() {
+        d:decimal32 := 0.0
+        d := d + 1.3
+        d := d - 1.2
+        d := d * 2.2
+        d := d / 2.3
+        d += 13.1
+        d -= 12.1
+        d *= 22.1
+        d /= 23.1
+        ma = Decimal32.max
+        mi = Decimal32.min
+    }
+
+    function decimal64_operations() {
+        d:decimal64 := 0.1
+        d := d + 1.2
+        d := d - 1.3
+        d := d * 2.4
+        d := d / 2.5
+        d += 13.1
+        d -= 12.1
+        d *= 22.1
+        d /= 23.1
+        ma = Decimal64.max
+        mi = Decimal64.min
+    }
+
+    function conversion() {
+        d:decimal64 := 0.1
+        f32 = d.as[float32]
+        f64 = d.as[float64]
+    }
+}

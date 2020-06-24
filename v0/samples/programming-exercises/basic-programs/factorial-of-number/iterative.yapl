@@ -1,0 +1,24 @@
+#!/usr/bin/env yapl
+
+process Iterative {
+
+    from StandardIO import StandardInput, StandardOutput
+
+    function main() dependency (stdin:StandardInput, stdout:StandardOutput) {
+        num = stdin.read_line[int32]("Number:  ")
+        result = factorial(num)
+        stdout.write_line("Factorial of $num is $sum")
+    }
+
+    // @factorial: returns the factorial of the input number
+    // @input: the input value
+    // @result: the resulting factorial of the input
+    function factorial(input:unsigned) returns result:unsigned {
+        cursor := input
+        tmp := 1
+        while (input > 0) {
+            tmp := tmp * input
+        }
+        result = tmp
+    }
+}

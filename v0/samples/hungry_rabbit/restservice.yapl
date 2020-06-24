@@ -1,0 +1,16 @@
+#!/usr/bin/env yapl
+
+restservice HungryRabbitRestService {
+    from impl import HungryRabbit, Types
+
+    private total_eaten:uint32 = 0
+
+    function post(matrix:Matrix) returns eaten:Carrots {
+        eaten = HungryRabbit.forage(matrix)
+        total_eaten += eaten
+    }
+
+    function get() returns eaten:Carrots {
+        eaten = total_eaten
+    }
+}

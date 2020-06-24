@@ -1,0 +1,15 @@
+module SemanticComment {
+
+    /`
+        eat_carrots_at: clears the **carrots** at the given **position**, and returns how many *carrots*
+                       were **eaten** by the *rabbit*
+        --------------------------------------------------------------------------------------------------
+        position: the **position** to eat *carrots* at
+        --------------------------------------------------------------------------------------------------
+        eaten: the number of *carrots* that were **eaten**
+    `/
+    function eat_carrots_at(position:Tuple[int,int]) returns eaten:int {
+        eaten = 0
+    }
+
+}

@@ -1,0 +1,17 @@
+#!/usr/bin/env yapl
+
+process SimpleInterest {
+
+    from StandardIO import StandardInput, StandardOutput
+
+    function main() dependency (stdin:StandardInput, stdout:StandardOutput) {
+        principal = stdin.read_line[decimal32]("Principal:  ")
+        time = stdin.read_line[decimal32]("Time:  ")
+        interest_rate = stdin.read_line[decimal32]("Interest:  ")
+
+        simple_interest = principal * time * interest_rate / 100
+
+        stdout.write_line("Simple interest: ${simple_interest:.2}")
+    }
+
+}

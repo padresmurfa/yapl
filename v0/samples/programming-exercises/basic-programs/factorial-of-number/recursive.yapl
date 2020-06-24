@@ -1,0 +1,25 @@
+#!/usr/bin/env yapl
+
+process Recursive {
+
+    from StandardIO import StandardInput, StandardOutput
+
+    function main() dependency (stdin:StandardInput, stdout:StandardOutput) {
+        num = stdin.read_line[int32]("Number:  ")
+        result = factorial(num)
+        stdout.write_line("Factorial of $num is $sum")
+    }
+
+    // @factorial: returns the factorial of the input number
+    // @input: the input value
+    // @result: the result value
+    function factorial(input:unsigned) returns result:unsigned {
+        // the transpiler will note that this function is tail-recursive, and
+        // may optimize accordingly
+        if (input <= 0) {
+            result = 1
+        } else {
+            result = input * factorial(input - 1)
+        }
+    }
+}

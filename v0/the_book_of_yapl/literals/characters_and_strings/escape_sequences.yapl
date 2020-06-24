@@ -1,0 +1,13 @@
+module EscapeSequences {
+    constants {
+        HORIZONTAL_TAB = "\t"
+        LINE_FEED = "\n"
+        CARRIAGE_RETURN = "\r"
+        DOUBLE_QUOTE = "\""
+        BACK_SLASH = "\\"
+        DOLLAR_SIGN = "\$"
+        NAMED_UNICODE_CHARACTER = "\N{grinning face}"
+        UNICODE_16BIT_HEX = "\u{BEEF}"
+        UNICODE_32BIT_HEX = "\u{FEEDBEEF}"
+    }
+}

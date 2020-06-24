@@ -1,0 +1,14 @@
+#!/usr/bin/env yapl
+
+service {
+    import HungryRabbit, Types
+
+    // @hungry_rabbit:
+    //     Solves a hungry-rabbit problem
+    // @matrix: the garden matrix, a 2D matrix representing a garden split into squares, where each
+    //          square contains 0 or more carrots
+    // @eaten: the number of carrots that were eaten, or 0 if no carrots were eaten.
+    function hungry_rabbit(matrix:Matrix) returns eaten:Carrots {
+        eaten = HungryRabbit.forage(matrix)
+    }
+}

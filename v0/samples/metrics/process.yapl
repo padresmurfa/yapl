@@ -1,0 +1,12 @@
+#!/usr/bin/env yapl
+
+process LoggingProcess {
+
+    from DataDog import Metrics
+    from FooBlatter import foo
+
+    function main() {
+        Metrics.initialise()
+        foo()
+    }
+}

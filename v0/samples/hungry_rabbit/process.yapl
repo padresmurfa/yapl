@@ -1,0 +1,13 @@
+#!/usr/bin/env yapl
+
+process HungryRabbitProcess {
+    from impl import HungryRabbit
+
+    function main() {
+        matrix = [
+            [0, 2, 3],
+            [1, 2, 5]
+        ]
+        eaten = HungryRabbit.forage(matrix)
+    }
+}

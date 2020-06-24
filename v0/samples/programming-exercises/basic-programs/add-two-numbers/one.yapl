@@ -1,0 +1,21 @@
+#!/usr/bin/env yapl
+
+process One {
+
+    from StandardIO import StandardOutput
+
+    // @main: YAPL program to add two numbers
+    function main() dependency (stdout:StandardOutput) {
+        num1 = 15
+        num2 = 12
+
+        // add the two numbers
+        sum = num1 + num2
+
+        // formatting strings
+        output = "Sum of $num1 and $num2 is $sum"
+
+        // printing values
+        stdout.write_line(output)
+    }
+}

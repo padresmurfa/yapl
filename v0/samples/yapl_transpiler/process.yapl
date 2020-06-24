@@ -1,0 +1,29 @@
+#!/usr/bin/env yapl
+
+process YaplTranspiler {
+    import AbstractSyntaxTree
+
+    from FileSystem import FileNotFound, Filename
+    from Process import ProcessArguments, ErrorNumber
+
+    function main(args:ProcessArguments) throws ErrorNumber {
+        args.declare(long = "input", short = "i", help = "the input yapl file", type = Filename)
+
+        input = args.get("input")
+        if (input.nonEmpty) {
+            ast = AbstractSyntaxTree()
+            ast.parse(input) throws parser_failure
+            emit stdout.write_line("Done")
+        } else {
+            args.print_usage()
+            throw ErrorNumber(-1)
+        }
+
+        on parser_failure(e:FileNotFound) {
+            emit stdout.write_line("File (", e.filename, ") is not accessible")
+            throw ErrorNumber(-2)
+        }
+        // NOTE: yapl considers it a syntax error to not catch every exception that is not declared to be thrown in
+        //       the function signature.
+    }
+}

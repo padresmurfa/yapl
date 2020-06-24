@@ -1,0 +1,25 @@
+module Mappings {
+
+    // a mapping is a collection of keyvals
+
+    // mapping dereferencing via [] operator is a source of bugs, as it is a convenient
+    // syntax that encourages accessing the mapping without checking whether or not
+    // the accessed key is actually in the array, or defining the behaviour in case
+    // it is not there
+
+    private m:Mapping[key=int,value=string]
+
+    // immutable mutation operations
+    function insert_or_update() { m = m.set(0, "value") }
+    function insert() { m = m.insert(0, "value") }
+    function update() { m = m.update(0, "value") }
+    function update_optional() { m = m.maybe.update(0, "value") }
+    function remove() { m = m.remove(0) }
+    function remove_optional() { m = m.maybe.remove(0) }
+
+    // updating mutable dictionaries
+    function update { m.inplace.set(0, "value") }
+
+    // getting the previous value in an inplace container mutation
+    function prev() { previous_last = m.inplace.remove(0) }
+}

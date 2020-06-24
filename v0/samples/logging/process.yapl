@@ -1,0 +1,18 @@
+#!/usr/bin/env yapl
+
+process LoggingProcess {
+
+    from SolarWinds import Loggly
+
+    function foo() {
+        logger.info.attach_stacktrace().log("This is a log message in the EmittersProcess")
+        logger.warning.once_per(seconds(15)).log("There is stuff attached")
+        logger.error.once_per(100).log("asdfasdf")
+        logger.info.json({foo: "blat"}})
+    }
+
+    function main() {
+        Loggly.initialise()
+        foo()
+    }
+}
