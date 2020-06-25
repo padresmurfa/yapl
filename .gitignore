@@ -1,9 +1,13 @@
-# ignore .idea directory entirely
+# IntelliJ IDEA
 .idea
+
+# git folder
+.git
 
 # ignore build output from yapl
 .yapl-build-output
 
 # ignore python build files
+__pycache__
 *.pyc
 *.pyo

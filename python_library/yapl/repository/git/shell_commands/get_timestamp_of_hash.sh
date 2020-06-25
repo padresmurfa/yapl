@@ -4,7 +4,11 @@
 set -e
 
 DIR_IN_REPOSITORY=$1
+HASH=$2
 
 pushd "$DIR_IN_REPOSITORY" >/dev/null
-git rev-parse HEAD
+
+git show --no-patch --no-notes --pretty='%cI' "$HASH"
+
 popd >/dev/null
+
