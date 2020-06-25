@@ -93,6 +93,7 @@ def get_locally_changed_files_from_path(path):
     output = shell_call.func("repository/git/shell_commands/get_local_changes", fullpath)
     lines = output.split("\n")
     for line in lines:
+        print("line: " + str(line))
         sections = line.split(" ")
         if len(sections) == 2 and sections[0] == "?":
             # untracked file
