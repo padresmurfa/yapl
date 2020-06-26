@@ -1,5 +1,6 @@
 module Rabbit {
-    import Types
+    import * from Types
+    import Garden
 
     // @Rabbit: an abstraction for a hungry, foraging rabbit
     class Rabbit {
@@ -23,7 +24,7 @@ module Rabbit {
             foraged := 0
             do {
                 foraged += eat_carrots()
-            } while (rabbit.move())
+            } while (move())
             eaten = foraged
         }
 
