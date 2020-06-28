@@ -1,5 +1,5 @@
-module Garden {
-    import Types
+module garden {
+    import * from types
 
     // @Garden: An abstraction for a garden that can be foraged for carrots.
     class Garden {

@@ -1,6 +1,6 @@
-module Rabbit {
-    import * from Types
-    import Garden
+module rabbit {
+    import * from types
+    import Garden from garden
 
     // @Rabbit: an abstraction for a hungry, foraging rabbit
     class Rabbit {

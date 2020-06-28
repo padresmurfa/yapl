@@ -1,7 +1,7 @@
 #!/usr/bin/env yapl
 
-process HungryRabbitProcess {
-    from impl import HungryRabbit
+process hungry_rabbit_process {
+    import HungryRabbit from impl.hungry_rabbit
 
     function main() {
         matrix = [

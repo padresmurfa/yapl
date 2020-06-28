@@ -1,7 +1,8 @@
 #!/usr/bin/env yapl
 
-service HungryRabbitService {
-    from impl import HungryRabbit, Types
+service hungry_rabbit_service {
+    import HungryRabbit from impl.hungry_rabbit
+    import Matrix, Carrots from impl.types
 
     function hungry_rabbit(matrix:Matrix) returns eaten:Carrots {
         eaten = HungryRabbit.forage(matrix)

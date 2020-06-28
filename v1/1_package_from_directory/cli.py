@@ -43,7 +43,11 @@ def _get_local_changes(source_folder):
     changed = {}
     for hash, filename in local_changes:
         if filename.startswith(local_root):
-            changed[filename] = hash
+            test = filename[len(local_root):]
+            if test.startswith(os.path.sep):
+                test = test[1:]
+            if os.path.sep not in test:
+                changed[filename] = hash
     return changed
 
 def _copy_file(source_filename, files_folder, root, metadata_files, locally_changed=False):

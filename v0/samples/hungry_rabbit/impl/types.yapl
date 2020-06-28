@@ -1,7 +1,7 @@
 /*
     A container for type definitions used in this solution
 */
-module Types {
+module types {
 
     // @Carrots: an unsigned integer, representing a number of carrots
     alias Carrots:uint

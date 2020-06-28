@@ -1,7 +1,8 @@
 #!/usr/bin/env yapl
 
-restservice HungryRabbitRestService {
-    from impl import HungryRabbit, Types
+restservice hungry_rabbit_restservice {
+    import HungryRabbit from impl.hungry_rabbit
+    import Matrix, Carrots from impl.types
 
     private total_eaten:uint32 = 0
 
