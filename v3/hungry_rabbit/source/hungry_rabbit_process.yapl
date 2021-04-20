@@ -1,0 +1,19 @@
+// The Hungry Rabbit process contains the main function that drives the solution.
+module "Hungry Rabbit Process"
+
+    imports
+
+        from impl.Types: Carrots, Matrix
+        from impl.HungryRabbit: forage
+
+    contains
+
+        // The main routine of the hungry rabbit process.
+        export function main() returns nothing
+
+            matrix = [       \
+                [ 0, 2, 3 ], \
+                [ 1, 2, 5 ]  \
+            ]
+
+            ignored = HungryRabbit.forage(matrix)

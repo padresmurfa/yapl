@@ -1,0 +1,22 @@
+// An abstraction for a (possibly out-of-bounds) square position within a garden
+class Position {
+
+    # The $row offset, corresponding to the outermost array in the 2-dimensional array that represents a garden
+    public row:UInteger
+
+    # The $column offset, corresponding to the innermost array in the 2-dimensional array that represents a garden
+    public column:UInteger
+
+    public constructor new() {
+        self.row = 0
+        self.column = 0
+    }
+
+    public constructor new(
+        row:UInteger,
+        column:UInteger
+    ){
+        self.row = row
+        self.column = column
+    }
+}

@@ -1,0 +1,17 @@
+------------------------------------------------------------------------------------------------------------------------
+-- The Hungry Rabbit process contains the main function that drives the solution.
+------------------------------------------------------------------------------------------------------------------------
+module main
+
+from hungry_rabbit_implementation.hungry_rabbit import HungryRabbit
+
+------------------------------------------------------------------------------------------------------------------------
+-- Runs the hungry rabbit algorithm. This is the main routine of the hungry rabbit process.
+------------------------------------------------------------------------------------------------------------------------
+export function main
+    body
+        matrix = [          \
+            [ 0, 2, 3 ],    \
+            [ 1, 2, 5 ]     \
+        ]
+        discard HungryRabbit.forage(matrix_to_forage=matrix)

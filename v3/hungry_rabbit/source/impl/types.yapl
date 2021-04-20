@@ -1,0 +1,24 @@
+// A container for type definitions used in this solution
+module Types
+
+    contains
+
+        // An unsigned integer, representing a number of carrots.
+        export alias Carrots:{integer, value >= 0, value <= 100}
+
+        // A 2-dimensional array, representing a garden. Each value in the array represents the number of
+        // carrots that can be found in that square of the garden.
+        alias Matrix:{[[Carrots]], value.length >= 1, value[0].length >= 1}
+
+        // An abstraction for a (possibly out-of-bounds) square position within a garden.
+        structure Position
+
+            public instance values
+
+                // The row offset, corresponding to the outermost array in a 2-dimensional array that
+                // represents a garden.
+                row:{integer, value >= 0, value <= 1000}
+
+                // The column offset, corresponding to the innermost array in the 2-dimensional array that
+                // represents a garden.
+                column:{integer, value >= 0, value <= 1000}

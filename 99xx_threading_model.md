@@ -1,5 +1,9 @@
 sidenote:
 ==========
+We should have support for multihoming directories and symlinks
+
+sidenote:
+==========
 closures vs lambdas: https://stackoverflow.com/questions/220658/what-is-the-difference-between-a-closure-and-a-lambda
 
 // a closure is a function that closes over some variables in it's parent's scope

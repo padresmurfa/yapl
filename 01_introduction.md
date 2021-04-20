@@ -4,7 +4,7 @@ YAPL is a general-purpose language design with code reusability, readability and
 
 It is strongly typed, object-oriented, functional and memory-ownership / garbage-collected.
 
-YAPL is intended to be transpiled into other languages, but may also be compiled or interpreted directly.
+YAPL is intended first and foremost to be transpiled into other languages, but may also be compiled or interpreted directly.
 
 The grammar is explicit and regular, allowing for easy analysis by automatic tools such as integrated development environments.
 
@@ -34,9 +34,9 @@ Surprising syntax and semantics are avoided in YAPL, such as:
 
 ## 1.4. Memory management
 
-YAPL transpiles to languages and environments that are garbage-collected (e.g. Java), use memory-ownership (e.g. Rust) and use smart-pointers (e.g. C++) have manual memory management (e.g. C)
+YAPL transpiles to languages and environments that are garbage-collected (e.g. Java), use memory-ownership (e.g. Rust), use smart-pointers (e.g. C++), and have manual memory management (e.g. C)
 
-To ensure that all target environments can be supported, YAPL syntax relies on ownership tracking.
+To ensure that all of these target environments can be supported, YAPL syntax relies on ownership tracking.
 
 An object can be owned by a reference on a stack, or by a reference that can be tracked to a singleton, such as a static collection. A reference may also be owned by a shared reference tracker.
 
@@ -46,5 +46,7 @@ YAPL strictly enforces whitespace rules, including INDENT/DEDENT rules akin to P
 
 # 1.6. Explicit Precedence
 
-YAPL avoids implicit precedence rules that may vary between different programming languages. The basic mathematical operators are however supported (+, -, *, /)
+YAPL avoids implicit precedence rules that may vary between different programming languages. The precedence of basic mathematical operators are however supported (+, -, *, /)
+
+The order of operations must otherwise be made explicit, e.g. through the use of parenthesis.
 

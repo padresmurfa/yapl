@@ -1,0 +1,74 @@
+// Contains the Rabbit class, an abstraction for a hungry, foraging rabbit
+module Rabbit
+
+    imports
+
+        from Types: Carrots, Matrix, Position
+        from Garden: Garden
+
+    contains
+
+        // An abstraction for a hungry, foraging, rabbit
+        export class Rabbit
+
+            public constructors
+
+                // Constructs a Rabbit
+                // in_garden: the 'Garden' that the Rabbit should forage in
+                constructor default(in_garden:Garden)
+
+                    garden = in_garden
+                    position = choose_best_square(garden.get_possible_centers())
+
+
+            public instance methods
+
+                // Makes the rabbit go foraging for carrots in the garden.
+                // eaten: the number of carrots that the rabbit ate during its foraging spree.
+                method forage() returns eaten:Carrots
+
+                    eaten = 0
+                    do
+                        eaten += eat_carrots()
+                    while move()
+                    return eaten
+
+
+            private instance values
+
+                // The 'Garden' that this Rabbit is foraging in
+                garden:{Garden, value is not null, immutable}
+
+                // The position of this Rabbit within 'garden'
+                position:{Position, mutable, value is not null}
+
+
+            private instance methods
+
+                // Chooses the best square to forage in next, from among the specified squares, returning the choice
+                // squares: the squares to choose from
+                // best_square: the square that was determined to be the best
+                method choose_best_square(squares:{enumerable containing Position}) returns best_square:Position
+
+                    return best_square = squares.maximal(garden.get_carrots_at)
+
+
+                // Eats the carrots at the rabbit's current position
+                // eaten: The number of carrots that were eaten
+                method eat_carrots() returns eaten:Carrots
+
+                    return eaten = garden.eat_carrots_at(position)
+
+
+                // Moves the rabbit to the best possible square, from the current position, for
+                // foraging.
+                // moved: True if the rabbit moved. False otherwise.
+                method move() returns moved:boolean
+
+                    choices = garden.get_possible_moves()
+                    if choices.is_empty
+                        moved = false
+                    else
+                        position = choose_best_square(choices)
+                        moved = true
+

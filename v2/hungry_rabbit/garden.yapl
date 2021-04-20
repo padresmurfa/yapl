@@ -1,0 +1,196 @@
+import Column, Row, Matrix from matrix
+import Position from position
+
+type Matrix = types.Matrix where not Matrix.is_empty
+type UInteger = integer where UInteger >= 0
+type PositiveInteger = integer where PositiveInteger > 0
+type SquareOffset = SquareOffset in {1, -1}
+
+# An abstraction for a garden that can be foraged for carrots.
+class Garden {
+
+    # Default constructor
+    public constructor new(
+        # the initial state $matrix of the garden
+        matrix: Matrix
+    ){
+        self.matrix = matrix
+    }
+
+    # Retrieve a list of squares that could be considered the ${possible centers} of the garden
+    public generator method get_possible_centers(
+        # the ${possible centers} of the garden
+        yields possible_centers as possible_center:Position
+    ){
+        ## determining the ${possible rows}
+        possible_rows = get_possible_choices_for_centers(self.rows)
+
+        ## determining the ${possible columns}
+        possible_columns = get_possible_choices_for_centers(self.columns)
+
+        ## iterating over each $row in $possible_rows
+        for (row in possible_rows) {
+
+            ## iterating over each $column in $possible_columns
+            for (column in possible_columns) {
+                ## yielding a $possible_center, given $possible_row and $possible_col
+                possible_row = row + self.rows / 2
+                possible_col = column + self.columns / 2
+                yield possible_center := new Position(possible_row, possible_col)
+            }
+        }
+    }
+
+    # Retrieve a list of possible $moves within the garden, from a given $position
+    public generator method get_possible_moves(
+        # the starting $position to retrieve legal $moves around
+        position:Position
+        # the legal $moves within the garden, given the specified $position
+        yields moves from move:Position
+    ){
+        ## $position must be within the bounds of the matrix
+        constraint self.within_bounds(position)
+
+        ## determine what $theoretically_possible_moves could
+        theoretically_possible_moves = List.concatenate(
+            get_pair_of_squares(position, -1),
+            get_pair_of_squares(position, 1)
+        )
+
+        ## iterating over each $square in $squares
+        for (theoretically_possible_move in theoretically_possible_moves) {
+
+            ## determining if the $square ${is within bounds}
+            is_within_bounds = self.within_bounds(theoretically_possible_move)
+            if (is_within_bounds) {
+
+                ## yielding the $square as a viable $move, as it ${is within bounds}
+                yield move := theoretically_possible_move
+            }
+        }
+    }
+
+    # Retrieve the number of $carrots in a given garden position
+    public method get_carrots_at(
+        # the position to get $carrots at
+        position:Position
+        # the number of $carrots in the $square
+        returns carrots:UInteger
+    ){
+        ## $position must be within bounds
+        constraint self.within_bounds(position)
+
+        ## finding the $row at $position
+        row = self.matrix.row(position.row)
+
+        ## finding the $square at $position
+        square = row.column(position.column)
+
+        ## determining the number of ${actual carrots} at [$row, $column]
+        actual_carrots = square.get()
+
+        ## returning the $carrots
+        return carrots = actual_carrots
+    }
+
+    # Clear the carrots at the given $position, and returns how many carrots were $eaten
+    public mutating method eat_carrots_at(
+        # the $position to eat $carrots at
+        position:Position
+        # the number of carrots that were $eaten
+        returns eaten:Carrots
+    ){
+        ## $position must be within bounds
+        constraint self.within_bounds(position)
+
+        ## determining the number of $carrots at the specified position
+        carrots = self.get_carrots_at(position)
+
+        ## finding the $row within ${self.matrix}
+        row = self.matrix.row(position.row)
+
+        ## finding the $square within $row
+        square = row.column(position.column)
+
+        ## eating the $carrots in the $square at the specified $position
+        square.set(0)
+
+        ## returning the number of $carrots that were $eaten
+        return eaten = carrots
+    }
+
+    # a bi-dimensional array of garden-squares, where each square contains the number of carrots that are
+    # currently to be found at that position in the garden
+    private matrix: Matrix
+
+    # the number of $rows in the garden $matrix
+    private property rows:UInteger {
+        ## returning the number of $rows within the garden
+        return rows = self.matrix.length
+    }
+
+    # the number of $columns in the garden $matrix
+    private property columns:UInteger {
+        ## retrieving the first $row within the garden
+        row = self.matrix.row(0)
+
+        ## returning the number of $columns within the first $row of the garden
+        return columns = row.length
+    }
+
+    # Determine whether or not a given $position ${is within bounds} of this garden
+    private method within_bounds(
+        # the $position to check whether is in our bounds, or not
+        position:Position
+        # whether or not the position ${is within bounds}
+        returns is_within_bounds:boolean
+    ){
+        ## determining whether the $position ${is within lower bounds}
+        is_within_lower_bounds = true
+
+        ## determining whether the $position ${is within upper bounds}
+        is_within_upper_bounds = position.row < self.rows and position.column < self.cols
+
+        ## returning whether the $position ${is within bounds} in general
+        return is_within_bounds = is_within_lower_bounds and is_within_upper_bounds
+    }
+
+    # Get the $possibilities, i.e. rows or columns, given a length of $number
+    private generator function get_possible_choices_for_centers(
+        # the $number of rows or columns to determine this for
+        number:PositiveInteger
+        # the $possibilities
+        yields possibilities from possibility:UInteger
+    ){
+        ## determining the primary $center possibility
+        center = number / 2
+        yield possibility := center
+
+        // Note that english only has 200 irregular verbs. they are special cases and equivalent in yapl.
+        ## determine whether we ${have secondary possibilities}, which we do if $number is even and the $center is positive
+        has_secondary_possibilities = number.is_even and center.is_positive
+        if (has_secondary_possibilities) {
+            ## yield the $possibility
+            yield possibility := center - 1
+        }
+    }
+
+    # Get a pair of $squares around a $position, given an $offset. It is not guaranteed that the $squares are
+    # within bounds
+    private generator function get_pair_of_squares(
+        # the $position to retrieve a pair of $squares for
+        position:Position
+        # the $offset, which should be -1 or +1
+        offset:SquareOffset
+        # the pair of $squares
+        yields squares from square:Position
+    ){
+        ## yielding the first $square, at $row
+        row = position.row + offset
+        yield square := new Position(row, position.column)
+
+        ## yielding the second $square, at $column
+        column = position.column + offset
+        yield square := new Position(position.row, column)
+    }
+}

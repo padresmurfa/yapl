@@ -1,0 +1,284 @@
+import os
+import io
+import yaml
+import hashlib
+
+from shared.file_reference import to_file_reference
+from shared.module_lines.actual_line import ActualLine
+
+class Manifest(object):
+
+    def __init__(self, transpilation_directory, sha256):
+        self.__module_sha256 = sha256
+        self.__module_lines_directory = os.path.join(transpilation_directory, "module_lines")
+        self.__lines_content_directory = os.path.join(transpilation_directory, "module_lines", sha256)
+        self.__module_filename = os.path.join(transpilation_directory, "modules", sha256 + ".yapl")
+        self.__manifest_filename = os.path.join(self.__lines_content_directory, "manifest.yaml")
+        self.__manifest_dict = None
+        self.__logical_lines = []
+        self.__content = {}
+        self.__contexts = {}
+
+    def parse(self):
+        actual_line_number = 1
+        with io.open(self.__module_filename, "r") as i:
+            actual_lines = []
+            actual_line = i.readline()
+            while actual_line:
+                parsed = ActualLine.parse(actual_line_number, actual_line)
+                if parsed is not None:
+                    actual_lines.append(parsed)
+                    self.__content[parsed.sha256] = parsed.content
+                actual_line_number += 1
+                actual_line = i.readline()
+            logical_line_number = 1
+            adder = []
+            comment_lines = []
+            root = None
+            context = {}
+            for actual_line in actual_lines:
+                if len(context) == 0 and actual_line.indent_level == 0:
+                    # special case for an empty context and indent 0, going from
+                    context[actual_line.indent_level] = actual_line.sha256
+                elif len(context) == actual_line.indent_level:
+                    # always update the context when at the same level, so that we have
+                    # the most recent context when indent starts increasing again
+                    context[actual_line.indent_level] = actual_line.sha256
+                elif len(context) == actual_line.indent_level - 1:
+                    # increasing indent by one is fine
+                    context[actual_line.indent_level] = actual_line.sha256
+                elif len(context) < actual_line.indent_level:
+                    # increasing indent by more than one is not
+                    assert False, "indentation error: indent level may only increase one step at a time"
+                elif len(context) > actual_line.indent_level:
+                    # decreasing indent is not limited
+                    while len(context) > actual_line.indent_level:
+                        del context[len(context)-1]
+                else:
+                    assert False, "this should be unreachable"
+                if actual_line.is_comment_line:
+                    comment_lines.append(actual_line)
+                elif actual_line.has_line_continuation_marker:
+                    adder.append(actual_line)
+                else:
+                    if adder:
+                        adder.append(actual_line)
+                        self.__logical_lines.append(self.__combine_actual_lines_into_logical_line(logical_line_number, root, context, comment_lines, adder))
+                        adder = []
+                    else:
+                        self.__logical_lines.append(self.__combine_actual_lines_into_logical_line(logical_line_number, root, context, comment_lines, [actual_line]))
+                    context[actual_line.indent_level] = self.__logical_lines[-1]["line"]["sha256"]
+                    if len(self.__logical_lines) == 1:
+                        # this is the module statement (or equivalent)
+                        root = context[actual_line.indent_level]
+                    comment_lines = []
+                    logical_line_number = logical_line_number + 1
+
+    def __classify_context(self, context_shas):
+        previous = []
+        if not context_shas:
+            return []
+        if len(context_shas) > 1:
+            previous = self.__classify_context(context_shas[:-1])
+        current_sha = context_shas[-1]
+        lines = [l for l in self.__content[current_sha].split("\n") if l and not l.startswith("--") and not l.startswith("@")]
+        assert len(lines) == 1
+        tokens = lines[-1].replace("  ", " ").split(" ")
+        def is_function(tokens):
+            t = tokens[0]
+            if tokens[0] == "export":
+                t = tokens[1]
+            return t == "function"
+        def is_class(tokens):
+            t = tokens[0]
+            if tokens[0] == "export":
+                t = tokens[1]
+            return t == "class"
+        def is_compound_value(tokens):
+            return tuple(tokens[:3]) == ("export", "compound", "value") \
+                or tuple(tokens[:2]) == ("compound", "value")
+        def is_for_each(tokens):
+            return tuple(tokens[:2]) == ("for", "each")
+        def is_infinite_loop(tokens):
+            return tuple(tokens[:2]) == ("infinite", "loop")
+        if tokens[0] in (
+                "module", "accepts", "returns", "yields", "body", "executable", "library",
+                "dependencies", "entrypoint", "scenario", "given", "when", "then",
+                "method", "generator", "project", "deployables", "libraries",
+                "if", "else",
+                "property", "getter", "setter",
+                "for",
+                "while", "until",
+                "repeat",
+                "scope"
+            ):
+            classification = tokens[0]
+        elif tokens[0] in ("public", "private", "protected"):
+            classification = "scoped_" + ("_".join(tokens[1:]))
+        elif tuple(tokens[:4]) == ("unit", "test", "suite", "for"):
+            classification = "unit_test_suite"
+        elif tuple(tokens[:2]) == ("unit", "test"):
+            classification = "unit_test"
+        elif tuple(tokens[:2]) == ("initialize", "instance"):
+            classification = "instance_initializer"
+        elif is_function(tokens):
+            classification = "function"
+        elif is_for_each(tokens):
+            classification = "for_each"
+        elif is_infinite_loop(tokens):
+            classification = "infinite_loop"
+        elif is_class(tokens):
+            classification = "class"
+        elif is_compound_value(tokens):
+            classification = "compound_value"
+        else:
+            classification = current_sha
+        return previous + [ classification ]
+
+    def __combine_actual_lines_into_logical_line(self, logical_line_number, root, context, comment_lines, actual_lines):
+        context_shas = []
+        shas = set()
+        for c in comment_lines:
+            shas.add(c.sha256)
+        for c in actual_lines:
+            shas.add(c.sha256)
+        # the module statement (or equivalent) should always be the first item on our context stack
+        if root is not None:
+            context_shas = [root]
+        for i in range(len(context)):
+            if i in context:
+                if context[i] not in shas:
+                    context_shas.append(context[i])
+        context_classification = (",".join(self.__classify_context(context_shas)))
+        if (len(comment_lines) + len(actual_lines)) == 1:
+            only_line = (comment_lines + actual_lines)[0]
+            if not self.__content[only_line.sha256].startswith("@"):
+                self.__content[only_line.sha256] = self.__content[only_line.sha256]
+            sha256 = only_line.sha256
+            result = {
+                "indent_level": only_line.indent_level,
+                "actual_line_number": only_line.actual_line_number,
+            }
+        else:
+            content = []
+            for actual_line in actual_lines:
+                if content and content[-1].endswith("\""):
+                    j = self.__join_strings(content[:-1], actual_line)
+                    if j is not None:
+                        content[-1] = j
+                        continue
+                c = self.__content[actual_line.sha256]
+                if c.endswith("\\"):
+                    c = c[:-1].rstrip()
+                content.append(c)
+            content = " ".join(content) + "\n"
+            if comment_lines:
+                content = ("\n".join([
+                    self.__content[actual_line.sha256]
+                    for actual_line in comment_lines
+                ])) + "\n" + content
+            h = hashlib.sha256()
+            h.update(content.encode("utf-8"))
+            sha256 = h.hexdigest()
+            self.__content[sha256] = content
+            actual_line_numbers = [actual_line.actual_line_number for actual_line in comment_lines] + [actual_line.actual_line_number for actual_line in actual_lines]
+            result = {
+                "indent_level": actual_lines[0].indent_level,
+                "actual_line_numbers": {
+                    "first": actual_line_numbers[0],
+                    "last": actual_line_numbers[-1],
+                },
+            }
+        if context_classification:
+            h = hashlib.sha256()
+            h.update(sha256.encode("utf-8"))
+            h.update("not-root".encode("utf-8"))
+            h.update(context_classification.encode("utf-8"))
+            context_sha256 = h.hexdigest()
+            result["context"] = {
+                "classification": context_classification,
+                "sha256": context_sha256
+            }
+        else:
+            h = hashlib.sha256()
+            h.update(sha256.encode("utf-8"))
+            h.update("root".encode("utf-8"))
+            context_sha256 = h.hexdigest()
+            result["context"] = {
+                "classification": "root",
+                "sha256": context_sha256
+            }
+        if "actual_line_number" in result:
+            actual_line_number = str(result["actual_line_number"])
+            actual_line_number = actual_line_number + ":" + actual_line_number
+        else:
+            actual_line_number = str(result["actual_line_numbers"]["first"]) + ":" + str(result["actual_line_numbers"]["last"])
+        augmented_content = "\n".join([
+            "@context=" + context_classification,
+            "@logical_line_number=" + str(logical_line_number),
+            "@indent_level=" + str(result["indent_level"]),
+            "@actual_line_number=" + actual_line_number,
+            "@sha256=" + context_sha256,
+            self.__content[sha256]
+        ])
+        self.__content[context_sha256] = augmented_content
+        self.__contexts[context_sha256] = context_classification
+        result["sha256"] = sha256
+        result["line_number"] = logical_line_number
+        return {
+            "line": result
+        }
+
+    def __join_strings(self, l, r):
+        r = r.lstrip()
+        if l.endswith("\"\"\"") and r.startswith("\"\"\""):
+            return l[-3] + "\n" + r[3:]
+        if l.endswith("\"") and r.startswith("\""):
+            return l[-1] + r[1:]
+        return None
+
+    def load(self):
+        os.makedirs(self.__module_lines_directory, mode=0o777, exist_ok = True)
+        os.makedirs(self.__lines_content_directory, mode=0o777, exist_ok = True)
+        with io.open(self.__manifest_filename, 'r') as manifest_file:
+            manifest_dict = yaml.safe_load(manifest_file)
+            self.__logical_lines = [
+                self.__manifest_entry_to_file_reference(module)
+                for module in manifest_dict["modules"]
+            ]
+
+    def save(self):
+        os.makedirs(self.__module_lines_directory, mode=0o777, exist_ok = True)
+        os.makedirs(self.__lines_content_directory, mode=0o777, exist_ok = True)
+        def sanitize(actual_line):
+            ml = actual_line["line"]
+            sha256 = ml["context"]["sha256"]
+            del ml["context"]
+            ml["sha256"] = sha256
+            #return actual_line
+            return sha256
+        manifest_dict = {
+            "module": {
+                "sha256": self.__module_sha256
+            },
+            "module_lines": [sanitize(pl) for pl in self.__logical_lines]
+        }
+        self.__manifest_dict = manifest_dict
+        with io.open(self.__manifest_filename, 'w') as manifest_file:
+            yaml.safe_dump(self.__manifest_dict, manifest_file)
+        os.makedirs(self.__lines_content_directory, mode=0o777, exist_ok = True)
+        for k,v in self.__content.items():
+            context = self.__contexts.get(k, None)
+            if context is not None:
+                filename = os.path.join(self.__lines_content_directory, k + ".yapl")
+                with io.open(filename, 'w') as manifest_file:
+                    manifest_file.write("@module=" + self.__module_sha256 + "\n")
+                    manifest_file.write(v)
+
+    def __manifest_entry_to_file_reference(self, manifest_entry):
+        relative = manifest_entry["filename"]
+        absolute = os.path.join(self.__module_lines_directory, relative)
+        return to_file_reference(self.__module_lines_directory, absolute)
+
+    def get_module_lines(self):
+        return self.__logical_lines

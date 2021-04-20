@@ -1,0 +1,110 @@
+test module Rabbit
+
+    test class Rabbit
+
+        test constructor default
+
+            test case "constructor"
+
+                setup
+
+                    initial_garden = Garden([[0]])
+
+                test
+
+                    rabbit = Rabbit(initial_garden)
+
+                verify
+
+                    rabbit.position == Position(0,0)
+
+
+        test method forage
+
+            test case "nothing to eat"
+
+                setup
+
+                    rabbit = mocked Rabbit
+
+                mock
+
+                    rabbit.forage.eat_carrots.eaten = 0
+                    rabbit.forage.move.moved = false
+
+                test
+
+                    eaten = rabbit.forage()
+
+                verify
+
+                    eaten == 0
+
+
+            test case "something to eat, but nowhere to go"
+
+                setup
+
+                    initial_garden = Garden([[1]])
+                    rabbit = Rabbit(initial_garden)
+
+                test
+
+                    eaten = rabbit.forage()
+
+                verify
+
+                    eaten == 1
+                    rabbit.position == Position(0,0)
+
+
+            test case "something to eat, and somewhere to go"
+
+                setup
+
+                    initial_garden = Garden([[1,2]])
+                    rabbit = Rabbit(initial_garden)
+
+                test
+
+                    eaten = rabbit.forage()
+
+                verify
+
+                    eaten == 3
+                    rabbit.position == Position(0,0)
+
+
+        test method choose_best_square
+
+            test case "a single option"
+
+                setup
+
+                    rabbit = Rabbit()
+                    rabbit.garden.get_carrots_at(Position(0,0)) = 1
+
+                test
+
+                    best_square = rabbit.choose_best_square([Position(0,0)])
+
+                verify
+
+                    best_square == Position(0,0)
+
+
+            test case "two options"
+
+                setup
+
+                    rabbit = Rabbit()
+                    rabbit.garden.get_carrots_at(Position(0,0)) = 1
+                    rabbit.garden.get_carrots_at(Position(0,1)) = 2
+
+                test
+
+                    best_square = rabbit.choose_best_square([ Position(0,0), Position(0,1) ])
+
+                verify
+
+                    best_square == Position(0,1)

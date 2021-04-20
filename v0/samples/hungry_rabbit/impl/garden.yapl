@@ -1,85 +1,81 @@
-module garden {
-    import * from types
+// An abstraction for a garden that can be foraged for carrots.
+class Garden {
 
-    // @Garden: An abstraction for a garden that can be foraged for carrots.
-    class Garden {
+    /**
+     *  a bi-dimensional array of garden-squares, where each square contains the number of carrots that are
+     *  currently to be found at that position in the garden
+     */
+    private matrix:Matrix = null
 
-        /**
-         *  @matrix: a bi-dimensional array of garden-squares, where each square contains the number of carrots that are
-         *           currently to be found at that position in the garden
-         */
-        private matrix:Matrix
+    // Default constructor for Garden
+    // matrix: the initial state of the garden
+    constructor default(matrix:Matrix) {
+        this.matrix = args.matrix
+    }
 
-        // @default: Default constructor for Garden
-        // @matrix: the initial state of the garden
-        constructor default(matrix:Matrix) {
-            this.matrix = args.matrix
+    // Retrieves a list of squares that could be considered the center of the garden
+    // possible_center: a possible center of the garden
+    generator-method get_possible_centers() yields possible_center:Position {
+        possible_rows = get_possibilities(rows)
+        possible_columns = get_possibilities(columns)
+        for (row in possible_rows) {
+            for (col in possible_columns) {
+                possible_center := Position(row + rows / 2, col + columns / 2)
+            }
         }
+    }
 
-        // @get_possible_centers: retrieves a list of squares that could be considered the center of the garden
-        // @possible_center: a possible center of the garden
-        generator-method get_possible_centers() yields possible_center:Position {
-            possible_rows = get_possibilities(rows)
-            possible_columns = get_possibilities(columns)
-            for (row in possible_rows) {
-                for (col in possible_columns) {
-                    possible_center := Position(row + rows / 2, col + columns / 2)
+    // Retrieves a list of possible squares to move to within the garden, from a given position
+    // position: the starting position to retrieve legal moves around
+    // move: a legal move within the garden
+    generator-method get_possible_moves(position:Position) yields move:Position {
+        offsets = [-1, 1]
+        for (offset in offsets) {
+            for (square in pair_of_squares(offset)) {
+                if (within_bounds(square)) {
+                    move := square
                 }
             }
         }
+    }
 
-        // @get_possible_moves: retrieves a list of possible squares to move to within the garden, from a given position
-        // @position: the starting position to retrieve legal moves around
-        // @move: a legal move within the garden
-        generator-method get_possible_moves(position:Position) yields move:Position {
-            offsets = [-1, 1]
-            for (offset in offsets) {
-                for (square in pair_of_squares(offset)) {
-                    if (within_bounds(square)) {
-                        move := square
-                    }
-                }
-            }
-        }
+    // Retrieves the number of carrots in a given garden-square
+    // square: the position of the garden-square
+    // carrots: the number of carrots in the square
+    method get_carrots_at(square:Position) returns carrots:Carrots {
+        carrots = matrix.get(position.row).get(position.col)
+    }
 
-        // @get_carrots_at: retrieves the number of carrots in a given garden-square
-        // @square: the position of the garden-square
-        // @carrots: the number of carrots in the square
-        method get_carrots_at(square:Position) returns carrots:Carrots {
-            carrots = matrix.get(position.row).get(position.col)
-        }
+    // Clears the carrots at the given position, and returns how many carrots were eaten
+    // position: the position to eat carrots at
+    // eaten: the number of carrots that were eaten
+    method eat_carrots_at(position:Position) returns eaten:Carrots {
+        eaten = get_carrots_at(position)
+        matrix.get(position.row).set(position.col, 0)
+    }
 
-        // @eat_carrots_at: clears the carrots at the given position, and returns how many carrots were eaten
-        // @position: the position to eat carrots at
-        // @eaten: the number of carrots that were eaten
-        method eat_carrots_at(position:Position) returns eaten:Carrots {
-            eaten = get_carrots_at(position)
-            matrix.get(position.row).set(position.col, 0)
-        }
+    private getter rows:uint {
+        rows = matrix.length
+    }
 
-        private getter rows:uint {
-            rows = matrix.length
-        }
+    private getter columns:uint {
+        columns = matrix.get(0).length
+    }
 
-        private getter columns:uint {
-            columns = matrix.get(0).length
+    private generator get_possibilities(length:uint) yields possibility:uint {
+        center = length / 2
+        possibility := center
+        if (length.isEven) {
+            possibility := center - 1
         }
+    }
 
-        private generator get_possibilities(length:uint) yields possibility:uint {
-            center = length / 2
-            possibility := center
-            if (length.isEven) {
-                possibility := center - 1
-            }
-        }
+    private generator-closure pair_of_squares(offset:int) over (position:Position) yields square:Position {
+        square := Position(position.row + offset, position.col)
+        square := Position(position.row, position.col + offset)
+    }
 
-        private generator-closure pair_of_squares(offset:int) over (position:Position) yields square:Position {
-            square := Position(position.row + offset, position.col)
-            square := Position(position.row, position.col + offset)
-        }
-
-        private within_bounds(position:Position) returns result:boolean {
-            result = position.row >= 0 and position.col >= 0 and position.row < rows and position.col < cols
-        }
+    private method within_bounds(position:Position) returns result:boolean {
+        result = position.row >= 0 and position.col >= 0 and position.row < rows and position.col < cols
     }
 }

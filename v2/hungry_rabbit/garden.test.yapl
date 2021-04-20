@@ -1,0 +1,109 @@
+import Garden from "garden"
+
+// unit tests replace all imports with mocks
+behaviour test Garden {
+
+    setup {
+        given "A clean slate" {
+            matrix = mock Matrix()
+        }
+
+        given "A garden with an empty matrix" {
+            matrix = mock Matrix( length = 0)
+            garden = new Garden(matrix)
+        }
+
+        given "A garden with a 1x1 matrix" {
+            column = mock Column()
+            row = new Row(columns = [ column ])
+            matrix = new Matrix(rows = [ row ])
+            garden = new Garden(matrix)
+        }
+
+        given "A garden with a huge matrix" {
+            huge_number_of_columns = 123
+            huge_number_of_rows = 123
+            matrix = mock Matrix( length = huge_number_of_rows, row() = mock Row(columns = huge_number_of_columns) )
+            garden = new Garden(matrix)
+        }
+    }
+
+    test {
+        when "garden.rows is invoked" {
+            actual = garden.rows
+        }
+
+        when "garden.columns is invoked" {
+            actual = garden.columns
+        }
+
+        when "a Garden is constructed" {
+            garden = new Garden(matrix)
+        }
+    }
+
+    verify {
+        given "A clean slate" {
+            when "a Garden is constructed" then {
+                garden.matrix is matrix
+            }
+        }
+        given "A garden with an empty matrix" {
+            when "garden.rows is invoked" then {
+                actual == 0
+            }
+            when "garden.columns is invoked" then {
+                actual == 0
+            }
+        }
+        given "A garden with a 1x1 matrix" {
+            when "garden.rows is invoked" then {
+                actual == 1
+            }
+            when "garden.columns is invoked" then {
+                actual == 1
+            }
+        }
+        given "A garden with a huge matrix" {
+            when "garden.rows is invoked" then {
+                actual == huge_number_of_rows
+            }
+            when "garden.columns is invoked" then {
+                actual == huge_number_of_columns
+            }
+        }
+    }
+}
+
+unit test Garden {
+
+    suite "get_possible_centers does in fact return the possible centers" {
+
+        test "in the case of a 1x1 matrix" {
+            garden = new Garden( matrix = mock Matrix ( rows = 1; columns = 1 ) )
+            actual = garden.get_possible_centers()
+            verify {
+                # Expected the $actual return value to contain a single square
+                actual == [ mock Row ( row = 0; column = 0 ) ]
+            }
+        }
+
+        test "in the case of a 1x2 matrix" {
+            garden = new Garden ( matrix = mock Matrix ( rows = 1; columns = 2 ) )
+            actual = garden.get_possible_centers()
+            verify {
+                # Expected the $actual return value to contain two squares, in different columns
+                actual == [ mock Position ( row = 0; column = 0 ), mock Position ( row = 0; column = 1 ) ]
+            }
+        }
+
+        test "in the case of a 2x1 matrix" {
+            garden = new Garden ( matrix = mock Matrix ( rows = 2; columns = 1 ) )
+            actual = garden.get_possible_centers()
+            verify {
+                # Expected the $actual return value to contain two squares, in different rows
+                actual == [ mock Position ( row = 0; column = 0 ), mock Position ( row = 1; column = 0 ) ]
+            }
+        }
+    }
+}

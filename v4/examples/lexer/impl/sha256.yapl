@@ -1,0 +1,49 @@
+------------------------------------------------------------------------------------------------------------------------
+This module implements sha256 support for the YAPL lexer
+------------------------------------------------------------------------------------------------------------------------
+module yapl.v4.examples.lexer.impl.sha256
+
+
+imports
+========================================================================================================================
+
+    from runtime.
+        operating_system.file_system
+            import FilePath
+        cryptography.hash_algorithms
+            import Sha256
+        strings.hex_string
+            import HexString
+
+
+exports
+========================================================================================================================
+
+    calculate_sha256_of_file, calculate_sha256_of_string
+
+contains
+========================================================================================================================
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    Calculates the sha256 of a file
+    --------------------------------------------------------------------------------------------------------------------
+    function calculate_sha256_of_file
+        accepts
+            file:FilePath{absolute} -- the file to calculate the sha256 hash for
+        returns
+            sha256:HexString{length == 32} -- the sha256 hash of the contents of the file specified by filename
+        body
+            return sha256 = Sha256(file).digest() as HexString
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    Calculates the sha256 of a string
+    --------------------------------------------------------------------------------------------------------------------
+    function calculate_sha256_of_string
+        accepts
+            input:string -- the string to calculate the sha256 for
+        returns
+            sha256:HexString{length == 32} -- the sha256 hash of the contents of the string
+        body
+            return sha256 = Sha256(input).digest() as HexString

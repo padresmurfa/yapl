@@ -1,0 +1,169 @@
+------------------------------------------------------------------------------------------------------------------------
+-- This module contains the Garden class, which is an abstraction for a garden that can be foraged for carrots by a
+-- rabbit.
+------------------------------------------------------------------------------------------------------------------------
+module garden
+
+from types import Matrix, Position, Carrots
+
+------------------------------------------------------------------------------------------------------------------------
+-- An abstraction for a garden that can be foraged by a rabbit for carrots.
+------------------------------------------------------------------------------------------------------------------------
+export class Garden
+
+    public initializers
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Initialize a Garden.
+        ----------------------------------------------------------------------------------------------------------------
+        initialize new instance
+            accepts
+                using_initial_state:Matrix -- The initial state to use for the garden
+            body
+                matrix = using_initial_state
+
+
+    public instance properties
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- The number of rows in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        property rows:integer {>= 1}
+            getter
+                return rows = matrix.length
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- The number of columns in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        property columns:integer {>= 1}
+            getter
+                first_row = matrix.get(item_at=0)
+                return columns = first_row.length
+
+
+    public instance methods
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Determine a list of squares that could be considered the center of this garden.
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_centers
+            returns
+                possible_centers -- the possible centers of the garden.
+            yields
+                possible_center:Position -- a possible center of the garden.
+            body
+                possible_rows = get_possible_centers(for_length=rows)
+                possible_columns = get_possible_centers(for_length=columns)
+                for row in possible_rows
+                    for col in possible_columns
+                        possible_row = row + rows / 2
+                        possible_column = col + columns / 2
+                        yield possible_center = new Position(possible_row, possible_column)
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Determine a list of possible squares to move to within the garden, from a given position.
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_moves
+            accepts
+                around_position:Position -- the starting position to retrieve legal moves around.
+            returns
+                moves -- the set of possible moves around position within the garden.
+            yields
+                move:Position -- a possible move around position within the garden.
+            body
+                offsets = [-1, 1]
+                for offset in offsets
+                    for square in pair_of_squares(offset_by=offset, around_position)
+                        if within_bounds = is_within_our_bounds(position=square)
+                            yield move = square
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Retrieve the number of carrots in a given garden-square.
+        ----------------------------------------------------------------------------------------------------------------
+        method get_carrots
+            accepts
+                at_position:Position -- the position of the garden-square
+            returns
+                -- the number of carrots in the square.
+                carrots:Carrots
+            body
+                row = matrix.get(item_at=at_position.row)
+                return carrots = row.get(item_at=at_position.col)
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Eat (i.e. clear) the carrots at the given position, and determine how many carrots were in the square.
+        ----------------------------------------------------------------------------------------------------------------
+        method eat_carrots_at
+            accepts
+                at_position:Position -- the position to eat carrots at
+            returns
+                eaten:Carrots -- the number of carrots that were eaten
+            body
+                eaten = get_carrots(at_position)
+                row = matrix.get(item_at=at_position.row)
+                row.set(item_at=at_position.col, value=0)
+                return eaten
+
+
+    private instance state
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- matrix is a bi-dimensional array of garden-squares, where each square contains the number
+        -- of carrots that are currently to be found at that position in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        matrix:Matrix {not empty, .get(item_at=0) is not empty }
+
+
+    private instance methods
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine the possible centers for rows or columns of the provided length
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_centers
+            accepts
+                for_length:integer {>= 1} -- the length of the row or column
+            returns
+                possibilities -- the possible centers, given the provided length
+            yields
+                possibility:integer {>= 0} -- a possible center, given the provided length
+            body
+                center = length / 2
+                yield possibility = center
+                if is_even = for_length is even
+                    yield possibility = center - 1
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- create a pair of squares around a position
+        ----------------------------------------------------------------------------------------------------------------
+        generator pair_of_squares
+            accepts
+                offset_by:integer { in [-1, +1]} -- the offset from the position, both horizontally and vertically
+                around_position:Position -- the position to base from
+            returns
+                squares -- the pair of squares at the position + offset
+            yields
+                square:Position -- a square at the position + offset
+            body
+                scope first_square
+                    row = around_position.row + offset_by
+                    column = around_position.column
+                    yield square = new Position(row, column) -- return the first square
+                scope second_square
+                    row = around_position.row
+                    column = around_position.column + offset_by
+                    yield square = new Position(row, column) -- return the second square
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine whether or not position is within the bounds of this garden
+        ----------------------------------------------------------------------------------------------------------------
+        method is_within_our_bounds
+            accepts
+                position:Position -- the position to determine if is within our bounds
+            returns
+                answer:boolean -- whether or not the position is within our bounds
+            body
+                top = position.row >= 0
+                left = position.column >= 0
+                bottom = position.row < rows
+                right = position.column < columns
+                return answer = top and left and bottom and right

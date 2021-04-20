@@ -1,0 +1,16 @@
+export class Garden {
+
+    private instance members {
+        matrix: Matrix
+    }
+
+    // serialization is such a basic part of programming, that we have a separate syntax for it
+    public serialization methods {
+        method deserialize(json: Json) {
+            self.matrix = deserialize Matrix(json["matrix"])
+        }
+        method serialize(json: Json) {
+            json["matrix"] = serialize self.matrix
+        }
+    }
+}

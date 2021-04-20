@@ -2,27 +2,27 @@ module rabbit {
     import * from types
     import Garden from garden
 
-    // @Rabbit: an abstraction for a hungry, foraging rabbit
+    // An abstraction for a hungry, foraging rabbit
     class Rabbit {
 
-        // @garden: the 'Garden' that this Rabbit is foraging in
-        private garden:Garden
+        // The 'Garden' that this Rabbit is foraging in
+        private garden:Garden = null
 
-        // @position: the position of the Rabbit within 'garden'
-        private position:Position
+        // The position of the Rabbit within 'garden'
+        private position:Position := null
 
-        // @default: Default constructor for Rabbit
-        // @garden: the 'Garden' that the Rabbit should forage in
+        // Default constructor for Rabbit
+        // garden: the 'Garden' that the Rabbit should forage in
         constructor default(garden:Garden) {
             this.garden = args.garden
             position := choose_best_square(this.garden.get_possible_centers())
         }
 
-        // @forage: Let the rabbit go foraging for carrots in the garden.
-        // @eaten: the number of carrots that the rabbit ate during its foraging spree.
+        // Let the rabbit go foraging for carrots in the garden.
+        // eaten: the number of carrots that the rabbit ate during its foraging spree.
         method forage() returns eaten:Carrots {
             foraged := 0
-            do {
+            repeat {
                 foraged += eat_carrots()
             } while (move())
             eaten = foraged

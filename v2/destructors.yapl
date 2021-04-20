@@ -1,0 +1,14 @@
+export class Garden {
+
+    private instance members {
+        matrix: Matrix
+    }
+
+    // an instance with a destructor may not be garbage collected, and must have a single owner at all times during
+    // its lifetime
+    public destructor methods {
+        method destroy() {
+            destroy self.matrix
+        }
+    }
+}

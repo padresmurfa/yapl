@@ -1,0 +1,133 @@
+// This module contains the Garden class, which is an abstraction for a garden that can be foraged for carrots by a
+// rabbit.
+module Garden
+
+    imports
+
+        from Types: Carrots, Matrix, Position
+
+    contains
+
+        // A Garden is an abstraction for a garden that can be foraged for carrots.
+        export class Garden
+
+            public constructors
+
+                // Constructs a Garden.
+                // using_initial_state: The initial state to use for the garden.
+                constructor default(using_initial_state:Matrix)
+
+                    matrix = using_initial_state
+
+
+            public instance methods
+
+                // Retrieves a list of squares that could be considered the center of the garden.
+                // possible_centers: The possible centers of the garden.
+                generator get_possible_centers() yields possible_center:Position
+
+                    possible_rows = get_possible_centers_for_length(rows)
+                    possible_columns = get_possible_centers_for_length(columns)
+                    for row in possible_rows
+                        for col in possible_columns
+                            r = row + rows / 2
+                            c = col + columns / 2
+                            yield possible_center = Position(r, c)
+
+
+                // Retrieves a list of possible squares to move to within the garden, from a given
+                // position.
+                // around_position: the starting position to retrieve legal moves around.
+                // moves: the set of possible moves around position within the garden.
+                generator get_possible_moves(around_position:Position) yields move:Position
+
+                    closure pair_of_squares_at_position closes pair_of_squares over position
+
+                    offsets = [-1, 1]
+                    for offset in offsets
+                        for square in pair_of_squares_at_position(offset)
+                            if is_position_within_our_bounds(square)
+                                yield move = square
+
+
+                // Retrieves the number of carrots in a given garden-square.
+                // at_position: the position of the garden-square.
+                // carrots: the number of carrots in the square.
+                method get_carrots_at(at_position:Position) returns carrots:Carrots
+
+                    r = matrix.get(at_position.row)
+                    return carrots = r.get(at_position.col)
+
+
+                // Clears the carrots at the given position, and returns how many carrots were eaten.
+                // at_position: the position to eat carrots at.
+                // eaten: the number of carrots that were eaten.
+                method eat_carrots_at(at_position:Position) returns eaten:Carrots
+
+                    eaten = get_carrots_at(at_position)
+                    r = matrix.get(at_position.row)
+                    r.set(at_position.col, 0)
+                    return eaten
+
+
+            private instance values
+
+                // matrix is a bi-dimensional array of garden-squares, where each square contains the number
+                // of carrots that are currently to be found at that position in the garden.
+                matrix:{Matrix, value.length > 0, value[0].length > 0 }
+
+            private instance properties
+
+                // The number of rows in the garden.
+                property rows:{integer, value >= 1}
+
+                    getter
+
+                        return rows = matrix.length
+
+                // The number of columns in the garden.
+                property columns:{integer, value >= 1}
+
+                    getter
+
+                        r0 = matrix.get(0)
+                        return columns = r0.length
+
+
+            private instance methods
+
+                // returns the possible centers for rows or columns of the provided length
+                // for_length: the length of the row or column
+                // possibilities: the possible centers, given the provided length
+                generator get_possible_centers_for_length(for_length:{integer, value >= 1}) yields possibility:uint
+
+                    center = for_length / 2
+                    yield possibility = center
+                    if for_length.isEven
+                        yield possibility = center - 1
+
+
+                // returns a pair of squares around a position
+                // offset_by: the offset from the position, both horizontally and vertically
+                // around_position: the position to base from
+                // squares: the pair of squares at the position + offset
+                generator pair_of_squares(offset_by:{integer, value in [-1, +1]}, around_position:Position) yields square:Position
+
+                    r = around_position.row + offset_by
+                    c = around_position.column
+                    yield square = Position(r, c)
+                    r = around_position.row
+                    c = around_position.column + offset_by
+                    yield square = Position(r, c)
+
+
+                // determines whether or not position is within the bounds of this garden
+                // position: the position to determine if is within our bounds
+                // answer: whether or not the position is within our bounds
+                method is_position_within_our_bounds(position:Position) returns answer:boolean
+
+                    top = position.row >= 0
+                    left = position.column >= 0
+                    bottom = position.row < rows
+                    right = position.column < columns
+                    return answer = top and left and bottom and right

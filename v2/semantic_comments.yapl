@@ -1,0 +1,64 @@
+// # comments are semantic
+// A semantic comment preceding a class documents the class
+# An abstraction for a garden that can be foraged for carrots.
+export class Garden {
+
+    private instance members {
+        // A semantic comment preceding a variable documents the value
+        // semantic comments may contain $ directives, allowing them to be rendered in a human-readable format with
+        // the values embedded and inspectable.
+        # a bi-dimensional array of garden-squares, i.e. a $matrix, where each square contains the number of carrots
+        # that are currently to be found at that position in the garden
+        matrix: Matrix
+    }
+
+    private instance properties {
+        # the number of $rows in the garden
+        property rows:uint {
+            getter() returns columns:uint {
+                // A ## directive is a trace directive. When tracing a program, these directives are used to provide
+                // legible output describing the flow of the program.
+                ## returning the number of $rows within the garden
+                return rows = self.matrix.length
+            }
+        }
+    }
+
+    public constructor methods {
+        # Default constructor
+        constructor method create(
+            # the initial state $matrix of the garden
+            matrix: Matrix
+        ){
+            self.matrix = matrix
+        }
+    }
+
+    public instance methods {
+
+        // The ${} construct can be used to specify names with spaces rather than in cryptic form.
+        # Retrieve a list of squares that could be considered the ${possible centers} of the garden
+        generator method get_possible_centers(
+            # the ${possible centers} of the garden
+            yields possible_centers as possible_center:Position
+        ){
+            ## determining the ${possible rows}
+            possible_rows = get_possible_choices_for_centers(self.rows)
+
+            ## determining the ${possible columns}
+            possible_columns = get_possible_choices_for_centers(self.columns)
+
+            ## iterating over each $row in $possible_rows
+            for (row in possible_rows) {
+
+                ## iterating over each $column in $possible_columns
+                for (column in possible_columns) {
+                    ## yielding a $possible_center, given $possible_row and $possible_col
+                    possible_row = row + self.rows / 2
+                    possible_col = column + self.columns / 2
+                    yield possible_center := Position(possible_row, possible_col)
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,79 @@
+type UInteger = integer where UInteger >= 0
+type NonEmptyArray = Array where NonEmptyArray.length > 0
+
+class Matrix {
+
+    public property is_empty:bool {
+        return is_empty = self.length == 0
+    }
+
+    public property length:UInteger {
+        return rows.length
+    }
+
+    public constructor new(
+        rows:Array[Array[UInteger]]
+    ){
+        self.rows = rows
+    }
+
+    public method row(
+        row_number:UInteger
+        returns row:Row
+    ){
+        assert row_number < self.rows.length
+        return row = new Row(self.rows[row_number])
+    }
+
+    private rows:Array[Array[UInteger]]
+}
+
+class Row {
+
+    public property is_empty:bool {
+        return is_empty = self.length == 0
+    }
+
+    public property length:UInteger {
+        return columns.length
+    }
+
+    public constructor new(
+        columns:Array[UInteger]
+    ){
+        self.columns = borrow columns
+    }
+
+    public method column(
+        column_number:UInteger
+        returns column:Column
+    ){
+        assert column_number < self.column_number.length
+        return column = new Column(self.columns, column_number)
+    }
+
+    private columns:Array[UInteger]
+}
+
+class Column {
+
+    public constructor new(
+        columns:Array[UInteger]
+        column:UInteger
+    ){
+        self.columns = columns
+        self.column = column
+    }
+
+    public property value:UInteger {
+        getter {
+            return self.columns[self.column]
+        }
+        setter(new_value:UInteger) {
+            self.columns[self.column] = new_value
+        }
+    }
+
+    private columns:Array[UInteger]
+    private column:UInteger
+}

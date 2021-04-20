@@ -310,6 +310,7 @@ Internal identifiers may start with "@".
 
 The following identifiers are used as reserved words, or keywords of the language, and cannot be used as ordinary identifiers. They must be spelled exactly as written here:
 
+- is-a, has-a, 
 - true, false
 - and, or, xor, not
 - null, undefined
@@ -323,7 +324,7 @@ The following identifiers are used as reserved words, or keywords of the languag
 - reentrant, threadsafe
 - class, interface, abstract
 - this, args
-- extends, implements
+- extends, implements, reifies
 - structure
 - composite, component, composer
   - a component has access to its composer via the composer keyword

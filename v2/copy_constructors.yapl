@@ -1,0 +1,13 @@
+export class Garden {
+
+    private instance members {
+        matrix: Matrix
+    }
+
+    // copy constructors are such a basic part of programming that we have a separate syntax for it
+    public constructor methods {
+        constructor method copy(other: Garden) {
+            self.matrix = copy other.matrix
+        }
+    }
+}
