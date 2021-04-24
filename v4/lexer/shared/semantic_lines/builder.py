@@ -3,7 +3,6 @@ import copy
 import os
 import io
 import yaml
-import base64
 
 from yapl.v4.lexer.shared.semantic_lines.base import ManifestBase
 
@@ -53,20 +52,16 @@ def is_literal(t):
     return t["token"] in ("STRING_LITERAL", "INTEGER_LITERAL", "BOOLEAN_LITERAL")
 
 
-def is_identifier_or_boolean_literal(t):
-    return is_identifier(t) or t["token"] == "BOOLEAN_LITERAL"
-
-
 def is_identifier_or_literal(t):
     return is_identifier(t) or is_literal(t)
 
 
-def is_infix_logical_operator(t):
-    return t["token"] == "INFIX_LOGICAL_OPERATOR"
-
-
 def is_infix_comparison_operator(t):
     return t["token"] == "INFIX_COMPARISON_OPERATOR"
+
+
+def is_infix_logical_operator(t):
+    return t["token"] == "INFIX_LOGICAL_OPERATOR"
 
 
 def is_infix_mathematical_operator(t):
@@ -74,7 +69,7 @@ def is_infix_mathematical_operator(t):
 
 
 def is_infix_operator(t):
-    return t["token"] in ("INFIX_LOGICAL_OPERATOR", "INFIX_COMPARISON_OPERATOR", "INFIX_MATHEMATICAL_OPERATOR")
+    return is_infix_comparison_operator(t) or is_infix_logical_operator(t) or is_infix_mathematical_operator(t)
 
 
 def is_constraint(t):
@@ -165,34 +160,27 @@ def semantic_identifier(input_tokens, output_semantic_tokens):
 
 
 def renamed_return_value(input_tokens, output_semantic_tokens):
-    tmp = input_tokens[:4]
     peeked_values = semantic_peek([
         lambda t: is_keyword(t, "return"),
         is_identifier,
-        lambda t: is_symbol(t, "="),
-        lambda t: is_expression(input_tokens[3:])
-    ], tmp)
-    print("xcxc! " + str(input_tokens[3:]))
-    print("      " + str(peeked_values))
+        lambda t: is_symbol(t, "=")
+    ], input_tokens)
     if peeked_values is not None:
-        _, iv, _, _ = peeked_values
-        del input_tokens[0]
+        _, iv, _ = peeked_values
         output_semantic_tokens.append({
             "token": "RENAMED_RETURN_VALUE",
             "name": iv
         })
-        return expression(input_tokens, output_semantic_tokens)
     return input_tokens
 
 
 def correctly_named_return_value(input_tokens, output_semantic_tokens):
     peeked_values = semantic_peek([
         lambda t: is_keyword(t, "return"),
-        is_identifier,
-        lambda t: not (is_symbol(t, "=") or is_symbol(t, "~="))
-    ], input_tokens + [{"token": "SYMBOL", "value": "asdf"}])
+        is_identifier
+    ], input_tokens)
     if peeked_values is not None:
-        _, iv, _ = peeked_values
+        _, iv = peeked_values
         output_semantic_tokens.append({
             "token": "CORRECTLY_NAMED_RETURN_VALUE",
             "name": iv
@@ -204,17 +192,14 @@ def named_yield(input_tokens, output_semantic_tokens):
     peeked_values = semantic_peek([
         lambda t: is_keyword(t, "yield"),
         is_identifier,
-        lambda t: is_symbol(t, "="),
-        lambda t: is_expression(input_tokens[2:])
-    ], input_tokens[:4])
+        lambda t: is_symbol(t, "=")
+    ], input_tokens)
     if peeked_values is not None:
-        del input_tokens[:3]
         _, iv, _ = peeked_values
         output_semantic_tokens.append({
             "token": "NAMED_YIELD_VALUE",
             "name": iv
         })
-        return expression(input_tokens, output_semantic_tokens)
     return input_tokens
 
 
@@ -288,34 +273,28 @@ def generator_declaration(input_tokens, output_semantic_tokens):
 def immutable_let(input_tokens, output_semantic_tokens):
     peeked_values = semantic_peek([
         is_identifier,
-        lambda t: is_symbol(t, "="),
-        lambda t: is_expression(input_tokens[2:])
-    ], input_tokens[:3])
+        lambda t: is_symbol(t, "=")
+    ], input_tokens)
     if peeked_values is not None:
-        del input_tokens[:2]
-        iv, _, _ = peeked_values
+        iv, _ = peeked_values
         output_semantic_tokens.append({
             "token": "IMMUTABLE_LET",
             "name": iv
         })
-        return expression(input_tokens, output_semantic_tokens)
     return input_tokens
 
 
 def mutable_let(input_tokens, output_semantic_tokens):
     peeked_values = semantic_peek([
         is_identifier,
-        lambda t: is_symbol(t, "~="),
-        lambda t: is_expression(input_tokens[2:])
-    ], input_tokens[:3])
+        lambda t: is_symbol(t, "~=")
+    ], input_tokens)
     if peeked_values is not None:
-        del input_tokens[:2]
-        iv, _, _ = peeked_values
+        iv, _ = peeked_values
         output_semantic_tokens.append({
             "token": "MUTABLE_LET",
             "name": iv
         })
-        return expression(input_tokens, output_semantic_tokens)
     return input_tokens
 
 
@@ -580,7 +559,7 @@ def simple_type_declaration(input_tokens, output_semantic_tokens):
     if peeked_values is not None:
         cv, _ = peeked_values
         before = len(input_tokens)
-        semantic_identifier(input_tokens, output_semantic_tokens)
+        input_tokens = semantic_identifier(input_tokens, output_semantic_tokens)
         assert len(input_tokens) != before, "expected 'type' to be followed by a semantic identifier"
         output_semantic_tokens[-1]["token"] = "SIMPLE_TYPE_DECLARATION"
         output_semantic_tokens[-1]["leading_docstring"] = cv
@@ -682,55 +661,28 @@ def import_statement(input_tokens, output_semantic_tokens):
     return input_tokens
 
 
-def semantic_literal(input_tokens, output_semantic_tokens):
-    before = input_tokens[0]
-    print("is this a literal? " + str(input_tokens))
-    peeked_values = semantic_peek([
-        is_literal
-    ], input_tokens)
-    if peeked_values is not None:
-        print("xcxc sem lit")
-        lv = peeked_values[0]
-        output_semantic_tokens.append({
-            "token": "SEMANTIC_" + before["token"],
-            "literal": lv
-        })
-    return input_tokens
-
-
-def logical_expression(input_tokens, output_semantic_tokens):
-    before = input_tokens[:3]
-    peeked_values = semantic_peek([
-        is_identifier_or_boolean_literal,
-        is_infix_logical_operator,
-        is_identifier_or_boolean_literal
-    ], input_tokens)
-    if peeked_values is not None:
-        lv, ov, rv = peeked_values
-        output_semantic_tokens.append({
-            "token": "LOGICAL_EXPRESSION",
-            "left": before[0],
-            "right": before[2],
-            "operator": ov.upper()
-        })
-    return input_tokens
-
-
-def is_expression(input_tokens):
-    before = len(input_tokens)
-    expression(input_tokens, [])
-    after = len(input_tokens)
-    return before != after
-
-
 def expression(input_tokens, output_semantic_tokens):
-    for e in [
-        logical_expression, semantic_literal
-    ]:
-        before = len(input_tokens)
-        e(input_tokens, output_semantic_tokens)
-        after = len(input_tokens)
-        if before != after:
+    while output_semantic_tokens:
+        lv = output_semantic_tokens[-1]
+        if lv["token"] not in ("SEMANTIC_IDENTIFIER", "EXPRESSION", "RENAMED_RETURN_VALUE"):
+            break
+        peeked_values = semantic_peek([
+            is_infix_operator,
+            lambda t: is_one_of(t, [
+                is_identifier,
+                is_literal
+            ]),
+        ], input_tokens)
+        if peeked_values is not None:
+            ov, rv = peeked_values
+            del output_semantic_tokens[-1]
+            output_semantic_tokens.append({
+                "token": "EXPRESSION",
+                "lvalue": lv,
+                "rvalue": rv,
+                "operator": ov
+            })
+        else:
             break
     return input_tokens
 
@@ -747,8 +699,7 @@ def remainder(input_tokens, output_semantic_tokens):
 SEMANTIC_ANALYZERS=[
     discard_statement,
     export_new_token,
-    expression,
-    infix_operator,
+    #infix_operator,
     repeat_loop,
     for_loop,
     empty_check,
@@ -760,6 +711,7 @@ SEMANTIC_ANALYZERS=[
     structure_section,
     instantiate_object,
     semantic_identifier,
+    expression,
     function_call,
     renamed_return_value,
     correctly_named_return_value,
@@ -812,15 +764,15 @@ class ManifestBuilder(ManifestBase):
     def process_line(self, logical_line_sha256, tokens):
         before = copy.deepcopy(tokens)
         semantic_tokens = perform_semantic_line_analysis(tokens)
-        if semantic_tokens[-1]["token"] == "REMAINDER":
-            if logical_line_sha256 == "0ae365b24e4bcdc7486dda3ea3f6b394ae82e0eab0bbc048146496cdc1ad834b":
-                print("----------------------------------------------------------------")
-                print("{} REMAINDER:\n\tBEFORE: {}\n\tAFTER:{}\n\tPROCESSED:{}".format(
-                    logical_line_sha256,
-                    str(before),
-                    str(tokens),
-                    str(semantic_tokens[:-1])
-                ))
+        #if semantic_tokens[-1]["token"] == "REMAINDER" and
+        if logical_line_sha256 == "66225a603f1e5637c8e6b0c92ae918c720ef276fc241c031e51f79c376cb9387":
+            print("----------------------------------------------------------------")
+            print("{} REMAINDER:\n\tBEFORE: {}\n\tAFTER:{}\n\tPROCESSED:{}".format(
+                logical_line_sha256,
+                str(before),
+                str(tokens),
+                str(semantic_tokens[:-1])
+            ))
 
         self._lines.append(SemanticLine(
             logical_line_sha256,

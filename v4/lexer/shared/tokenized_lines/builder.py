@@ -325,11 +325,11 @@ TOKENIZERS = [
     keyword,
     basic_type,
     literal,
-    identifier,
     inline_comment,
     infix_logical_operator,
     infix_comparison_operator,
     infix_mathematical_operator,
+    identifier,
     symbol,
     constraint,
     remainder
