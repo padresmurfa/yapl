@@ -11,6 +11,16 @@ method foo(filename:String) returns blat:boolean mockable(os.path.exists) {
 }
 
 -------
+Some more thoughts...
+
+To import a dependency, you should provide a contract test. The test suite could be downloaded from the project that you are taking the dependency, or from your own. Either way, a update will not be downloaded if it does not pass your contract test.
+
+One of the contracts is what capabilities the dependency requires. Thus a dependency cannot e.g. access the file system or the network, if your contract doesn't allow it.
+
+In general, yapl should not link code that isn't tested into a production app.
+
+
+-------
 Some thoughts...
 
 emitters are specifically testable concepts.

@@ -1,5 +1,13 @@
 sidenote:
 ==========
+
+A virtual machine or sandbox could be a first class primitive in yapl.
+
+E.g. a gRPC server would then embed a VM, which does not have access to the memory of the gRPC server. The VM may sandbox itself to a specific user, in which
+case data of other users will not be directly accessible.
+
+sidenote:
+==========
 We should have support for multihoming directories and symlinks
 
 sidenote:

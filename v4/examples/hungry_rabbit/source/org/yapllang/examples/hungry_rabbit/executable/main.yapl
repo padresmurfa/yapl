@@ -3,15 +3,22 @@
 ------------------------------------------------------------------------------------------------------------------------
 module main
 
-from hungry_rabbit_implementation.hungry_rabbit import HungryRabbit
+
+from hungry_rabbit.implementation import hungry_rabbit
+
 
 ------------------------------------------------------------------------------------------------------------------------
 -- Runs the hungry rabbit algorithm. This is the main routine of the hungry rabbit process.
 ------------------------------------------------------------------------------------------------------------------------
-export function main
-    body
-        matrix = [          \
-            [ 0, 2, 3 ],    \
-            [ 1, 2, 5 ]     \
-        ]
-        discard HungryRabbit.forage(matrix_to_forage=matrix)
+entrypoint main:
+    code:
+        -- create our initial garden
+        garden = stack.new [[integer]] (
+            [ 0, 2, 3 ],
+            [ 1, 2, 5 ]
+        )
+
+        -- solve the hungry rabbit problem, given this garden
+        eaten = hungry_rabbit.forage(carrot_matrix_to_forage=garden)
+        unused(eaten)
+

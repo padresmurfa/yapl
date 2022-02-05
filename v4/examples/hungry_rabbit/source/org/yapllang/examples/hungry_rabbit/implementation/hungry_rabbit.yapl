@@ -1,12 +1,12 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- A solution to the Hungry Rabbit problem
---
+-
 -- This is the entry point for a YAPL based solution of the "Hungry Rabbit" interview question described here:
---
+-
 --     https://medium.com/@internetross/a-particularly-wascally-wabbit-lessons-from-my-annals-of-software-eng-interviews-7fd7574f009b
---
+-
 -- The problem statement is:
---
+-
 --     A very hungry rabbit is placed in the center of of a garden, represented by a rectangular N x M 2D matrix.
 --     The values of the matrix will represent numbers of carrots available to the rabbit in each square of the garden.
 --     If the garden does not have an exact center, the rabbit should start in the square closest to the center with the
@@ -16,7 +16,7 @@
 --     to choose between two squares with the same number of carrots. Write a function which takes a garden matrix and
 --     returns the number of carrots the rabbit eats. You may assume the matrix is rectangular with at least 1 row and
 --     1 column, and that it is populated with non-negative integers.
---
+-
 --     For example:
 --     [
 --         [5, 7, 8, 6, 3],
@@ -24,26 +24,39 @@
 --         [4, 6, 3, 4, 9],
 --         [3, 1, 0, 5, 8]
 --     ]
---
+-
 --     Should return:
---
+-
 --     27
 ------------------------------------------------------------------------------------------------------------------------
 module hungry_rabbit
 
-from garden import Garden
-from rabbit import Rabbit
-from types import Matrix, Carrots
+
+from garden import garden
+from rabbit import rabbit
+from types  import carrrot_matrix, carrots
+
+export forage
+
 
 ------------------------------------------------------------------------------------------------------------------------
--- Make the rabbit go foraging for carrots in a garden
+-- A solution too the Hungry Rabbit problem
 ------------------------------------------------------------------------------------------------------------------------
-export function forage
-    accepts
-        matrix_to_forage:Matrix -- the initial state of the garden
-    returns
-        eaten:Carrots -- the number of carrots that the rabbit ate during its foraging spree
-    body
-        garden = new Garden(using_initial_state=matrix_to_forage)
-        rabbit = new Rabbit(forage_in_garden=garden)
-        return eaten = rabbit.forage()
+singleton hungry_rabbit:
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- Make the rabbit go foraging for carrots in a garden
+    --------------------------------------------------------------------------------------------------------------------
+    method forage:
+        input:
+            carrot_matrix_to_forage : carrot_matrix     -- the initial state of the garden
+        returns:
+            eaten : carrots                             -- the number of carrots that the rabbit ate during its foraging spree
+        code:
+            -- instantiate our rabbit and garden abstractions
+            garden = stack.new garden(using_initial_state=carrot_matrix_to_forage)
+            rabbit = stack.new rabbit(forage_in_garden=garden)
+
+            -- let the rabbit loose in the garden
+            return eaten = rabbit.forage()

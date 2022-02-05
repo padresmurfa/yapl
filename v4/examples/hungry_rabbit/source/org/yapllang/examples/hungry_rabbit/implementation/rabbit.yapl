@@ -3,93 +3,118 @@
 ------------------------------------------------------------------------------------------------------------------------
 module rabbit
 
-from garden import Garden
-from types import Matrix, Carrots, Position
+
+from garden import garden
+from types  import carrot_matrix, carrots, position
+
+
+export rabbit
+
 
 ------------------------------------------------------------------------------------------------------------------------
 -- An abstraction for a hungry, foraging, rabbit
 ------------------------------------------------------------------------------------------------------------------------
-export class Rabbit
+type rabbit : class:
 
-    public initializers
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- public constructor
+    --------------------------------------------------------------------------------------------------------------------
+
 
         ----------------------------------------------------------------------------------------------------------------
-        -- Initialize a Rabbit
+        -- Initialize a rabbit
         ----------------------------------------------------------------------------------------------------------------
-        initialize new instance
-            accepts
-                forage_in_garden:Garden -- the Garden that the Rabbit should forage in
-            body
-                garden = forage_in_garden
-                possible_centers = garden.get_possible_centers()
-                position = choose_best_square(squares=possible_centers)
+        constructor:
+            input:
+                forage_in_garden : garden               -- the garden that the rabbit should forage in
+            code:
+                the_farmers_garden = forage_in_garden
+                possible_centers   = garden.get_possible_centers()
+                rabbit_position    = choose_best_square(squares=possible_centers)
 
 
-    public instance methods
+    --------------------------------------------------------------------------------------------------------------------
+    -- public methods
+    --------------------------------------------------------------------------------------------------------------------
+
 
         ----------------------------------------------------------------------------------------------------------------
         -- Make the rabbit go foraging for carrots in the garden.
         ----------------------------------------------------------------------------------------------------------------
-        method forage
-            returns
-                eaten:Carrots -- the number of carrots that the rabbit ate during its foraging spree
-            body
-                eaten ~= 0
-                repeat
+        method forage:
+            returns:
+                eaten : carrots                    -- the number of carrots that the rabbit ate during its foraging spree
+            code:
+                eaten = 0
+
+                -- continuiously eat carrots, while carrots are to be had
+                repeat:
                     eaten ~= eaten + eat_carrots()
-                while should_move = move()
+                while should_move ~= move()
+
+                -- return the number of carrots that we ate
                 return eaten
 
 
-    private instance state
+    --------------------------------------------------------------------------------------------------------------------
+    -- private state
+    --------------------------------------------------------------------------------------------------------------------
+
 
         ----------------------------------------------------------------------------------------------------------------
-        -- The 'Garden' that this Rabbit is foraging in
+        -- The 'garden' that this Rabbit is foraging in
         ----------------------------------------------------------------------------------------------------------------
-        garden:Garden
+        member the_farmers_garden : garden
 
         ----------------------------------------------------------------------------------------------------------------
         -- The position of this Rabbit within 'garden'
         ----------------------------------------------------------------------------------------------------------------
-        position:Position {mutable}
+        member rabbit_position : position, and mutable
 
 
-    private instance methods
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- private helper methods
+    --------------------------------------------------------------------------------------------------------------------
+
 
         ----------------------------------------------------------------------------------------------------------------
         -- Choose the best square to forage in next, from among the specified squares
         ----------------------------------------------------------------------------------------------------------------
-        method choose_best_square
-            accepts
-                squares:[Position] -- the squares to choose from
-            returns
-                best_square:Position -- the square that was determined to be the best
-            body
-                return best_square = squares.max_by(garden.get_carrots) -- xcxc
+        method choose_best_square:
+            input:
+                squares : [position] and length() == 2      -- the squares to choose from
+            returns:
+                best_square = position                      -- the square that was determined to be the best
+            code:
+                return best_square = squares.max_by(the_farmers_garden.get_carrots) -- xcxc max_by??? .get_carrots???
 
 
         ----------------------------------------------------------------------------------------------------------------
         -- Eat the carrots at the rabbit's current position
         ----------------------------------------------------------------------------------------------------------------
-        method eat_carrots
-            returns
-                eaten:Carrots -- The number of carrots that were eaten
-            body
-                return eaten = garden.eat_carrots(at_position=position)
+        method eat_carrots:
+            returns:
+                eaten : carrots                         -- The number of carrots that were eaten
+            code:
+                return eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
 
 
         ----------------------------------------------------------------------------------------------------------------
         -- Move the rabbit to the best possible square, from the current position, for foraging.
         ----------------------------------------------------------------------------------------------------------------
-        method move
-            returns
-                moved:boolean -- True if the rabbit moved. False otherwise
-            body
-                choices = garden.get_possible_moves(around_position=position)
-                if is_empty = choices are empty
-                    -- #nowhere_left_to_go: the rabbit has no further options
+        method move:
+            returns:
+                moved : boolean                         -- True if the rabbit moved. False otherwise
+            code:
+                choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
+
+                -- let the rabbit go to sleep, if it couldn't move
+                if is_empty = choices are empty:
                     return moved = false
-                else
-                    -- #still_places_to_go: the rabbit can move to another garden square and continue foraging
-                    position ~= choose_best_square(squares=choices)
+
+                -- look around, and move to the best neighboring square for carrot munching
+                else:
+                    rabbit_position ~= choose_best_square(squares=choices)
                     return moved = true
