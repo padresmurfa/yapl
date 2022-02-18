@@ -10,31 +10,30 @@ export carrots, carrot_matrix, position
 ------------------------------------------------------------------------------------------------------------------------
 -- An unsigned integer, representing a number of carrots.
 ------------------------------------------------------------------------------------------------------------------------
-type carrots : integer and >= 0 and <= 100
+type carrots is integer and >= 0 and <= 100
 
 
 ------------------------------------------------------------------------------------------------------------------------
 -- A 2-dimensional array, representing a garden. Each value in the array represents the number of
 -- carrots that can be found in that square of the garden.
 ------------------------------------------------------------------------------------------------------------------------
-type carrot_matrix : [[carrots]] and not empty
+type carrot_matrix is matrix[rows, columns] of carrots and not carrot_matrix.empty()
 
 
 ------------------------------------------------------------------------------------------------------------------------
 -- A (possibly out-of-bounds) square position within a garden.
 ------------------------------------------------------------------------------------------------------------------------
-type position : structure:
+structure position:
 
 
     ----------------------------------------------------------------------------------------------------------------
     -- The row offset, corresponding to the outermost array in a 2-dimensional array that
     -- represents a garden.
     ----------------------------------------------------------------------------------------------------------------
-    member row : integer and >= 1 and <= 1000
-
+    member row is integer and >= 0 and <= 1000
 
     ----------------------------------------------------------------------------------------------------------------
     -- The column offset, corresponding to the innermost array in the 2-dimensional array that
     -- represents a garden.
     ----------------------------------------------------------------------------------------------------------------
-    member column : integer and >= 1 and <= 1000
+    member column is integer and >= 1 and <= 1000

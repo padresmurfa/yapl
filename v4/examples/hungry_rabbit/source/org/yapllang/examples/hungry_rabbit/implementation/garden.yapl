@@ -14,7 +14,7 @@ export garden
 ------------------------------------------------------------------------------------------------------------------------
 -- An abstraction for a garden that can be foraged by a rabbit for carrots.
 ------------------------------------------------------------------------------------------------------------------------
-type garden : class:
+class garden:
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         constructor:
             input:
-                using_initial_state : carrot_matrix     --  The initial state to use for the garden
+                using_initial_state is carrot_matrix --  The initial state to use for the garden
             code:
                 my_carrot_matrix = using_initial_state
 
@@ -40,18 +40,17 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         -- The number of rows in the garden.
         ----------------------------------------------------------------------------------------------------------------
-        getter rows : integer and >= 1:
+        getter rows is integer and >= 1
             code:
-                return rows = my_carrot_matrix.length
+                return rows = my_carrot_matrix.rows().length()
 
 
         ----------------------------------------------------------------------------------------------------------------
         -- The number of columns in the garden.
         ----------------------------------------------------------------------------------------------------------------
-        getter columns : integer and >= 1
+        getter columns is integer and >= 1
             code:
-                first_row = my_carrot_matrix.get(item_at=0)
-                return columns = first_row.length
+                return columns = my_carrot_matrix.columns().length()
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -64,7 +63,7 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         generator get_possible_centers:
             returns:
-                possible_centers : [position]   -- the possible centers of the garden.
+                possible_centers is collection of position -- the possible centers of the garden.
             code:
                 possible_rows    = get_possible_center_values(for_length=rows)
                 possible_columns = get_possible_center_values(for_length=columns)
@@ -78,7 +77,9 @@ type garden : class:
                         -- calculate and yield a possible center
                         possible_row    = row + rows / 2
                         possible_column = col + columns / 2
-                        yield possible_center = recycler.new position(possible_row, possible_column) -- a possible center of the garden
+
+                        -- a possible center of the garden
+                        yield possible_center = recycler.new position(possible_row, possible_column)
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -86,9 +87,9 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         generator get_possible_moves:
             input:
-                around_position : position      -- the starting position to retrieve legal moves around.
+                around_position is position -- the starting position to retrieve legal moves around
             returns:
-                moves           : [position]    -- the set of possible moves around position within the garden.
+                moves is collection of position -- the set of possible moves around position within the garden
             code:
                 offsets = [-1, 1]
 
@@ -100,7 +101,8 @@ type garden : class:
 
                         -- yield a move, if it is within our bounds
                         if within_bounds = is_within_our_bounds(position=square):
-                            yield move = square                     -- a possible move around position within the garden
+                            -- a possible move around position within the garden
+                            yield move = square
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -108,12 +110,11 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         method get_carrots:
             input:
-                at_position : position      -- the position of the garden-square
+                at_position is position -- the position of the garden-square
             returns:
-                got_carrots : carrots       -- the number of carrots in the square.
+                got_carrots is carrots -- the number of carrots in the square.
             code:
-                row = my_carrot_matrix.get(item_at=at_position.row)
-                return got_carrots = row.get(item_at=at_position.col)
+                return got_carrots = my_carrot_matrix.get(row=at_position.row(), column=at_position.column())
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -121,16 +122,15 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         method eat_carrots_at:
             input:
-                at_position : position      -- the position to eat carrots at
+                at_position is position -- the position to eat carrots at
             returns:
-                eaten       : carrots       -- the number of carrots that were eaten
+                eaten is carrots -- the number of carrots that were eaten
             code:
                 -- determine how many carrots are at our position
                 eaten = get_carrots(at_position)
 
                 -- clear the carrots at our position
-                row   = my_carrot_matrix.get(item_at=at_position.row)
-                row.set(item_at=at_position.col, value=0)
+                my_carrot_matrix.set(row=at_position.row(), column=at_position.column(), value=0)
 
                 -- return the number of carrots that we ate
                 return eaten
@@ -145,7 +145,7 @@ type garden : class:
         -- carrot_matrix is a bi-dimensional array of garden-squares, where each square contains the number
         -- of carrots that are currently to be found at that position in the garden.
         ----------------------------------------------------------------------------------------------------------------
-        member my_carrot_matrix : carrot_matrix is not empty
+        member my_carrot_matrix is carrot_matrix and not empty
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -158,17 +158,17 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         generator get_possible_center_values:
             input:                
-                for_length      : integer and >= 1        -- the length of the row or column
+                for_length      is integer and >= 1 -- the length of the row or column
             returns:
-                possibilities   : [integer]               -- the possible centers, given the provided length
+                possibilities   is collection of integer -- the possible centers, given the provided length
             code:
                 -- create and return the first possible center
                 center = length / 2
-                yield possibility = center                -- the first possible center
+                yield possibility = center -- the first possible center
 
                 -- create and return the second possible center
                 if is_even = for_length is even:
-                    yield possibility = center - 1        -- the second possible center
+                    yield possibility = center - 1 -- the second possible center
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -176,22 +176,22 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         generator pair_of_squares:
             input:                
-                offset_by       : integer and in [-1, +1]    -- the offset from the position, both horizontally and vertically
-                around_position : position                   -- the position to base from)
+                offset_by           is integer and (-1 or +1) -- the offset from the position, both horizontally and vertically
+                around_position     is position -- the position to base from)
             returns:                
-                squares         : [position]                 -- the pair of squares at the position + offset)
+                squares is collection of position and squares.length() == 2 -- the pair of squares at the position + offset)
             code:
                 -- create and return the first square
                 block first_square:
-                    row    = around_position.row + offset_by        
-                    column = around_position.column                 
-                    yield square = recycler.new position(row, column)   -- the first square
+                    row    = around_position.row() + offset_by        
+                    column = around_position.column()                 
+                    yield square = recycler.new position(row, column) -- the first square
 
                 -- create and return the second square
                 block second_square:
-                    row    = around_position.row                    
-                    column = around_position.column + offset_by     
-                    yield square = recycler.new position(row, column)   -- the second square
+                    row    = around_position.row()                    
+                    column = around_position.column() + offset_by     
+                    yield square = recycler.new position(row, column) -- the second square
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -199,15 +199,15 @@ type garden : class:
         ----------------------------------------------------------------------------------------------------------------
         method is_within_our_bounds:
             input:
-                check_position : position               -- the position to determine if is within our bounds
+                check_position is position               -- the position to determine if is within our bounds
             returns:
-                answer : boolean                        -- whether or not the position is within our bounds
+                answer is boolean                        -- whether or not the position is within our bounds
             code:
                 -- perform the bounds checks
-                top    = check_position.row >= 0                    
-                left   = check_position.column >= 0                 
-                bottom = check_position.row < rows                  
-                right  = check_position.column < columns            
+                top    = check_position.row() >= 0                  
+                left   = check_position.column() >= 0                 
+                bottom = check_position.row() < rows             
+                right  = check_position.column() < columns
 
                 -- return the answer
                 return answer = top and left and bottom and right
