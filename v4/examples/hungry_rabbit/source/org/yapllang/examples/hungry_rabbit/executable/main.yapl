@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------------
--- The Hungry Rabbit process contains the main function that drives the solution.
+-- The Hungry Rabbit executable contains the main function that drives our solution.
 ------------------------------------------------------------------------------------------------------------------------
 module main
 
@@ -8,11 +8,14 @@ from hungry_rabbit.implementation import hungry_rabbit
 
 
 ------------------------------------------------------------------------------------------------------------------------
--- Runs the hungry rabbit algorithm. This is the main routine of the hungry rabbit process.
+-- The singleton containing the main entry point of the executable
 ------------------------------------------------------------------------------------------------------------------------
 singleton executable:
 
 
+    --------------------------------------------------------------------------------------------------------------------
+    -- The main entry point of the executable
+    --------------------------------------------------------------------------------------------------------------------
     method main:
         code:
             -- create our initial garden
