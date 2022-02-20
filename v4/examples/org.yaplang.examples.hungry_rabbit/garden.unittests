@@ -1,0 +1,291 @@
+------------------------------------------------------------------------------------------------------------------------
+-- test the Garden class, which is an abstraction for a garden that can be foraged for carrots by a rabbit.
+------------------------------------------------------------------------------------------------------------------------
+module garden
+
+
+------------------------------------------------------------------------------------------------------------------------
+-- test the abstraction for a garden that can be foraged by a rabbit for carrots.
+------------------------------------------------------------------------------------------------------------------------
+test garden:
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- test the public constructor
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- test constructing a valid garden
+        ----------------------------------------------------------------------------------------------------------------
+        test constructor:
+
+            when:
+                -- we construct a garden
+                initial_state = fake matrix
+                garden(initial_state)
+            then:
+                -- the initial state is stored in my_carrot_matrix
+                my_carrot_matrix == initial_state
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- test the public properties
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- the rows property
+        ----------------------------------------------------------------------------------------------------------------
+        test rows:
+            given:
+                -- that m_carrot_matrix is a matrix with two rows and one column
+                my_carrot_matrix = matrix[2,1]( 1, 1 )
+            then:
+                -- the rows property returns 2
+                rows() == 2
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- the columns property
+        ----------------------------------------------------------------------------------------------------------------
+        test columns:
+            given:
+                -- that m_carrot_matrix is a matrix with two rows and one column
+                my_carrot_matrix = matrix[2,1]( 1, 1 )
+            then:
+                -- the columns property returns 1
+                columns() == 1
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- test the public methods
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- test determining a list of squares that could be considered the center of this garden
+        ----------------------------------------------------------------------------------------------------------------
+        test get_possible_centers:
+            when:
+            	-- the get_possible_centers() method is invoked
+                get_possible_centers()
+            then:
+            	-- the returned possible centers should be as expected
+                possible_centers == expected
+
+            ------------------------------------------------------------------------------------------------------------
+            -- test the case where both rows and columns have multiple possible centers
+            ------------------------------------------------------------------------------------------------------------
+            test four_possible_centers:
+                given:
+                    -- that there are two possible center rows
+                    possible_rows = collection(1, 2)
+                    -- and that there are two possible center columns
+                    possible_columns = collection(3,4)
+                then:
+                	-- we expect four possible centers
+                    expected = collection(
+                        position(row=1, column=3),
+                        position(row=1, column=4),
+                        position(row=2, column=3),
+                        position(row=2, column=4),
+                    )
+
+            ------------------------------------------------------------------------------------------------------------
+            -- when rows have multiple possible centers
+            ------------------------------------------------------------------------------------------------------------
+            test two_possible_centers_due_to_rows:
+                given:
+                    -- that there are two possible center rows
+                    possible_rows = collection(1, 2)
+                    -- and that there is one possible center column
+                    possible_columns = collection(3)
+                then:
+                	-- we expect two possible centers
+                    expected = collection(
+                        position(row=1, column=3),
+                        position(row=2, column=3),
+                    )
+
+            ------------------------------------------------------------------------------------------------------------
+            -- when columns have multiple possible centers
+            ------------------------------------------------------------------------------------------------------------
+            test two_possible_centers_due_to_columns:
+                given:
+                    -- that there is one possible center row
+                    possible_rows = collection(1)
+                    -- and that there are two possible center columns
+                    possible_columns = collection(3, 4)
+                then:
+                	-- we expect two possible centers
+                    expected = collection(
+                        position(row=1, column=3),
+                        position(row=1, column=4),
+                    )
+
+
+            ------------------------------------------------------------------------------------------------------------
+            -- when there is a single possible center
+            ------------------------------------------------------------------------------------------------------------
+            test single_possible_center:
+                given:
+                    -- that there is one possible center row
+                    possible_rows = collection(1)
+                    -- and that there is one possible center column
+                    possible_columns = collection(3)
+                then:
+                	-- we expect one possible center
+                    expected = collection(position(row=1, column=3))
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- test determining a list of possible squares to move to within the garden, from a given position.
+        ----------------------------------------------------------------------------------------------------------------
+        test get_possible_moves:
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the case when there is a possible move
+	        ------------------------------------------------------------------------------------------------------------
+        	test a_single_possible_move_is_within_bounds:
+        		given:
+        			 within_bounds=[false, false, false, true]
+    			when:
+    				-- we ask for possible moves
+        			around_position = fake position
+    				get_possible_moves(around_position)
+				then:
+					-- we expect only possible moves to be returned
+					moves == collection(squares[3])
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the case when there are multiple possible moves
+	        ------------------------------------------------------------------------------------------------------------
+        	test all_possible_moves_are_within_bounds:
+        		given:
+        			 within_bounds=[true, true, true, true]
+    			when:
+    				-- we ask for possible moves
+        			around_position = fake position
+    				get_possible_moves(around_position)
+				then:
+					-- we expect all the moves to be returned
+					moves == squares
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the case when there are no possible moves
+	        ------------------------------------------------------------------------------------------------------------
+        	test no_possible_moves_are_within_bounds:
+        		given:
+        			 within_bounds=[false, false, false, false]
+    			when:
+    				-- we ask for possible moves
+        			around_position = fake position
+    				get_possible_moves(around_position)
+				then:
+					-- we expect all the moves to be returned
+					moves == []
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- test retrieving the number of carrots in a given garden-square.
+        ----------------------------------------------------------------------------------------------------------------
+        test get_carrots:
+        	given:
+        		-- an arbitrary garden 
+        		my_carrot_matrix = matrix[2,2](1,2,3,4)
+    		when:
+    			-- the get_carrots method is invoked
+    			at_position = position(1,1)
+    			get_carrots(at_position)
+			then:
+				-- the carrot count for the square is returned
+				got_carrots == 4
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Test eating (the carrots at the given position
+        ----------------------------------------------------------------------------------------------------------------
+        test eat_carrots_at:
+        	given:
+        		-- an arbitrary garden 
+        		my_carrot_matrix = matrix[2,2](1,2,3,4)
+    		when:
+    			-- the get_carrots method is invoked
+    			at_position = position(1,1)
+    			eat_carrots(at_position)
+			then:
+				-- the carrot count for the square is returned
+				eaten == 4
+				my_carrot_matrix[1,1] == 0
+
+
+
+xcxc
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- private helper methods
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine the possible centers for rows or columns of the provided length
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_center_values:
+            input:                
+                for_length      is integer and >= 1 -- the length of the row or column
+            returns:
+                possibilities   is collection of integer -- the possible centers, given the provided length
+            code:
+                -- create and return the first possible center
+                center = length / 2
+                yield possibility = center -- the first possible center
+
+                -- create and return the second possible center
+                if is_even = for_length is even:
+                    yield possibility = center - 1 -- the second possible center
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- create a pair of squares around a position
+        ----------------------------------------------------------------------------------------------------------------
+        generator pair_of_squares:
+            input:                
+                offset_by           is integer and (-1 or +1) -- the offset from the position, both horizontally and vertically
+                around_position     is position -- the position to base from)
+            returns:                
+                squares is collection of position and squares.length() == 2 -- the pair of squares at the position + offset)
+            code:
+                -- create and return the first square
+                block first_square:
+                    first_row    = around_position.row() + offset_by
+                    first_column = around_position.column()                 
+                    yield square = position(row = first_row, column = first_column)
+
+                -- create and return the second square
+                block second_square:
+                    second_row    = around_position.row()                    
+                    second_column = around_position.column() + offset_by     
+                    yield square = position(row = second_row, column = second_column)
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine whether or not position is within the bounds of this garden
+        ----------------------------------------------------------------------------------------------------------------
+        method is_within_our_bounds:
+            input:
+                check_position is position               -- the position to determine if is within our bounds
+            returns:
+                answer is boolean                        -- whether or not the position is within our bounds
+            code:
+                -- perform the bounds checks
+                top    = check_position.row() >= 0                  
+                left   = check_position.column() >= 0                 
+                bottom = check_position.row() < rows             
+                right  = check_position.column() < columns
+
+                -- return the answer
+                return answer = top and left and bottom and right
+

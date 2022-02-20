@@ -1,0 +1,72 @@
+------------------------------------------------------------------------------------------------------------------------
+-- This module contains our program's entry point from the operating system
+------------------------------------------------------------------------------------------------------------------------
+module main
+
+
+------------------------------------------------------------------------------------------------------------------------
+-- Write a function rotate(ar[], d, n) that rotates arr[] of size n by d elements. 
+-- 
+--   1 2 3 4 5 6 7
+-- 
+-- Rotation of the above array by 2 will make array
+-- 
+--   3 4 5 6 7 1 2
+--
+------------------------------------------------------------------------------------------------------------------------
+singleton executable:
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- The main entry point of the executable
+    --------------------------------------------------------------------------------------------------------------------
+    method main:
+        code:
+            -- create the array that we shall rotate in-place
+            arr = array (
+            	1, 2, 3, 4, 5, 6, 7
+            )
+
+            -- rotate the array in-place
+            rotate(the_array=arr, distance=2)
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- private implementation
+    --------------------------------------------------------------------------------------------------------------------
+
+	    ----------------------------------------------------------------------------------------------------------------
+	    -- The rotate function
+	    ----------------------------------------------------------------------------------------------------------------
+	    method rotate:
+	    	input:
+	    		the_array is array of integer and is mutable -- the array that should be rotated
+	    		distance is integer -- the distance that the array should be rotated
+			code:
+				-- if the array is empty, then there is no work to be done
+				if is_empty = the_array is empty:
+					return
+
+				-- likewise, if we are being asked to rotate by 0 positions, there is no work to be done
+				if no_rotation = distance is zero:
+					return
+
+				-- the size of the array, which we use for modulus calculations
+				array_size = the_array.size()
+
+				-- how far to actually rotate the array, since we don't need to go multiple circles
+				actual_distance = distance % array_size
+
+				-- if we're being asked to rotate to the left, translate that into a rotation to the right
+				if negative_distance = actual_distance is negative:
+					actual_distance = array_size + actual_distance
+
+				-- select position 0 as our initial source
+				position = 0,
+				value = the_array.get(position)
+
+				-- perform exactly N swaps, where N is the size of the array
+				for counter in range(array_size):
+					position = (position + actual_distance) % array_size
+					value = the_array.swap(position, value)
+
+
