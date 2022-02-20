@@ -167,7 +167,7 @@ class garden:
                 possibilities   is collection of integer -- the possible centers, given the provided length
             code:
                 -- create and return the first possible center
-                center = length / 2
+                center = for_length / 2
                 yield possibility = center -- the first possible center
 
                 -- create and return the second possible center
@@ -188,7 +188,7 @@ class garden:
             code:
                 row    = around_position.row() + delta_row
                 column = around_position.column() + delta_column        
-                yield square = position(row, column)
+                return square = position(row, column)
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -203,8 +203,8 @@ class garden:
                 -- perform the bounds checks
                 top    = check_position.row() >= 0                  
                 left   = check_position.column() >= 0                 
-                bottom = check_position.row() < rows             
-                right  = check_position.column() < columns
+                bottom = check_position.row() < rows()             
+                right  = check_position.column() < columns()
 
                 -- return the answer
                 return answer = top and left and bottom and right
