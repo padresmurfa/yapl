@@ -1,0 +1,205 @@
+------------------------------------------------------------------------------------------------------------------------
+-- This module contains the Garden class, which is an abstraction for a garden that can be foraged for carrots by a
+-- rabbit.
+------------------------------------------------------------------------------------------------------------------------
+module garden
+
+
+------------------------------------------------------------------------------------------------------------------------
+-- An abstraction for a garden that can be foraged by a rabbit for carrots.
+------------------------------------------------------------------------------------------------------------------------
+class garden:
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- public constructor
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Initialize a garden.
+        ----------------------------------------------------------------------------------------------------------------
+        constructor:
+            input:
+                using_initial_state is carrot_matrix --  The initial state to use for the garden
+            code:
+                my_carrot_matrix = using_initial_state
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- public properties
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- The number of rows in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        method rows:
+            returns:
+                rows is integer and >= 1
+            code:
+                return rows = my_carrot_matrix.rows().length()
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- The number of columns in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        method columns:
+            returns:
+                columns is integer and >= 1
+            code:
+                return columns = my_carrot_matrix.columns().length()
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- public methods
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Determine a list of squares that could be considered the center of this garden.
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_centers:
+            returns:
+                possible_centers is collection of position -- the possible centers of the garden.
+            code:
+                possible_rows    = get_possible_center_values(for_length=rows())
+                possible_columns = get_possible_center_values(for_length=columns())
+
+                -- iterate over all the rows and columns that could be considered at the center
+                for row, col in combinations(possible_rows, possible_columns):
+
+                    -- calculate and yield a possible center
+                    possible_row    = row + rows() / 2
+                    possible_column = col + columns() / 2
+
+                    -- a possible center of the garden
+                    yield possible_center = position(row = possible_row, column = possible_column)
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Determine a list of possible squares to move to within the garden, from a given position.
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_moves:
+            input:
+                around_position is position -- the starting position to retrieve legal moves around
+            returns:
+                moves is collection of position -- the set of possible moves around position within the garden
+            code:
+                -- create the possible squares
+                squares = collection(
+                    offset_position(around_position, delta_row=+1, delta_column=0),
+                    offset_position(around_position, delta_row=-1, delta_column=0),
+                    offset_position(around_position, delta_row=0, delta_column=+1),
+                    offset_position(around_position, delta_row=0, delta_column=-1),
+                )
+                -- iterate over squares that are positioned around the offsets, and yield them, if they are within
+                -- our bounds
+                for square in squares:
+
+                    -- yield a move, if it is within our bounds
+                    if within_bounds = is_within_our_bounds(position=square):
+                        -- a possible move around position within the garden
+                        yield move = square
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Retrieve the number of carrots in a given garden-square.
+        ----------------------------------------------------------------------------------------------------------------
+        method get_carrots:
+            input:
+                at_position is position -- the position of the garden-square
+            returns:
+                got_carrots is carrots -- the number of carrots in the square.
+            code:
+                return got_carrots = my_carrot_matrix.get(row=at_position.row(), column=at_position.column())
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- Eat (i.e. clear) the carrots at the given position, and determine how many carrots were in the square.
+        ----------------------------------------------------------------------------------------------------------------
+        method eat_carrots_at:
+            input:
+                at_position is position -- the position to eat carrots at
+            returns:
+                eaten is carrots -- the number of carrots that were eaten
+            code:
+                -- determine how many carrots are at our position
+                eaten = get_carrots(at_position)
+
+                -- clear the carrots at our position
+                my_carrot_matrix.set(row=at_position.row(), column=at_position.column(), value=0)
+
+                -- return the number of carrots that we ate
+                return eaten
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- private state
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- carrot_matrix is a bi-dimensional array of garden-squares, where each square contains the number
+        -- of carrots that are currently to be found at that position in the garden.
+        ----------------------------------------------------------------------------------------------------------------
+        member my_carrot_matrix is carrot_matrix and not empty
+
+
+    --------------------------------------------------------------------------------------------------------------------
+    -- private helper methods
+    --------------------------------------------------------------------------------------------------------------------
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine the possible centers for rows or columns of the provided length
+        ----------------------------------------------------------------------------------------------------------------
+        generator get_possible_center_values:
+            input:                
+                for_length      is integer and >= 1 -- the length of the row or column
+            returns:
+                possibilities   is collection of integer -- the possible centers, given the provided length
+            code:
+                -- create and return the first possible center
+                center = for_length / 2
+                yield possibility = center -- the first possible center
+
+                -- create and return the second possible center
+                if is_even = for_length is even:
+                    yield possibility = center - 1 -- the second possible center
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- create a square at an offset around a position
+        ----------------------------------------------------------------------------------------------------------------
+        method offset_square:
+            input:                
+                around_position     is position -- the position to base from)
+                delta_row           is integer and (-1 or +1) -- the offset, in rows
+                delta_column        is integer and (-1 or +1) -- the offset, in columns
+            returns:
+                square is position  -- the squares at the position + offset
+            code:
+                row    = around_position.row() + delta_row
+                column = around_position.column() + delta_column        
+                return square = position(row, column)
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        -- determine whether or not position is within the bounds of this garden
+        ----------------------------------------------------------------------------------------------------------------
+        method is_within_our_bounds:
+            input:
+                check_position is position               -- the position to determine if is within our bounds
+            returns:
+                answer is boolean                        -- whether or not the position is within our bounds
+            code:
+                -- perform the bounds checks
+                top    = check_position.row() >= 0                  
+                left   = check_position.column() >= 0                 
+                bottom = check_position.row() < rows()             
+                right  = check_position.column() < columns()
+
+                -- return the answer
+                return answer = top and left and bottom and right
+
