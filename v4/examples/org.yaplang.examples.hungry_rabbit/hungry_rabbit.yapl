@@ -55,8 +55,8 @@ singleton hungry_rabbit:
             eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
         code:
             -- instantiate our rabbit and garden abstractions
-            garden = stack.new garden(using_initial_state=carrot_matrix_to_forage)
-            rabbit = stack.new rabbit(forage_in_garden=garden)
+            the_garden = garden(using_initial_state=carrot_matrix_to_forage)
+            the_rabbit = rabbit(forage_in_garden=the_garden)
 
             -- let the rabbit loose in the garden
-            return eaten = rabbit.forage()
+            return eaten = the_rabbit.forage()
