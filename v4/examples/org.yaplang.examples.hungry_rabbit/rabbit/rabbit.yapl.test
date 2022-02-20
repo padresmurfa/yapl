@@ -31,21 +31,36 @@ unit test rabbit:
 
 
         ----------------------------------------------------------------------------------------------------------------
-        -- Make the rabbit go foraging for carrots in the garden.
+        -- test making the rabbit go foraging for carrots in the garden.
         ----------------------------------------------------------------------------------------------------------------
-        method forage:
-            returns:
-                eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
-            code:
-                eaten = 0
+        suite forage:
+    		given:
+                the_farmers_garden   = fake garden
+                rabbit_position      = fake position
+    		when:
+    			eat_and_cant_move()
 
-                -- continuously eat carrots, while carrots are to be had
-                repeat:
-                    eaten = eaten + eat_carrots()
-                while should_move = move()
 
-                -- return the number of carrots that we ate
-                return eaten
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when the rabbit eats some carrots, and then moves on to another square
+	        ------------------------------------------------------------------------------------------------------------
+        	scenario eat_and_move:
+        		given:
+        			moved 				 = [true, false]
+        			ate_carrots 		 = [1, 2]
+        		then:
+        			eaten == 3
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when the rabbit eats some carrots, but has no where to go, thus going to sleep
+	        ------------------------------------------------------------------------------------------------------------
+        	scenario eat_and_cant_move:
+        		given:
+        			moved 				 = false
+        			ate_carrots 		 = 1
+        		then:
+        			eaten == 1
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -54,53 +69,87 @@ unit test rabbit:
 
 
         ----------------------------------------------------------------------------------------------------------------
-        -- Choose the best square to forage in next, from among the specified squares
+        -- test choosing the best square to forage in next, from among the specified squares
         ----------------------------------------------------------------------------------------------------------------
-        method choose_best_square:
-            input:
-                squares is collection of position and squares.length() == 2 -- the squares to choose from
-            returns:
-                best_square is position -- the square that was determined to be the best
-            code:
-                -- determine the first position and carrot count
-                first_position = squares.first()
-                first_carrots = the_farmers_garden.get_carrots(first_position)
- 
-                -- determine the second position and carrot count
-                second_position = squares.last()
-                second_carrots = the_farmers_garden.get_carrots(second_position)
+        suite choose_best_square:
+        	given:
+        		position_1 = fake position
+        		position_2 = fake position
+        		squares = collection(position_1, position_2)
+    		when:
+    			choose_best_square(squares)
 
-                -- compare the squares and return the best square for foraging
-                if first_carrots > second_carrots:
-                    return result = first_position
-                else:
-                    return result = second_position
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario where an earlier position is the best square
+	        ------------------------------------------------------------------------------------------------------------
+	        scenario earlier_is_better choose_best_square:
+	        	given:
+	        		the_farmers_garden.get_carrots(position_1).got_carrots = 2
+	        		the_farmers_garden.get_carrots(position_2).got_carrots = 1
+				then:
+					best_square == position_1
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario where a latter position is the best square
+	        ------------------------------------------------------------------------------------------------------------
+	        scenario earlier_is_better choose_best_square:
+	        	given:
+	        		the_farmers_garden.get_carrots(position_1).got_carrots = 1
+	        		the_farmers_garden.get_carrots(position_2).got_carrots = 2
+				then:
+					best_square == position_2
 
 
         ----------------------------------------------------------------------------------------------------------------
-        -- Eat the carrots at the rabbit's current position
+        -- test eating the carrots at the rabbit's current position
         ----------------------------------------------------------------------------------------------------------------
-        method eat_carrots:
-            returns:
-                eaten is carrots -- The number of carrots that were eaten
-            code:
-                return eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
+        scenario eat_carrots:
+        	given:
+        		rabbit_position = fake position
+        		the_position = rabbit_position
+        		the_farmers_garden.eat_carrots(at_position=the_position).eaten = 7
+    		when:
+    			eat_carrots()
+			then:
+				eaten == 7
 
 
         ----------------------------------------------------------------------------------------------------------------
-        -- Move the rabbit to the best possible square, from the current position, for foraging.
+        -- test moving the rabbit to the best possible square, from the current position, for foraging.
         ----------------------------------------------------------------------------------------------------------------
-        method move:
-            returns:
-                moved is boolean -- true if the rabbit moved. false otherwise
-            code:
-                choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
+        suite move:
 
-                -- let the rabbit go to sleep, if it couldn't move
-                if is_empty = choices are empty:
-                    return moved = false
 
-                -- look around, and move to the best neighboring square for carrot munching
-                else:
-                    rabbit_position = choose_best_square(squares=choices)
-                    return moved = true
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when there is no where for the rabbit to go
+	        ------------------------------------------------------------------------------------------------------------
+	        scenario no_choices:
+	        	given:
+	        		rabbit_position = fake position
+	        		current_position = rabbit_position
+	        		possible_moves = collection()
+	        		the_farmers_garden.get_possible_moves(around_position=current_position).moves = possible_moves
+        		when:
+        			move()
+    			then:
+    				moved == false
+    				rabbit_position == current_position
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when there is no where for the rabbit to go
+	        ------------------------------------------------------------------------------------------------------------
+	        scenario no_choices:
+	        	given:
+	        		rabbit_position = fake position
+	        		current_position = rabbit_position
+	        		new_position = fake position
+	        		possible_moves = collection(new_position)
+	        		the_farmers_garden.get_possible_moves(around_position=current_position).moves = possible_moves
+        		when:
+        			move()
+    			then:
+    				moved == true
+    				rabbit_position == new_position
