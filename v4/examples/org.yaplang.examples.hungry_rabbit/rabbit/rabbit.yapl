@@ -38,14 +38,22 @@ class rabbit:
         method forage:
             returns:
                 eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
+            emits:
+                carrots_were_eaten -- when the rabbit eats carrots in a square
+                rabbit_moved -- when the rabbit moved after eating
+                rabbit_went_to_sleep -- when the rabbit has gone to sleep
             code:
                 eaten = 0
 
                 -- continuously eat carrots, while carrots are to be had
                 repeat:
                     ate_carrots = eat_carrots()
+                    emit carrots_were_eaten = ate_carrots > 0
                     eaten += ate_carrots
-                while moved = move()
+                    moved = move()
+                    emit rabbit_moved = moved
+                while moved
+                emit rabbit_went_to_sleep = true
 
                 -- return the number of carrots that we ate
                 return eaten
@@ -92,9 +100,12 @@ class rabbit:
         method eat_carrots:
             returns:
                 eaten is carrots -- The number of carrots that were eaten
+            emits:
+                carrots_were_eaten -- if at least one carrot was eaten
             code:
-                return eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
-
+                eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
+                emit carrots_were_eaten = eaten > 0
+                return eaten
 
         ----------------------------------------------------------------------------------------------------------------
         -- Move the rabbit to the best possible square, from the current position, for foraging.
@@ -102,6 +113,8 @@ class rabbit:
         method move:
             returns:
                 moved is boolean -- true if the rabbit moved. false otherwise
+            emits:
+                rabbit_moved -- if the rabbit moved to another square
             code:
                 choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
 
@@ -112,4 +125,5 @@ class rabbit:
                 -- look around, and move to the best neighboring square for carrot munching
                 else:
                     rabbit_position = choose_best_square(squares=choices)
+                    emit rabbit_moved = true
                     return moved = true

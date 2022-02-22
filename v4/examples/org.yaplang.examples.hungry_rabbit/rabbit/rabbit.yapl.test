@@ -38,7 +38,35 @@ unit test rabbit:
                 the_farmers_garden   = fake garden
                 rabbit_position      = fake position
     		when:
-    			eat_and_cant_move()
+    			forage()
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when the rabbit does not eats some carrots, but does move on to another square
+	        ------------------------------------------------------------------------------------------------------------
+        	scenario eat_and_move:
+        		given:
+        			moved 				 = [true, false]
+        			ate_carrots 		 = [0, 2]
+        		then:
+        			eaten == 2
+					carrots_were_eaten == [false, true]
+					rabbit_moved == [true, false]
+					rabbit_went_to_sleep == [false, true]
+
+
+	        ------------------------------------------------------------------------------------------------------------
+	        -- test the scenario when the rabbit does not eats some carrots, and does not move on to another square
+	        ------------------------------------------------------------------------------------------------------------
+        	scenario eat_and_move:
+        		given:
+        			moved 				 = false
+        			ate_carrots 		 = 0
+        		then:
+        			eaten == 0
+					carrots_were_eaten is false
+					rabbit_moved is false
+					rabbit_went_to_sleep is true
 
 
 	        ------------------------------------------------------------------------------------------------------------
@@ -50,6 +78,9 @@ unit test rabbit:
         			ate_carrots 		 = [1, 2]
         		then:
         			eaten == 3
+					carrots_were_eaten == [true, true]
+					rabbit_moved == [true, false]
+					rabbit_went_to_sleep == [false, true]
 
 
 	        ------------------------------------------------------------------------------------------------------------
@@ -61,6 +92,9 @@ unit test rabbit:
         			ate_carrots 		 = 1
         		then:
         			eaten == 1
+					carrots_were_eaten is true
+					rabbit_moved is false
+					rabbit_went_to_sleep is true
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -114,6 +148,7 @@ unit test rabbit:
     			eat_carrots()
 			then:
 				eaten == 7
+				carrots_were_eaten is true
 
 
         ----------------------------------------------------------------------------------------------------------------
@@ -134,7 +169,7 @@ unit test rabbit:
         		when:
         			move()
     			then:
-    				moved == false
+    				moved is false
     				rabbit_position == current_position
 
 
@@ -151,5 +186,6 @@ unit test rabbit:
         		when:
         			move()
     			then:
-    				moved == true
+    				moved is true
     				rabbit_position == new_position
+    				rabbit_moved is true
