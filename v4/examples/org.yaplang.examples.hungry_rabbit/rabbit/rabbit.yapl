@@ -46,14 +46,16 @@ class rabbit:
                 eaten = 0
 
                 -- continuously eat carrots, while carrots are to be had
-                repeat:
-                    ate_carrots = eat_carrots()
-                    emit carrots_were_eaten = ate_carrots > 0
-                    eaten += ate_carrots
-                    moved = move()
-                    emit rabbit_moved = moved
-                while moved
-                emit rabbit_went_to_sleep = true
+                mutation rabbit_went_to_sleep:
+                    repeat:
+                        mutation carrots_were_eaten:
+                            ate_carrots = eat_carrots()
+                            carrots_were_eaten = ate_carrots > 0
+                        eaten += ate_carrots
+                        mutation rabbit_moved:
+                            moved = move()
+                            rabbit_moved = moved
+                    while moved
 
                 -- return the number of carrots that we ate
                 return eaten
@@ -103,8 +105,9 @@ class rabbit:
             emits:
                 carrots_were_eaten -- if at least one carrot was eaten
             code:
-                eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
-                emit carrots_were_eaten = eaten > 0
+                mutation carrots_were_eaten:
+                    eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
+                    carrots_were_eaten = eaten > 0
                 return eaten
 
         ----------------------------------------------------------------------------------------------------------------
@@ -124,6 +127,7 @@ class rabbit:
 
                 -- look around, and move to the best neighboring square for carrot munching
                 else:
-                    rabbit_position = choose_best_square(squares=choices)
-                    emit rabbit_moved = true
+                    choice = choose_best_square(squares=choices)
+                    mutation rabbit_moved:
+                        rabbit_position = choice
                     return moved = true

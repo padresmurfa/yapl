@@ -1,19 +1,22 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- This module contains our program's entry point from the operating system
 ------------------------------------------------------------------------------------------------------------------------
-module main
+module hello_world:
 
 from os.human_computer_interface import terminal
 
 ------------------------------------------------------------------------------------------------------------------------
 -- A "hello world" implementation, in YAPL
 ------------------------------------------------------------------------------------------------------------------------
-singleton executable:
+singleton hello_world:
 
     --------------------------------------------------------------------------------------------------------------------
     -- The main entry point of the executable
     --------------------------------------------------------------------------------------------------------------------
     method main:
         code:
+            -- load our message from the translation system
+            hello_world="Hello world!"
+            
             -- inform the world, that we said hello
-            effect = terminal.write_line(hello_world="Hello world!")
+            effect = terminal.write_line(line=hello_world)
