@@ -1,11 +1,12 @@
 use std::process::ExitCode;
+use std::sync::Mutex;
 
 use super::super::transpiler_frontend::line::TranspilerFrontendLine;
 
 #[derive(Debug)]
-pub struct TranspilationJobOutputItem {
-    pub message: String,
-    pub line: Option<TranspilerFrontendLine>
+struct TranspilationJobOutputItem {
+    message: String,
+    line: Option<TranspilerFrontendLine>
 }
 
 impl Clone for TranspilationJobOutputItem  {
@@ -38,55 +39,38 @@ pub enum TranspilationJobOutputErrorCode {
 }
 
 #[derive(Debug)]
-pub struct TranspilationJobOutput {
+struct TranspilationJobOutputImpl {
     error_code: Option<TranspilationJobOutputErrorCode>,
     output: Vec<TranspilationJobOutputItem>
 }
 
-impl Clone for TranspilationJobOutput  {
+impl Clone for TranspilationJobOutputImpl  {
     fn clone(&self) -> Self {
         let mut cloned_output = Vec::new();
         for i in 0..self.output.len() {
             cloned_output.push(self.output[i].clone());
         }
-        return TranspilationJobOutput {
+        return TranspilationJobOutputImpl {
             error_code: self.error_code.clone(),
             output: cloned_output
         }
     }
 }
 
-impl TranspilationJobOutput {
+impl TranspilationJobOutputImpl {
 
-    pub fn create() -> TranspilationJobOutput {
-        return TranspilationJobOutput {
-            error_code: None,
-            output: Vec::new()
-        };
-    }
-
-    pub fn append_output_to(&self, other: &mut TranspilationJobOutput) {
-        other.append_output_from(&self);
-    }
-
-    pub fn append_output_from(&mut self, other: &TranspilationJobOutput) {
-        for i in 0..other.output.len() {
-            self.output.push(other.output[i].clone());
-        }
-    }
-
-    pub fn was_successful(&self) -> bool {
+    fn was_successful(&self) -> bool {
         return self.error_code.is_none();
     }
 
-    pub fn report_info(&mut self, message: String) {
+    fn report_info(&mut self, message: String) {
         self.output.push(TranspilationJobOutputItem {
             message: message,
             line: None
         });
     }
 
-    pub fn report_error(&mut self, message: String, error_code: TranspilationJobOutputErrorCode) {
+    fn report_error(&mut self, message: String, error_code: TranspilationJobOutputErrorCode) {
         if self.error_code.is_none() {
             self.error_code = Some(error_code);
         }
@@ -96,7 +80,7 @@ impl TranspilationJobOutput {
         });
     }
 
-    pub fn report_error_in_line(&mut self, message: String, error_code: TranspilationJobOutputErrorCode, line: &TranspilerFrontendLine) {
+    fn report_error_in_line(&mut self, message: String, error_code: TranspilationJobOutputErrorCode, line: &TranspilerFrontendLine) {
         if self.error_code.is_none() {
             self.error_code = Some(error_code);
         }
@@ -106,25 +90,105 @@ impl TranspilationJobOutput {
         });
     }
 
-    pub fn get_error_code(&self) -> TranspilationJobOutputErrorCode {
+    fn get_error_code(&self) -> TranspilationJobOutputErrorCode {
         return self.error_code.expect("This function should only be called if an error has occurred");
     }
 
-    pub fn get_exit_code(&self) -> ExitCode {
+    fn get_exit_code(&self) -> ExitCode {
         if self.error_code.is_none() {
             return ExitCode::from(0);
         }
         return ExitCode::from(self.error_code.unwrap() as u8);
     }
     
-    pub fn get_transpilation_output_len(&self) -> usize {
+    fn get_transpilation_output_len(&self) -> usize {
         return self.output.len();
     }
 
-    pub fn get_transpilation_output_message(&self, num: usize) -> TranspilationJobOutputItem {
+    fn get_transpilation_output_message(&self, num: usize) -> TranspilationJobOutputItem {
         return TranspilationJobOutputItem { 
             message: self.output[num].message.clone(),
             line: self.output[num].line.clone()
         };
     }
+}
+
+lazy_static! {
+    static ref singleton: Mutex<Box<TranspilationJobOutputImpl>> = {
+        return Mutex::new(Box::new(TranspilationJobOutputImpl {
+            error_code: None,
+            output: Vec::new()
+        }));
+    };
+}
+
+pub struct TranspilationJobOutput {}
+
+impl TranspilationJobOutput {
+
+    pub fn was_successful() -> bool {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+            return o.was_successful();
+        }
+    }
+
+    pub fn report_info(message: String) {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+            o.report_info(message);
+        }
+    }
+
+    pub fn report_error(message: String, error_code: TranspilationJobOutputErrorCode) {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+           o.report_error(message, error_code);
+        }
+    }
+
+    pub fn report_error_in_line(message: String, error_code: TranspilationJobOutputErrorCode, line: &TranspilerFrontendLine) {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+           o.report_error_in_line(message, error_code, line);
+        }
+    }
+
+    pub fn get_error_code() -> TranspilationJobOutputErrorCode {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+            return o.get_error_code();
+        }
+    }
+
+    pub fn get_exit_code() -> ExitCode {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+            return o.get_exit_code();
+        }
+    }
+    
+    pub fn print_output() {
+        unsafe {
+            let mut o = singleton.lock().unwrap();
+            if o.was_successful() {
+                println!("Transpilation completed successfully.");
+            } else {
+                println!("Transpilation failed.");
+            }
+            let l = o.get_transpilation_output_len();
+            for i in 0..l {
+                let message = o.get_transpilation_output_message(i);
+                if message.line.is_none() {
+                    println!("{}: {}", i, message.message);
+                } else {
+                    let line = message.line.unwrap();
+                    let prefix = format!("{} [line={}]: ",  i, line.line_number);
+                    println!("{}{}", prefix, message.message);
+                    println!("{}> {}", "-".repeat(prefix.len() - 2), line.line_text);
+                    
+                }
+            }
+        }
+    } 
 }

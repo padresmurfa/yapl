@@ -16,8 +16,7 @@ use crate::transpilation_job::output::{
 pub struct TranspilerFrontendFileParser {
     // this is currently a constant, 0, but I'm keeping it in a variable for consistency with other parsers and for a hypothetical future case
     // where we use this parser for embedded text and erroneous text, which doesn't necessarily start at indentation 0
-    internal_indentation_level: usize,
-    output: TranspilationJobOutput
+    internal_indentation_level: usize
 }
 
 enum TranspilerFrontendFileParserLineClassification {
@@ -43,8 +42,7 @@ impl TranspilerFrontendFileParser {
 
     pub fn create() -> Box<dyn TranspilerFrontend> {
         return Box::new(TranspilerFrontendFileParser {
-            internal_indentation_level: 0,
-            output: TranspilationJobOutput::create()
+            internal_indentation_level: 0
         });
     }
 
@@ -76,7 +74,7 @@ impl TranspilerFrontendFileParser {
     }
 
     fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected indented line encountered in file scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidIdentedLine,
             line
@@ -84,7 +82,7 @@ impl TranspilerFrontendFileParser {
     }
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected initial token encountered in file scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidStartingToken,
             line
@@ -121,13 +119,5 @@ impl TranspilerFrontend for TranspilerFrontendFileParser {
 
     fn end_of_file(&mut self, context: &mut TranspilerFrontendContext) {
         context.request_pop_due_to_end_of_file();
-    }
-
-    fn append_output_to(&self, other: &mut TranspilationJobOutput) {
-        other.append_output_from(&self.output);
-    }
-
-    fn get_transpilation_job_output(&mut self) -> &mut TranspilationJobOutput {
-        return &mut self.output;
     }
 }

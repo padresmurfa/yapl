@@ -1,5 +1,7 @@
 use std::env;
 use std::process::ExitCode;
+#[macro_use]
+extern crate lazy_static;
 
 mod transpiler_frontend;
 mod transpilation_job;
@@ -11,9 +13,9 @@ use transpilation_job::output::{
 };
 use transpilation_job::builder::TranspilationJobBuilder;
 
-fn run(args: &Vec<String>, output: &mut TranspilationJobOutput) {
+fn run(args: &Vec<String>) {
     if args.len() != 3 {
-        output.report_error(
+        TranspilationJobOutput::report_error(
             format!("ERROR: Expected 2 arguments, got {}\nUsage: yapl <source-file> <target-dir>", args.len()),
             TranspilationJobOutputErrorCode::MainMissingCommandLineArguments
         );
@@ -26,10 +28,8 @@ fn run(args: &Vec<String>, output: &mut TranspilationJobOutput) {
             Ok(_) => {
                 let mut transpiler = build_result.unwrap();
                 transpiler.transpile();
-                transpiler.append_output_to(output);
             }
             Err(_) => {
-                builder.append_output_to(output);
             }
         }
     }
@@ -37,25 +37,7 @@ fn run(args: &Vec<String>, output: &mut TranspilationJobOutput) {
 
 fn main() -> ExitCode {
     let args: Vec<String> = env::args().collect();
-    let mut output = TranspilationJobOutput::create();
-    run(&args, &mut output);
-    if output.was_successful() {
-        println!("Transpilation completed successfully.");
-    } else {
-        println!("Transpilation failed.");
-    }
-    let l = output.get_transpilation_output_len();
-    for i in 0..l {
-        let o = output.get_transpilation_output_message(i);
-        if o.line.is_none() {
-            println!("{}: {}", i, o.message);
-        } else {
-            let line = o.line.unwrap();
-            let prefix = format!("{} [line={}]: ",  i, line.line_number);
-            println!("{}{}", prefix, o.message);
-            println!("{}> {}", "-".repeat(prefix.len() - 2), line.line_text);
-            
-        }
-    }
-    return output.get_exit_code();
+    run(&args);
+    TranspilationJobOutput::print_output();
+    return TranspilationJobOutput::get_exit_code();
 }

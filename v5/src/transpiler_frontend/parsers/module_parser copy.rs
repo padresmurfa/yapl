@@ -25,8 +25,7 @@ pub struct TranspilerFrontendModuleParser {
     maybe_module_name: Option<String>,    
     maybe_prefix_comment_parser: Option<Box<AbstractSyntaxTreePrefixCommentNode>>,
     maybe_suffix_comment: Option<String>,
-    buffer: Vec<TranspilerFrontendLine>,
-    output: TranspilationJobOutput
+    buffer: Vec<TranspilerFrontendLine>
 }
 
 #[derive(Debug)]
@@ -68,8 +67,7 @@ impl TranspilerFrontendModuleParser {
             maybe_module_name: None,
             maybe_prefix_comment_parser: maybe_prefix_comment,
             maybe_suffix_comment: None,
-            buffer: Vec::new(),
-            output: TranspilationJobOutput::create()
+            buffer: Vec::new()
         });
 
         // the lines in 'buffer' may include a prefix-comment, but certainly do end with a module statement, which may also end with a suffix-comment
@@ -249,7 +247,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_comment_error_junk_in_horizontal_rule_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected junk characteers encountered in horizontal-rule comment in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidIdentedLine,
             line
@@ -257,7 +255,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_comment_error_missing_leading_space_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Missing leading space in comment in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidIdentedLine,
             line
@@ -265,7 +263,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected indented line encountered in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidIdentedLine,
             line
@@ -273,7 +271,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected initial token encountered in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidStartingToken,
             line

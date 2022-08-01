@@ -1,5 +1,3 @@
-use crate::transpilation_job::output::TranspilationJobOutput;
-
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendLine {
     pub line_number: usize,

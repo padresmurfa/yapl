@@ -1,4 +1,3 @@
-use crate::transpilation_job::output::TranspilationJobOutput;
 use crate::transpiler_frontend::{
     TranspilerFrontend,
     line::TranspilerFrontendLine
@@ -79,13 +78,9 @@ impl TranspilerFrontendContext {
                 let mut dying_transpiler_frontend = self.transpiler_frontend_stack.pop().unwrap();
                 if !self.transpiler_frontend_stack.is_empty() {
                     let mut receiving_transpiler_frontend = self.transpiler_frontend_stack.pop().unwrap();
-                    receiving_transpiler_frontend.get_transpilation_job_output().append_output_from(dying_transpiler_frontend.get_transpilation_job_output());
                     self.transpiler_frontend_stack.push(receiving_transpiler_frontend);
                 } else {
-                    let lost_message_count = dying_transpiler_frontend.get_transpilation_job_output().get_transpilation_output_len();
-                    if lost_message_count > 0 {
-                        panic!("popping with lost messages!");
-                    }
+                    panic!("popping without a parent!");
                 }
             }
             tmp

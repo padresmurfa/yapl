@@ -20,8 +20,7 @@ use crate::abstract_syntax_tree::nodes::prefix_comment_node::{
 pub struct TranspilerFrontendPrefixCommentParser {
     external_indentation_level: usize,
     internal_indentation_level: usize,
-    buffer: Vec<PrefixCommentItem>,
-    output: TranspilationJobOutput
+    buffer: Vec<PrefixCommentItem>
 }
 
 #[derive(Debug, Clone)]
@@ -55,8 +54,7 @@ impl TranspilerFrontendPrefixCommentParser {
         let mut result = Box::new(TranspilerFrontendPrefixCommentParser {
             external_indentation_level: external_indentation_level,
             internal_indentation_level: external_indentation_level,
-            buffer: Vec::new(),
-            output: TranspilationJobOutput::create()
+            buffer: Vec::new()
         });
         result.append_line(context, line);
         return result;
@@ -126,7 +124,7 @@ impl TranspilerFrontendPrefixCommentParser {
     }
 
     fn on_error_invalid_prefix_comment_junk_in_horizontal_rule_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected junk characters encountered in horizontal-rule prefix-comment"),
             TranspilationJobOutputErrorCode::TranspilerFrontendPrefixCommentLineJunkInHorizontalRule,
             line
@@ -134,7 +132,7 @@ impl TranspilerFrontendPrefixCommentParser {
     }
 
     fn on_error_invalid_prefix_comment_missing_leading_space_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Missing leading space in comment in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendPrefixCommentLineMissingLeadingSpace,
             line
@@ -142,7 +140,7 @@ impl TranspilerFrontendPrefixCommentParser {
     }
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected initial token encountered in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendFileParserInvalidStartingToken,
             line
@@ -210,13 +208,5 @@ impl TranspilerFrontend for TranspilerFrontendPrefixCommentParser {
     fn end_of_file(&mut self, context: &mut TranspilerFrontendContext) {
         self.push_abstract_syntax_tree_prefix_comment_node(context);
         context.request_pop_due_to_end_of_file();
-    }
-
-    fn append_output_to(&self, other: &mut TranspilationJobOutput) {
-        other.append_output_from(&self.output);
-    }
-
-    fn get_transpilation_job_output(&mut self) -> &mut TranspilationJobOutput {
-        return &mut self.output;
     }
 }

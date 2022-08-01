@@ -16,8 +16,7 @@ use crate::transpilation_job::output::{
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendModuleParser {
     external_indentation_level: usize,
-    internal_indentation_level: usize,
-    output: TranspilationJobOutput
+    internal_indentation_level: usize
 }
 
 enum TranspilerFrontendModuleParserLineClassification {
@@ -45,8 +44,7 @@ impl TranspilerFrontendModuleParser {
     pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
         let mut result = Box::new(TranspilerFrontendModuleParser {
             external_indentation_level: external_indentation_level,
-            internal_indentation_level: external_indentation_level,
-            output: TranspilationJobOutput::create()
+            internal_indentation_level: external_indentation_level
         });
         result.append_line(context, line);
         return result;
@@ -87,7 +85,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected indented line encountered in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserInvalidIdentedLine,
             line
@@ -95,7 +93,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.output.report_error_in_line(
+        TranspilationJobOutput::report_error_in_line(
             format!("Unexpected initial token encountered in module scope"),
             TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserInvalidStartingToken,
             line
@@ -135,13 +133,5 @@ impl TranspilerFrontend for TranspilerFrontendModuleParser {
 
     fn end_of_file(&mut self, context: &mut TranspilerFrontendContext) {
         context.request_pop_due_to_end_of_file();
-    }
-
-    fn append_output_to(&self, other: &mut TranspilationJobOutput) {
-        other.append_output_from(&self.output);
-    }
-
-    fn get_transpilation_job_output(&mut self) -> &mut TranspilationJobOutput {
-        return &mut self.output;
     }
 }

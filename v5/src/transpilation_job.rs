@@ -14,7 +14,6 @@ use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::parsers::file_parser::TranspilerFrontendFileParser;
 
 pub struct TranspilationJob {
-    output: TranspilationJobOutput,
     abs_source_filename: String,
     abs_target_dirname: String,
 }
@@ -22,25 +21,19 @@ pub struct TranspilationJob {
 impl TranspilationJob {
 
     pub fn create(
-        output: &TranspilationJobOutput,
         abs_source_filename: &String,
         abs_target_dirname: &String
     ) -> TranspilationJob {
         return TranspilationJob {
             abs_source_filename: abs_source_filename.clone(),
-            abs_target_dirname: abs_target_dirname.clone(),
-            output: output.clone()
+            abs_target_dirname: abs_target_dirname.clone()
         }
-    }
-
-    pub fn append_output_to(&self, other: &mut TranspilationJobOutput) {
-        other.append_output_from(&self.output);
     }
 
     pub fn transpile(&mut self) {
         let file_result = fs::File::open(&self.abs_source_filename);
         if file_result.is_err() {
-            self.output.report_error(
+            TranspilationJobOutput::report_error(
                 format!("ERROR: failed to open file ({:?}) for reading:", self.abs_source_filename),
                 TranspilationJobOutputErrorCode::TranspilationJobFailedToOpenSourceFile
             )
@@ -52,7 +45,7 @@ impl TranspilationJob {
             let mut line_number:usize = 0;
             for line in buf_reader.lines() {
                 if line.is_err() {
-                    self.output.report_error(
+                    TranspilationJobOutput::report_error(
                         format!("ERROR: failed to read line #{} from {:?}", line_number, self.abs_source_filename),
                         TranspilationJobOutputErrorCode::TranspilationJobFailedToReadSourceLine
                     );
