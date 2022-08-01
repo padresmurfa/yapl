@@ -80,7 +80,7 @@ impl TranspilerFrontendContext {
                     let mut receiving_transpiler_frontend = self.transpiler_frontend_stack.pop().unwrap();
                     self.transpiler_frontend_stack.push(receiving_transpiler_frontend);
                 } else {
-                    panic!("popping without a parent!");
+                    // panic!("popping without a parent!");
                 }
             }
             tmp

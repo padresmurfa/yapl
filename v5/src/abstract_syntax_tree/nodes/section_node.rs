@@ -5,18 +5,18 @@ use crate::abstract_syntax_tree::nodes::{
 use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 
 #[derive(Debug, Clone)]
-pub struct AbstractSyntaxTreeModuleNode {
-    pub fully_qualified_module_name: String,
+pub struct AbstractSyntaxTreeSectionNode {
+    pub section_name: String,
     pub maybe_prefix_comment: Option<AbstractSyntaxTreePrefixCommentNode>,
     pub maybe_suffix_comment: Option<String>
 }
 
-impl AbstractSyntaxTreeNode for AbstractSyntaxTreeModuleNode {
+impl AbstractSyntaxTreeNode for AbstractSyntaxTreeSectionNode {
     fn get_node_type_identifier(&self) -> AbstractSyntaxTreeNodeIdentifier {
-        return AbstractSyntaxTreeNodeIdentifier::ModuleNode;
+        return AbstractSyntaxTreeNodeIdentifier::SectionNode;
     }
 
-    fn as_module_node(&self) -> Option<&AbstractSyntaxTreeModuleNode> {
+    fn as_section_node(&self) -> Option<&AbstractSyntaxTreeSectionNode> {
         return Some(&self);
     }
     

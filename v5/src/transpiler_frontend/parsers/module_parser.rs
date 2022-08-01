@@ -1,8 +1,10 @@
+use regex::Regex;
+
 use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
-//use crate::transpiler_frontend::parsers::class_parser::TranspilerFrontendClassParser;
-//use crate::transpiler_frontend::parsers::function_parser::TranspilerFrontendFunctionParser;
+use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
+use crate::transpiler_frontend::parsers::class_parser::TranspilerFrontendClassParser;
 use crate::transpiler_frontend::parsers::prefix_comment_parser::TranspilerFrontendPrefixCommentParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
@@ -12,20 +14,16 @@ use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
+use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
+use crate::abstract_syntax_tree::nodes::module_node::AbstractSyntaxTreeModuleNode;
+use crate::abstract_syntax_tree::nodes::{
+    AbstractSyntaxTreeNodeIdentifier,
+    AbstractSyntaxTreeNode
+};
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendModuleParser {
-    external_indentation_level: usize,
-    internal_indentation_level: usize
-}
-
-enum TranspilerFrontendModuleParserLineClassification {
-    Comment,
-    ClassStatement,
-    FunctionStatement,
-    IndentedLine,
-    JunkLine,
-    EmptyLine
+    section_parser: Box<TranspilerFrontendSectionParser>
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendModuleParser {
@@ -36,102 +34,163 @@ impl TranspilerFrontendParser for TranspilerFrontendModuleParser {
     fn as_module_parser(&self) -> Option<&TranspilerFrontendModuleParser> {
         return Some(&self);
     }
-    
 }
 
 impl TranspilerFrontendModuleParser {
 
     pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
-        let mut result = Box::new(TranspilerFrontendModuleParser {
-            external_indentation_level: external_indentation_level,
-            internal_indentation_level: external_indentation_level
+        return Box::new(TranspilerFrontendModuleParser {
+            section_parser: TranspilerFrontendSectionParser::create(
+                "module",
+                &TranspilerFrontendModuleParser::validate_module_name,
+                external_indentation_level,
+                context,
+                line
+            )
         });
-        result.append_line(context, line);
-        return result;
     }
 
-    fn classify_line(&self, text: &String) -> TranspilerFrontendModuleParserLineClassification {
-        let trimmed = text.trim_start();
-        if trimmed.is_empty() {
-            return TranspilerFrontendModuleParserLineClassification::EmptyLine;
-        } else if trimmed == text {
-            if trimmed.starts_with("class ") {
-                return TranspilerFrontendModuleParserLineClassification::ClassStatement;
-            } else if trimmed.starts_with("function ") {
-                return TranspilerFrontendModuleParserLineClassification::ClassStatement;
-            } else if trimmed.starts_with("--") {
-                return TranspilerFrontendModuleParserLineClassification::Comment;
-            } else {
-                return TranspilerFrontendModuleParserLineClassification::JunkLine;
-            }
+    pub fn validate_module_name(module_name: &str, line: &TranspilerFrontendLine) -> bool {
+        let original = module_name.to_string();
+        if original != original.replace("__", "_") {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. Found multiple sequential underscores separating terms in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+            return false;
+        } else if original.ends_with("_") {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. Found trailing underscore in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+             return false;
+        } else if original.starts_with("_") {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. Found leading underscore in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+            return false;
+        } else if original.len() >= 256 {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. A module name may be at most 256 characters in length, which is still too much for comfort {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+            return false;
+        } else if original != original.replace("..", ".") {
+            TranspilationJobOutput::report_error_in_line(
+                    format!("Invalid module name. Found multiple sequential dots separating terms in {:?}", original),
+                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                    line
+                );
+                return false;
+        } else if original.ends_with(".") {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. Found trailing dot in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+                return false;
+        } else if original.starts_with(".") {
+            TranspilationJobOutput::report_error_in_line(
+                format!("Invalid module name. Found leading dot in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                line
+            );
+            return false;
         } else {
-            return TranspilerFrontendModuleParserLineClassification::IndentedLine;
+            let reverse_dns_pattern = Regex::new(r"^[^\.]+\.[^\.]+\..+$").unwrap();
+            if !reverse_dns_pattern.is_match(&original) {
+                TranspilationJobOutput::report_error_in_line(
+                    format!("Invalid module name. A module name must contain at least two dots to be a valid reverse-DNS name {:?}", original),
+                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                    line
+                );
+                return false;
+            }
+            for section in original.split(".") {                
+                let starts_with_digit_or_underscore = Regex::new("^[0-9_]").unwrap();
+                if starts_with_digit_or_underscore.is_match(&original) {
+                    TranspilationJobOutput::report_error_in_line(
+                        format!("Invalid module name. A module name's components may not start with a digit or an underscore {:?}", original),
+                        TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                        line
+                    );
+                    return false;
+                }
+                if section.ends_with("_") {
+                    TranspilationJobOutput::report_error_in_line(
+                        format!("Invalid module name. A module name's components may not end with an underscore {:?}", original),
+                        TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                        line
+                    );
+                    return false;
+                }
+                let contains_only_legal_characters = Regex::new("^[a-z0-9_.]+$").unwrap();
+                if !contains_only_legal_characters.is_match(&original) {
+                    TranspilationJobOutput::report_error_in_line(
+                        format!("Invalid module name. A module name's components may only contain lower-case ascii characters, digits, or underscores {:?}", original),
+                        TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementModuleNameInvalid,
+                        line
+                    );
+                    return false;
+                }
+            }
         }
+        return true;
     }
     
-    fn on_class_statement_line(&mut self, contxt: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        // let parser = TranspilerFrontendClassParser::create(self.internal_indentation_level, context, line);
-        // context.request_push(parser);
+    fn is_valid_module_subcontent(line: &String) -> bool {
+        // TODO: better parsing
+        return line.starts_with("class ") || line.starts_with("function ") || line.starts_with("constant ") || line.starts_with("type ") ||
+            line.starts_with("public class ") || line.starts_with("public function ") || line.starts_with("public constant ") || line.starts_with("public type ") ||
+            line.starts_with("private class ") || line.starts_with("private function ") || line.starts_with("private constant ") || line.starts_with("private type ");
     }
 
-    fn on_function_statement_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        // let parser = TranspilerFrontendFunctionParser::create(self.internal_indentation_level, context, line);
-        // context.request_push(parser);
+    fn create_module_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
+        // TODO: better parsing
+        let trimmed_line = line.line_text.trim_start();
+        if trimmed_line.starts_with("class ") || trimmed_line.starts_with("public class ") || trimmed_line.starts_with("private class ") {
+            // TODO: forward the public/private attribute 
+            let parser = TranspilerFrontendClassParser::create(indentation_level, context, line);
+            context.request_push(parser);
+        } else {
+            println!("unknown module subcontent: {:?}", line);
+        }
     }
 
-    fn on_comment_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        let parser = TranspilerFrontendPrefixCommentParser::create(self.internal_indentation_level, context, line);
-        context.request_push(parser);
-    }
-
-    fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected indented line encountered in module scope"),
-            TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserInvalidIdentedLine,
-            line
-        );
-    }
-
-    fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected initial token encountered in module scope"),
-            TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserInvalidStartingToken,
-            line
-        );
-    }
-
-    fn on_empty_line(&mut self, _context: &mut TranspilerFrontendContext, _line: &TranspilerFrontendLine) {
-        // TODO - transform prefix comment into infix comment, if present on the stack
+    fn maybe_convert_section_node_to_module_node(&mut self, context: &mut TranspilerFrontendContext) {
+        let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::SectionNode);
+        if !maybe_section_node.is_none() {
+            let section_node = maybe_section_node.as_ref().unwrap().as_section_node().unwrap();
+            context.push_abstract_syntax_tree_node(
+                self.section_parser.external_indentation_level, 
+                    Box::new(AbstractSyntaxTreeModuleNode {
+                    fully_qualified_module_name: section_node.section_name.clone(), 
+                    maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
+                    maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
+                })
+            );
+        }
     }
 }
 
 impl TranspilerFrontend for TranspilerFrontendModuleParser {
 
     fn append_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        let classification = self.classify_line(&line.line_text);
-        match classification {
-            TranspilerFrontendModuleParserLineClassification::ClassStatement => {
-                self.on_class_statement_line(context, &line);
-            }
-            TranspilerFrontendModuleParserLineClassification::FunctionStatement => {
-                self.on_class_statement_line(context, &line);
-            }
-            TranspilerFrontendModuleParserLineClassification::Comment => {
-                self.on_comment_line(context, &line);
-            }
-            TranspilerFrontendModuleParserLineClassification::IndentedLine => {
-                self.on_error_indented_line(context, &line);
-            }
-            TranspilerFrontendModuleParserLineClassification::JunkLine => {
-                self.on_error_junk_line(context, &line);
-            }
-            TranspilerFrontendModuleParserLineClassification::EmptyLine => {
-                self.on_empty_line(context, &line);
-            }
-        }
+        let internal_indentation_level: usize = self.section_parser.internal_indentation_level;
+        let create_module_subcontent_closure = move |context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine| {
+            TranspilerFrontendModuleParser::create_module_subcontent(internal_indentation_level, context, line);
+        };
+        self.section_parser.append_line(&TranspilerFrontendModuleParser::is_valid_module_subcontent, &create_module_subcontent_closure, context, line);
+        self.maybe_convert_section_node_to_module_node(context);
     }
 
     fn end_of_file(&mut self, context: &mut TranspilerFrontendContext) {
-        context.request_pop_due_to_end_of_file();
+        self.section_parser.end_of_file(context);
+        self.maybe_convert_section_node_to_module_node(context);
     }
 }

@@ -3,6 +3,7 @@ pub mod output;
 
 use std::io::BufRead;
 use std::fs;
+use std::panic;
 
 use crate::transpilation_job::output::{
     TranspilationJobOutput,
@@ -51,8 +52,10 @@ impl TranspilationJob {
                     );
                     break;
                 }
+                let actual_line = line.unwrap();
+                println!("transpiling line {}: {:?}", line_number, actual_line);
                 // replace all tabs with 4 spaces
-                let line_of_text_without_tabs = &line.unwrap().replace("\t", "    ");
+                let line_of_text_without_tabs = &actual_line.replace("\t", "    ");
                 let transpiler_line = TranspilerFrontendLine::create(line_number, &line_of_text_without_tabs);
                 self.transpile_input_line(&mut context, &transpiler_line);
                 line_number += 1;

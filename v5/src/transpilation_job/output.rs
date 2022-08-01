@@ -26,16 +26,15 @@ pub enum TranspilationJobOutputErrorCode {
     BuilderMissingRequiredConfiguration = 4,
     TranspilationJobFailedToOpenSourceFile = 5,
     TranspilationJobFailedToReadSourceLine = 6,
-    TranspilerFrontendModuleParserModuleStatementMustBeTerminatedByColon = 7,
-    TranspilerFrontendModuleParserStatementModuleNameInvalid = 8,
-    TranspilerFrontendFileParserInvalidIdentedLine = 9,
-    TranspilerFrontendFileParserInvalidStartingToken = 10,
-    TranspilerFrontendModuleParserClassStatementMustBeTerminatedByColon = 11,
-    TranspilerFrontendClassParserStatementClassNameInvalid = 12,
-    TranspilerFrontendPrefixCommentLineJunkInHorizontalRule = 13,
-    TranspilerFrontendPrefixCommentLineMissingLeadingSpace = 14,
-    TranspilerFrontendModuleParserInvalidIdentedLine = 15,
-    TranspilerFrontendModuleParserInvalidStartingToken = 16
+    TranspilerFrontendFileParserInvalidIdentedLine = 7,
+    TranspilerFrontendFileParserInvalidStartingToken = 8,
+    TranspilerFrontendPrefixCommentLineJunkInHorizontalRule = 9,
+    TranspilerFrontendPrefixCommentLineMissingLeadingSpace = 10,
+    TranspilerFrontendSectionParserStatementMustBeTerminatedByColon = 11,
+    TranspilerFrontendSectionParserInvalidIdentedLine = 12,
+    TranspilerFrontendSectionParserInvalidStartingToken = 13,
+    TranspilerFrontendModuleParserStatementModuleNameInvalid = 14,
+    TranspilerFrontendModuleParserStatementClassNameInvalid = 15
 }
 
 #[derive(Debug)]
