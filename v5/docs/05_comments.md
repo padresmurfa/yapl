@@ -155,3 +155,12 @@ with semantics that the YAPL transpiler is aware of. This will be documented in 
 ## Why?
 
 Markdown supports hyperlinks. YAPL comments are markdown. The possibilities here just seem endless.
+
+## 11. Public-facing code must be documented
+
+Any construct declared as public, such as a public class exposed from a module, a public method exposed from a class, or a public method parameter, must be documented via prefix- or suffix- comments.
+
+## Why?
+
+YAPL is a stickler for readability and maintainability. Your code may look good to your current self, but your future self, coworkers, boss, and replacement will be ever more grateful if your current self took the time to document your thought processees. Odds are this will furthermore help your current self to write better code and better understand what they are trying to achieve. 
+

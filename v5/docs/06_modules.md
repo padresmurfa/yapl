@@ -50,17 +50,20 @@ Shorter files are better for tools, such as the transpiler.
 
 Module statements may be commented either using a prefix-comment or a suffix-comment, as described in the section on comments.
 
-## 7. Visibility of module-scoped items
+## 7. Module contents
 
-Items found at module scope are considered private by default, but may be made public by prefixing them with the 'public' modifier as such.
+Modules can contain declarations for classes, singletons, functions, constants and types. They may not contain variables.
 
-```
-module org.yapllang.foo:
+## Why?
 
-    public class bar:    
-```
+Ad-hoc initialisation code in module scope is shoddy craftmanship that leads to unreadable, untestable, and unmaintainable code. Thus YAPL only allows singletons to exist as concrete values at module scope, in addition to declarations.
 
-# Why?
+## 8. Visibility of module-scoped items
 
-Tools such as IDE auto-completion benefit from having a smaller number of public symbols. Also, developers typically choose the path of least resistance, thus few would bother to mark methods as
-private if they were public by default. One could say that Python botched this up.
+The purpose of modules is to group and publicize classes, functions, constants and types. Module-scoped items are thus always public, and developers are
+encouraged to use sub-modules for private internals, or to use packages to place restrictions on access to internals.  
+
+## Why?
+
+Having given the matter some thought, it seems like the ability to fine-tuned visibility of module-scoped items is in fact an act of over-generalization and over-engineering. Less is more in this case.
+ 
