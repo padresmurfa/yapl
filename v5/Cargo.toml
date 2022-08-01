@@ -1,0 +1,8 @@
+[package]
+name = "yapl"
+version = "0.0.5"
+authors = ["David Brandt <padresmurfa@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+regex = "1"

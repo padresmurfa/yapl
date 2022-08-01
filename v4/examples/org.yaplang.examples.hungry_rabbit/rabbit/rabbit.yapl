@@ -1,133 +1,122 @@
-------------------------------------------------------------------------------------------------------------------------
--- Contains the Rabbit class, an abstraction for a hungry, foraging rabbit
-------------------------------------------------------------------------------------------------------------------------
-module rabbit
+module rabbit:
 
 
-------------------------------------------------------------------------------------------------------------------------
--- An abstraction for a hungry, foraging, rabbit
-------------------------------------------------------------------------------------------------------------------------
-class rabbit:
+    ------------------------------------------------------------------------------------------------------------------------
+    -- An abstraction for a hungry, foraging, rabbit
+    ------------------------------------------------------------------------------------------------------------------------
+    class rabbit:
 
 
-    --------------------------------------------------------------------------------------------------------------------
-    -- public constructor
-    --------------------------------------------------------------------------------------------------------------------
+        public constructor:
 
 
-        ----------------------------------------------------------------------------------------------------------------
-        -- Initialize a rabbit
-        ----------------------------------------------------------------------------------------------------------------
-        constructor:
-            input:
-                forage_in_garden is garden -- the garden that the rabbit should forage in
-            code:
-                the_farmers_garden   = forage_in_garden
-                possible_centers     = forage_in_garden.get_possible_centers()
-                rabbit_position      = choose_best_square(squares=possible_centers)
+            ----------------------------------------------------------------------------------------------------------------
+            -- Initialize a rabbit
+            ----------------------------------------------------------------------------------------------------------------
+            constructor:
+                input:
+                    forage_in_garden is garden -- the garden that the rabbit should forage in
+                code:
+                    the_farmers_garden   = forage_in_garden
+                    possible_centers     = forage_in_garden.get_possible_centers()
+                    rabbit_position      = choose_best_square(squares=possible_centers)
 
 
-    --------------------------------------------------------------------------------------------------------------------
-    -- public methods
-    --------------------------------------------------------------------------------------------------------------------
+        public methods:
 
 
-        ----------------------------------------------------------------------------------------------------------------
-        -- Make the rabbit go foraging for carrots in the garden.
-        ----------------------------------------------------------------------------------------------------------------
-        method forage:
-            returns:
-                eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
-            emits:
-                carrots_were_eaten -- when the rabbit eats carrots in a square
-                rabbit_moved -- when the rabbit moved after eating
-                rabbit_went_to_sleep -- when the rabbit has gone to sleep
-            code:
-                eaten = 0
+            ----------------------------------------------------------------------------------------------------------------
+            -- Make the rabbit go foraging for carrots in the garden.
+            ----------------------------------------------------------------------------------------------------------------
+            method forage:
+                returns:
+                    eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
+                emits:
+                    carrots_were_eaten -- when the rabbit eats carrots in a square
+                    rabbit_moved -- when the rabbit moved after eating
+                    rabbit_went_to_sleep -- when the rabbit has gone to sleep
+                code:
+                    eaten = 0
 
-                -- continuously eat carrots, while carrots are to be had
-                mutation rabbit_went_to_sleep:
-                    repeat:
-                        mutation carrots_were_eaten:
-                            ate_carrots = eat_carrots()
-                            carrots_were_eaten = ate_carrots > 0
-                        eaten += ate_carrots
+                    -- continuously eat carrots, while carrots are to be had
+                    mutation rabbit_went_to_sleep:
+                        repeat:
+                            mutation carrots_were_eaten:
+                                ate_carrots = eat_carrots()
+                                carrots_were_eaten = ate_carrots > 0
+                            eaten += ate_carrots
+                            mutation rabbit_moved:
+                                moved = move()
+                                rabbit_moved = moved
+                        while moved
+
+                    -- return the number of carrots that we ate
+                    return eaten
+
+
+        private state:
+
+
+            ----------------------------------------------------------------------------------------------------------------
+            -- The 'garden' that this Rabbit is foraging in
+            ----------------------------------------------------------------------------------------------------------------
+            member the_farmers_garden is garden
+
+            ----------------------------------------------------------------------------------------------------------------
+            -- The position of this Rabbit within 'garden'
+            ----------------------------------------------------------------------------------------------------------------
+            member rabbit_position is position
+
+
+
+        private helper methods:
+
+
+            ----------------------------------------------------------------------------------------------------------------
+            -- Choose the best square to forage in next, from among the specified squares
+            ----------------------------------------------------------------------------------------------------------------
+            method choose_best_square:
+                input:
+                    squares is collection of position and 1 <= squares.length() <= 4 -- the squares to choose from
+                returns:
+                    best_square is position -- the square that was determined to be the best
+                code:
+                    get_carrots = the_farmers_garden.get_carrots
+                    return best_square = squares.max(max_by=get_carrots)
+
+
+            ----------------------------------------------------------------------------------------------------------------
+            -- Eat the carrots at the rabbit's current position
+            ----------------------------------------------------------------------------------------------------------------
+            method eat_carrots:
+                returns:
+                    eaten is carrots -- The number of carrots that were eaten
+                emits:
+                    carrots_were_eaten -- if at least one carrot was eaten
+                code:
+                    mutation carrots_were_eaten:
+                        eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
+                        carrots_were_eaten = eaten > 0
+                    return eaten
+
+            ----------------------------------------------------------------------------------------------------------------
+            -- Move the rabbit to the best possible square, from the current position, for foraging.
+            ----------------------------------------------------------------------------------------------------------------
+            method move:
+                returns:
+                    moved is boolean -- true if the rabbit moved. false otherwise
+                emits:
+                    rabbit_moved -- if the rabbit moved to another square
+                code:
+                    choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
+
+                    -- let the rabbit go to sleep, if it couldn't move
+                    if is_empty = choices are empty:
+                        return moved = false
+
+                    -- look around, and move to the best neighboring square for carrot munching
+                    else:
+                        choice = choose_best_square(squares=choices)
                         mutation rabbit_moved:
-                            moved = move()
-                            rabbit_moved = moved
-                    while moved
-
-                -- return the number of carrots that we ate
-                return eaten
-
-
-    --------------------------------------------------------------------------------------------------------------------
-    -- private state
-    --------------------------------------------------------------------------------------------------------------------
-
-
-        ----------------------------------------------------------------------------------------------------------------
-        -- The 'garden' that this Rabbit is foraging in
-        ----------------------------------------------------------------------------------------------------------------
-        member the_farmers_garden is garden
-
-        ----------------------------------------------------------------------------------------------------------------
-        -- The position of this Rabbit within 'garden'
-        ----------------------------------------------------------------------------------------------------------------
-        member rabbit_position is position
-
-
-
-    --------------------------------------------------------------------------------------------------------------------
-    -- private helper methods
-    --------------------------------------------------------------------------------------------------------------------
-
-
-        ----------------------------------------------------------------------------------------------------------------
-        -- Choose the best square to forage in next, from among the specified squares
-        ----------------------------------------------------------------------------------------------------------------
-        method choose_best_square:
-            input:
-                squares is collection of position and 1 <= squares.length() <= 4 -- the squares to choose from
-            returns:
-                best_square is position -- the square that was determined to be the best
-            code:
-                get_carrots = the_farmers_garden.get_carrots
-                return best_square = squares.max(max_by=get_carrots)
-
-
-        ----------------------------------------------------------------------------------------------------------------
-        -- Eat the carrots at the rabbit's current position
-        ----------------------------------------------------------------------------------------------------------------
-        method eat_carrots:
-            returns:
-                eaten is carrots -- The number of carrots that were eaten
-            emits:
-                carrots_were_eaten -- if at least one carrot was eaten
-            code:
-                mutation carrots_were_eaten:
-                    eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
-                    carrots_were_eaten = eaten > 0
-                return eaten
-
-        ----------------------------------------------------------------------------------------------------------------
-        -- Move the rabbit to the best possible square, from the current position, for foraging.
-        ----------------------------------------------------------------------------------------------------------------
-        method move:
-            returns:
-                moved is boolean -- true if the rabbit moved. false otherwise
-            emits:
-                rabbit_moved -- if the rabbit moved to another square
-            code:
-                choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
-
-                -- let the rabbit go to sleep, if it couldn't move
-                if is_empty = choices are empty:
-                    return moved = false
-
-                -- look around, and move to the best neighboring square for carrot munching
-                else:
-                    choice = choose_best_square(squares=choices)
-                    mutation rabbit_moved:
-                        rabbit_position = choice
-                    return moved = true
+                            rabbit_position = choice
+                        return moved = true

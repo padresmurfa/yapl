@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+
+INPUTDIR=$HOME/dev/padresmurfa/yapl/v5
+TARGETIR=$INPUTDIR/target/debug
+OUTDIR=$INPUTDIR/out
+if [[ ! -d "$OUTDIR" ]]; then
+  mkdir "$OUTDIR"
+fi
+
+cargo build
+
+$TARGETIR/yapl "$1" "$OUTDIR"

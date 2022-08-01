@@ -1,143 +1,143 @@
-------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------------------------
 -- This module contains our program's entry point from the operating system
-------------------------------------------------------------------------------------------------------------------------
-module main
+----------------------------------------------------------------------------------------------------------------------------
+module main:
 
-from os.human_computer_interface import terminal
-
-
-------------------------------------------------------------------------------------------------------------------------
--- Given an array A[] and a number x, check for pair in A[] with sum as x (aka Two Sum)
---
--- Write a program that, given an array A[] of n numbers and another number x, determines whether or not there exist
--- two elements in A[] whose sum is exactly x. 
--- 
--- Examples: 
--- 
--- Input: arr[] = {0, -1, 2, -3, 1}
---         sum = -2
--- Output: -3, 1
---         Valid pair exists.
---         
--- If we calculate the sum of the output,
--- 1 + (-3) = -2
--- 
--- Input: arr[] = {1, -2, 1, 0, 5}
---        sum = 0
--- Output:
---        No valid pair exists.
-------------------------------------------------------------------------------------------------------------------------
-singleton executable:
-
-    --------------------------------------------------------------------------------------------------------------------
-    -- The main entry point of the executable
-    --------------------------------------------------------------------------------------------------------------------
-    method main:
-        code:
-            -- create the array that we shall use for the two-sum problem
-            arr = stack.new array (
-            	0, -1, 2, -3, 1
-            )
-
-            -- the sum that we shall seek
-            x = -2
-
-            -- perform the actual two-sum search
-            result = try find_first_two_sum_for(the_array=arr, sum=x)
-
-            -- emit a message, informing the user whether or not a pair exists
-            if result == not_found:
-            	terminal.write_line(valid_pair_doesnt_exist="No valid pair exists.")
-        	else:
-        		first, second = result
-	            terminal.write_line(valid_pair_exists="A valid pair exists at positions (${first.position}, ${second.position}) with the values ${first.value} and ${second.value} and the sum ${x}")
+	from os.human_computer_interface import terminal
 
 
+	------------------------------------------------------------------------------------------------------------------------
+	-- Given an array A[] and a number x, check for pair in A[] with sum as x (aka Two Sum)
+	--
+	-- Write a program that, given an array A[] of n numbers and another number x, determines whether or not there exist
+	-- two elements in A[] whose sum is exactly x. 
+	-- 
+	-- Examples: 
+	-- 
+	-- Input: arr[] = {0, -1, 2, -3, 1}
+	--         sum = -2
+	-- Output: -3, 1
+	--         Valid pair exists.
+	--         
+	-- If we calculate the sum of the output,
+	-- 1 + (-3) = -2
+	-- 
+	-- Input: arr[] = {1, -2, 1, 0, 5}
+	--        sum = 0
+	-- Output:
+	--        No valid pair exists.
+	------------------------------------------------------------------------------------------------------------------------
+	singleton executable:
 
-    --------------------------------------------------------------------------------------------------------------------
-    -- private implementation
-    --------------------------------------------------------------------------------------------------------------------
-
-
-	    ----------------------------------------------------------------------------------------------------------------
-	    -- The two-sum finder function
-	    ----------------------------------------------------------------------------------------------------------------
-	    method find_first_two_sum_for:
-	    	input:
-	    		the_array is array of integer 	-- the array to find the sums in
-	    		the_sum is integer 				-- the sum we shall seek
-    		returns:
-    			the_two_sum is two_sum
-			throws:
-				not_found -- indicates that a valid two-sum was not found
+		--------------------------------------------------------------------------------------------------------------------
+		-- The main entry point of the executable
+		--------------------------------------------------------------------------------------------------------------------
+		method main:
 			code:
-				-- fetch the valid two-sums
-				two_sums = find_two_sums_for(the_array, the_sum)
+				-- create the array that we shall use for the two-sum problem
+				arr = stack.new array (
+					0, -1, 2, -3, 1
+				)
 
-				-- we're only going to use the first value, thus we note that we expect find_two_sums_for to be a
-				-- generator. This can be checked at compile-time, thus preventing a regression
-				find_two_sums_for is generator
+				-- the sum that we shall seek
+				x = -2
 
-				-- if there is no valid two-sum, we throw an error to inform our caller
-				if two_sums is empty:
-					throw not_found
+				-- perform the actual two-sum search
+				result = try find_first_two_sum_for(the_array=arr, sum=x)
 
-				-- we are only interested in the first two-sum, without regards to how many there are
-				two_sum = two_sums.first()
-
-
-	    ----------------------------------------------------------------------------------------------------------------
-	    -- The two-sum finder function
-	    ----------------------------------------------------------------------------------------------------------------
-	    generator find_two_sums_for:
-	    	input:
-	    		the_array is array of integer 	-- the array to find the sums in
-	    		the_sum is integer 				-- the sum we shall seek
-    		returns:
-    			two_sums is collection of two_sum
-			code:
-				-- create a sequence of indices representing the possible positions within the array
-				positions = range(min=0, max=the_array.size())
-
-				-- examine all pairs of positions (i,j)
-				for i, j in combinations(positions, positions):
-					-- except when i and j are in fact the same position
-					if same_position = (i == j):
-						continue
-
-					-- extract the values at these positions, and determine the sum
-					values = the_array.get_values_at(i, j)
-					current_sum = values.sum()
-
-					-- determine if we have found a valid two-sum
-					if match = (current_sum == the_sum):
-						-- create our first result, based on the value at 'i'
-						first_position  = two_sum_part(position = i, value = values.first())
-
-						-- create our second result, based on the value at 'j'
-						second_position = two_sum_part(position = j, value = values.second())
-
-						-- package them up, and return them
-						yield result = two_sum(first=first_position, second=second_position)
+				-- emit a message, informing the user whether or not a pair exists
+				if result == not_found:
+					terminal.write_line(valid_pair_doesnt_exist="No valid pair exists.")
+				else:
+					first, second = result
+					terminal.write_line(valid_pair_exists="A valid pair exists at positions (${first.position}, ${second.position}) with the values ${first.value} and ${second.value} and the sum ${x}")
 
 
-	    ----------------------------------------------------------------------------------------------------------------
-	    -- A type definition for a two-sum
-	    ----------------------------------------------------------------------------------------------------------------
-		type two_sum is pair of two_sum_part
+
+		--------------------------------------------------------------------------------------------------------------------
+		-- private implementation
+		--------------------------------------------------------------------------------------------------------------------
 
 
-	    ----------------------------------------------------------------------------------------------------------------
-	    -- A structure that encapsulates a piece of a two-sum, i.e. a single position and a value
-	    ----------------------------------------------------------------------------------------------------------------
-		structure two_sum_part:
+			----------------------------------------------------------------------------------------------------------------
+			-- The two-sum finder function
+			----------------------------------------------------------------------------------------------------------------
+			method find_first_two_sum_for:
+				input:
+					the_array is array of integer 	-- the array to find the sums in
+					the_sum is integer 				-- the sum we shall seek
+				returns:
+					the_two_sum is two_sum
+				throws:
+					not_found -- indicates that a valid two-sum was not found
+				code:
+					-- fetch the valid two-sums
+					two_sums = find_two_sums_for(the_array, the_sum)
 
-		    ------------------------------------------------------------------------------------------------------------
-		    -- the array index of the value
-		    ------------------------------------------------------------------------------------------------------------
-			member position is integer and >= 0
+					-- we're only going to use the first value, thus we note that we expect find_two_sums_for to be a
+					-- generator. This can be checked at compile-time, thus preventing a regression
+					find_two_sums_for is generator
 
-		    ------------------------------------------------------------------------------------------------------------
-		    -- the actual value
-		    ------------------------------------------------------------------------------------------------------------
-			member value is integer
+					-- if there is no valid two-sum, we throw an error to inform our caller
+					if two_sums is empty:
+						throw not_found
+
+					-- we are only interested in the first two-sum, without regards to how many there are
+					two_sum = two_sums.first()
+
+
+			----------------------------------------------------------------------------------------------------------------
+			-- The two-sum finder function
+			----------------------------------------------------------------------------------------------------------------
+			generator find_two_sums_for:
+				input:
+					the_array is array of integer 	-- the array to find the sums in
+					the_sum is integer 				-- the sum we shall seek
+				returns:
+					two_sums is collection of two_sum
+				code:
+					-- create a sequence of indices representing the possible positions within the array
+					positions = range(min=0, max=the_array.size())
+
+					-- examine all pairs of positions (i,j)
+					for i, j in combinations(positions, positions):
+						-- except when i and j are in fact the same position
+						if same_position = (i == j):
+							continue
+
+						-- extract the values at these positions, and determine the sum
+						values = the_array.get_values_at(i, j)
+						current_sum = values.sum()
+
+						-- determine if we have found a valid two-sum
+						if match = (current_sum == the_sum):
+							-- create our first result, based on the value at 'i'
+							first_position  = two_sum_part(position = i, value = values.first())
+
+							-- create our second result, based on the value at 'j'
+							second_position = two_sum_part(position = j, value = values.second())
+
+							-- package them up, and return them
+							yield result = two_sum(first=first_position, second=second_position)
+
+
+			----------------------------------------------------------------------------------------------------------------
+			-- A type definition for a two-sum
+			----------------------------------------------------------------------------------------------------------------
+			type two_sum is pair of two_sum_part
+
+
+			----------------------------------------------------------------------------------------------------------------
+			-- A structure that encapsulates a piece of a two-sum, i.e. a single position and a value
+			----------------------------------------------------------------------------------------------------------------
+			structure two_sum_part:
+
+				------------------------------------------------------------------------------------------------------------
+				-- the array index of the value
+				------------------------------------------------------------------------------------------------------------
+				member position is integer and >= 0
+
+				------------------------------------------------------------------------------------------------------------
+				-- the actual value
+				------------------------------------------------------------------------------------------------------------
+				member value is integer

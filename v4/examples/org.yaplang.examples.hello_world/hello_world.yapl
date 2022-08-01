@@ -3,20 +3,20 @@
 ------------------------------------------------------------------------------------------------------------------------
 module hello_world:
 
-from os.human_computer_interface import terminal
+    from os.human_computer_interface import terminal
 
-------------------------------------------------------------------------------------------------------------------------
--- A "hello world" implementation, in YAPL
-------------------------------------------------------------------------------------------------------------------------
-singleton hello_world:
+    ------------------------------------------------------------------------------------------------------------------------
+    -- A "hello world" implementation, in YAPL
+    ------------------------------------------------------------------------------------------------------------------------
+    singleton hello_world:
 
-    --------------------------------------------------------------------------------------------------------------------
-    -- The main entry point of the executable
-    --------------------------------------------------------------------------------------------------------------------
-    method main:
-        code:
-            -- load our message from the translation system
-            hello_world="Hello world!"
-            
-            -- inform the world, that we said hello
-            effect = terminal.write_line(line=hello_world)
+        --------------------------------------------------------------------------------------------------------------------
+        -- The main entry point of the executable
+        --------------------------------------------------------------------------------------------------------------------
+        method main:
+            code:
+                -- load our message from the translation system
+                hello_world="Hello world!"
+                
+                -- inform the world, that we said hello
+                effect = terminal.write_line(line=hello_world)
