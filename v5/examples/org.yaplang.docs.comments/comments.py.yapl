@@ -7,7 +7,7 @@ module org.yaplang.doc.comments:
     ----------------------------------------------------------------------------------------------------------------
     -- A class that is used for testing comments during the YAPL to Python transpilation process
     ----------------------------------------------------------------------------------------------------------------
-    public class comments:
+    class comments:
 
 
         public methods:

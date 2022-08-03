@@ -12,7 +12,10 @@ use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
-use crate::abstract_syntax_tree::nodes::section_node::AbstractSyntaxTreeSectionNode;
+use crate::abstract_syntax_tree::nodes::section_node::{
+    AbstractSyntaxTreeSectionNode,
+    AbstractSyntaxTreeSectionNodeVisibility
+};
 use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 use crate::abstract_syntax_tree::nodes::{
     AbstractSyntaxTreeNodeIdentifier,
@@ -21,9 +24,10 @@ use crate::abstract_syntax_tree::nodes::{
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendSectionParser {
-    pub section_type: String,
+    pub maybe_section_type: Option<String>,
     pub external_indentation_level: usize,
     pub internal_indentation_level: usize,
+    pub maybe_section_visibility: Option<AbstractSyntaxTreeSectionNodeVisibility>,
     pub maybe_section_name: Option<String>,    
     pub maybe_prefix_comment_parser: Option<Box<AbstractSyntaxTreePrefixCommentNode>>,
     pub maybe_suffix_comment: Option<String>
@@ -45,7 +49,22 @@ type SectionLineContentParserCreator = dyn Fn(&mut TranspilerFrontendContext, &T
 
 impl TranspilerFrontendSectionParser {
 
-    pub fn create(section_type: &str, section_name_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+    pub fn create_with_visibility_and_dynamic_name(section_name_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+        let mut visibility_and_dynamic_name = line.line_text.trim_start().to_string();
+        let mut remaining_for_dynamic_name = "".to_string();
+        let mut maybe_dynamic_section_name: Option<String> = None;
+        let mut maybe_section_visibility = if visibility_and_dynamic_name.starts_with("public ") {
+            remaining_for_dynamic_name = visibility_and_dynamic_name.strip_prefix("public ").unwrap().trim_start().to_string();
+            Some(AbstractSyntaxTreeSectionNodeVisibility::Public)
+        } else if visibility_and_dynamic_name.starts_with("private ") {
+            remaining_for_dynamic_name = visibility_and_dynamic_name.strip_prefix("private ").unwrap().trim_start().to_string();
+            Some(AbstractSyntaxTreeSectionNodeVisibility::Private)
+        } else if visibility_and_dynamic_name.starts_with("protected ") {
+            remaining_for_dynamic_name = visibility_and_dynamic_name.strip_prefix("protected ").unwrap().trim_start().to_string();
+            Some(AbstractSyntaxTreeSectionNodeVisibility::Protected)
+        } else {
+            None
+        };
         let maybe_prefix_comment_dyn = context.maybe_pop_abstract_syntax_tree_node(external_indentation_level, AbstractSyntaxTreeNodeIdentifier::PrefixCommentNode);
         let maybe_prefix_comment = if maybe_prefix_comment_dyn.is_none() {
             None
@@ -53,25 +72,72 @@ impl TranspilerFrontendSectionParser {
             Some(Box::new(maybe_prefix_comment_dyn.unwrap().as_prefix_comment_node().unwrap().clone()))
         };
         let mut result_section_parser = Box::new(TranspilerFrontendSectionParser {
-            section_type: section_type.to_string(),
+            maybe_section_type: None,
             external_indentation_level: external_indentation_level,
             internal_indentation_level: external_indentation_level + 4,
+            maybe_section_visibility: maybe_section_visibility,
             maybe_section_name: None,
             maybe_prefix_comment_parser: maybe_prefix_comment,
             maybe_suffix_comment: None
         });
 
-        let section_type_with_trailing_space: String = (result_section_parser.section_type.clone() + " ").to_string();
-        let maybe_section_name_and_remainder = line.line_text.trim_start().strip_prefix(&section_type_with_trailing_space).unwrap().split_once(":");
+        let maybe_section_name_and_remainder = remaining_for_dynamic_name.split_once(":");
         if maybe_section_name_and_remainder.is_none() {
             TranspilationJobOutput::report_error_in_line(
-                format!("A {}-section-declaration statement must be terminated by a colon symbol", result_section_parser.section_type).to_string(),
+                format!("A {:?}-dynamic-section-declaration statement must be terminated by a colon symbol", result_section_parser.maybe_section_type).to_string(),
                 TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserStatementMustBeTerminatedByColon,
                 line
             );
         } else {
-            let (section_name, untrimmed_remainder) = maybe_section_name_and_remainder.unwrap();
+            let (section_name_with_optional_leading_space, untrimmed_remainder) = maybe_section_name_and_remainder.as_ref().unwrap();
+            let section_name = section_name_with_optional_leading_space.trim_start().to_string();
             result_section_parser.maybe_section_name = Some(section_name.to_string());
+            if section_name_validator(&section_name, line) {
+                let remainder = untrimmed_remainder.trim_start();
+                let maybe_split = remainder.split_once("--");
+                if !maybe_split.is_none() {
+                    let (maybe_comment_symbol, untrimmed_comment_comment) = maybe_split.unwrap();
+                    let trimmed_suffix_comment = untrimmed_comment_comment.trim();
+                    if !trimmed_suffix_comment.is_empty() {
+                        result_section_parser.maybe_suffix_comment = Some(trimmed_suffix_comment.to_string());
+                    }
+                }
+            } else {
+                // an error will have been added to result_section_parser
+            }
+        }
+        return result_section_parser;        
+
+    }
+
+    pub fn create_with_section_type(section_type: &str, section_name_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+        let maybe_prefix_comment_dyn = context.maybe_pop_abstract_syntax_tree_node(external_indentation_level, AbstractSyntaxTreeNodeIdentifier::PrefixCommentNode);
+        let maybe_prefix_comment = if maybe_prefix_comment_dyn.is_none() {
+            None
+        } else {
+            Some(Box::new(maybe_prefix_comment_dyn.unwrap().as_prefix_comment_node().unwrap().clone()))
+        };
+        let mut result_section_parser = Box::new(TranspilerFrontendSectionParser {
+            maybe_section_type: Some(section_type.to_string()),
+            external_indentation_level: external_indentation_level,
+            internal_indentation_level: external_indentation_level + 4,
+            maybe_section_visibility: None,
+            maybe_section_name: None,
+            maybe_prefix_comment_parser: maybe_prefix_comment,
+            maybe_suffix_comment: None
+        });
+        let section_type_with_trailing_space: String = (section_type.clone().to_owned() + " ").to_string();
+        let (stuff_before_section_type, line_following_section_type) = line.line_text.trim_start().split_once(&section_type_with_trailing_space).unwrap();
+        let maybe_section_name_and_remainder = line_following_section_type.split_once(":");
+        if maybe_section_name_and_remainder.is_none() {
+            TranspilationJobOutput::report_error_in_line(
+                format!("A {:?}-section-declaration statement must be terminated by a colon symbol", result_section_parser.maybe_section_type).to_string(),
+                TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserStatementMustBeTerminatedByColon,
+                line
+            );
+        } else {
+            let (section_name, untrimmed_remainder) = maybe_section_name_and_remainder.as_ref().unwrap();
+            result_section_parser.maybe_section_name = Some(section_name.trim_start().to_string());
             if section_name_validator(&section_name, line) {
                 let remainder = untrimmed_remainder.trim_start();
                 let maybe_split = remainder.split_once("--");
@@ -119,7 +185,7 @@ impl TranspilerFrontendSectionParser {
 
     fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected indented line encountered in {}'s {}-section scope", self.maybe_section_name.as_ref().unwrap(), self.section_type),
+            format!("Unexpected indented line encountered in {}'s {:?}-section scope", self.maybe_section_name.as_ref().unwrap(), self.maybe_section_type),
             TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserInvalidIdentedLine,
             line
         );
@@ -127,7 +193,7 @@ impl TranspilerFrontendSectionParser {
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected initial token encountered in {}'s {}-section scope", self.maybe_section_name.as_ref().unwrap(), self.section_type),
+            format!("Unexpected initial token encountered in {}'s {:?}-section scope", self.maybe_section_name.as_ref().unwrap(), self.maybe_section_type),
             TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserInvalidStartingToken,
             line
         );
@@ -146,7 +212,7 @@ impl TranspilerFrontendSectionParser {
     }
 
     fn emit_abstract_syntax_tree_section_node(&self, context: &mut TranspilerFrontendContext) {
-        println!("Emitting {}-section node to AST: {:?} {:?} {:?}", self.section_type, self.maybe_section_name, self.maybe_prefix_comment_parser, self.maybe_suffix_comment);
+        println!("Emitting {:?}-{:?}-section node to AST: {:?} {:?} {:?}", self.maybe_section_visibility, self.maybe_section_type, self.maybe_section_name, self.maybe_prefix_comment_parser, self.maybe_suffix_comment);
         let maybe_prefix_comment = if self.maybe_prefix_comment_parser.is_none() {
             None
         } else {
@@ -161,6 +227,7 @@ impl TranspilerFrontendSectionParser {
         let section_name = self.maybe_section_name.as_ref().unwrap().clone();
         let node = Box::new(AbstractSyntaxTreeSectionNode {
             section_name: section_name,
+            maybe_section_visibility: self.maybe_section_visibility.clone(),
             maybe_prefix_comment: maybe_prefix_comment,
             maybe_suffix_comment: maybe_suffix_comment
         });

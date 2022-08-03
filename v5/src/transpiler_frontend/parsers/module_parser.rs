@@ -40,7 +40,7 @@ impl TranspilerFrontendModuleParser {
 
     pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
         return Box::new(TranspilerFrontendModuleParser {
-            section_parser: TranspilerFrontendSectionParser::create(
+            section_parser: TranspilerFrontendSectionParser::create_with_section_type(
                 "module",
                 &TranspilerFrontendModuleParser::validate_module_name,
                 external_indentation_level,
@@ -145,16 +145,13 @@ impl TranspilerFrontendModuleParser {
     
     fn is_valid_module_subcontent(line: &String) -> bool {
         // TODO: better parsing
-        return line.starts_with("class ") || line.starts_with("function ") || line.starts_with("constant ") || line.starts_with("type ") ||
-            line.starts_with("public class ") || line.starts_with("public function ") || line.starts_with("public constant ") || line.starts_with("public type ") ||
-            line.starts_with("private class ") || line.starts_with("private function ") || line.starts_with("private constant ") || line.starts_with("private type ");
+        return line.starts_with("class ") || line.starts_with("function ") || line.starts_with("constant ") || line.starts_with("type ");
     }
 
     fn create_module_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         // TODO: better parsing
         let trimmed_line = line.line_text.trim_start();
-        if trimmed_line.starts_with("class ") || trimmed_line.starts_with("public class ") || trimmed_line.starts_with("private class ") {
-            // TODO: forward the public/private attribute 
+        if trimmed_line.starts_with("class ") {
             let parser = TranspilerFrontendClassParser::create(indentation_level, context, line);
             context.request_push(parser);
         } else {

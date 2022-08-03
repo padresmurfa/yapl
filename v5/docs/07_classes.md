@@ -88,7 +88,7 @@ in front of every method.
 
 ## 9. Class sub-part compositions
 
-A composite part may be split into further sub-parts, which in turn can be split into sub-parts, and so forth, up to 3 levels deep. This depth limit is a soft-limit.
+A composite part may be split into further sub-parts, which in turn can be split into sub-parts, and so forth, up to 3 levels deep. This depth limit is a soft-limit. Sub-parts may not have visibility declarations.
 
 ## Why?
 
