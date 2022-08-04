@@ -5,7 +5,7 @@ use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
 use crate::transpiler_frontend::parsers::prefix_comment_parser::TranspilerFrontendPrefixCommentParser;
-use crate::transpiler_frontend::parsers::class_component_section_parser::TranspilerFrontendClassComponentSectionParser;
+use crate::transpiler_frontend::parsers::class_facet_parser::TranspilerFrontendClassFacetParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -103,7 +103,7 @@ impl TranspilerFrontendClassParser {
         return true;
     }
     
-    fn is_valid_class_subcontent(line: &String) -> bool {
+    fn is_valid_class_facet(line: &String) -> bool {
         for keyword in ["public ", "private ", "protected "] {
             if line.starts_with(keyword) {
                 return true;
@@ -112,8 +112,8 @@ impl TranspilerFrontendClassParser {
         return false;
     }
 
-    fn create_class_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        let parser = TranspilerFrontendClassComponentSectionParser::create(indentation_level, context, line);
+    fn create_class_facet(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
+        let parser = TranspilerFrontendClassFacetParser::create(indentation_level, context, line);
         context.request_push(parser);
     }
 
@@ -138,10 +138,10 @@ impl TranspilerFrontend for TranspilerFrontendClassParser {
 
     fn append_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         let internal_indentation_level: usize = self.section_parser.internal_indentation_level;
-        let create_module_subcontent_closure = move |context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine| {
-            TranspilerFrontendClassParser::create_class_subcontent(internal_indentation_level, context, line);
+        let create_class_facet_closure = move |context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine| {
+            TranspilerFrontendClassParser::create_class_facet(internal_indentation_level, context, line);
         };
-        self.section_parser.append_line(&TranspilerFrontendClassParser::is_valid_class_subcontent, &create_module_subcontent_closure, context, line);
+        self.section_parser.append_line(&TranspilerFrontendClassParser::is_valid_class_facet, &create_class_facet_closure, context, line);
         self.maybe_convert_section_node_to_class_node(context);
     }
 

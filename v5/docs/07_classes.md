@@ -53,48 +53,7 @@ Embedding classes generally does more harm than good for readability and maintai
 classes also be closures? How would that even work? If we figure that out, and see a need for it, then YAPL may eventually provide this ability via a separate
 closure_class keyword.
 
-## 8. Class compositions
-
-YAPL differs from other object-oriented languages in that YAPL's classes are organised as a composition of named parts. Parts may be public, private, or protected. Methods in different parts of a class may refer to methods and member variables in other parts of the class by using their part-qualified name.
-
-´´´
-class hello:
-
-    public world:
-
-        -- prints "hello world"
-        method print:
-           ...
-
-    public universe:
-
-        -- prints "hello universe"
-        method print:
-           ...
-
-    private state:
-
-        member foo is bar
-
-´´´
-
-## Why?
-
-Classes tend to be large and unwieldy, thus good code will often use comments to split a class into logical sections. Taking a closer look at this, doesn't it really look like UML composition? If so, why not just go all the way, and introduce a syntax for it. Odds are that this is going to look nice in a class diagram
-to boot!
-
-As for the public/private/protected part, this seems like an elegant way to make class definitions more readable by not having to place public/private/protected
-in front of every method.
-
-## 9. Class sub-part compositions
-
-A composite part may be split into further sub-parts, which in turn can be split into sub-parts, and so forth, up to 3 levels deep. This depth limit is a soft-limit. Sub-parts may not have visibility declarations.
-
-## Why?
-
-It seems like a reasonable thing to support.
-
-## 10. Instances and class instantiation
+## 8. Instances and class instantiation
 
 YAPL uses the keyword ´instantiate´ to denote the creation of a new instance of a class.
 
@@ -102,11 +61,11 @@ YAPL uses the keyword ´instantiate´ to denote the creation of a new instance o
 foo = instantiate bar()
 ´´´
 
-## Why?
+### Why?
 
 YAPL favours clarity, maintainability and readability over brevity. The ´new´ keyword seems like a linguistic kludge that was introduced for the sake of brevity in the early days of object-oriented programming. Invoking a class name as a function is another popular option, but that obscures the computer-science and IMO
 doesn't really help folks that are learning the ropes of their first few programming languages. 
 
-## Why no prototype cloning?
+### Why no prototype cloning?
 
 The only popular/mainstream programming language based on prototypes is JavaScript. Even JavaScript developers eventually caved in and admitted that classes are the way to go via adding the *class* keyword to the language.

@@ -15,33 +15,33 @@ use crate::transpilation_job::output::{
 };
 use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 use crate::abstract_syntax_tree::nodes::class_node::AbstractSyntaxTreeClassNode;
-use crate::abstract_syntax_tree::nodes::class_component_section_node::AbstractSyntaxTreeClassComponentSectionNode;
+use crate::abstract_syntax_tree::nodes::class_facet_node::AbstractSyntaxTreeClassFacetNode;
 use crate::abstract_syntax_tree::nodes::{
     AbstractSyntaxTreeNodeIdentifier,
     AbstractSyntaxTreeNode
 };
 
 #[derive(Debug, Clone)]
-pub struct TranspilerFrontendClassComponentSectionParser {
+pub struct TranspilerFrontendClassFacetParser {
     section_parser: Box<TranspilerFrontendSectionParser>
 }
 
-impl TranspilerFrontendParser for TranspilerFrontendClassComponentSectionParser {
+impl TranspilerFrontendParser for TranspilerFrontendClassFacetParser {
     fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
-        return TranspilerFrontendParserIdentifier::ClassComponentSectionParser;
+        return TranspilerFrontendParserIdentifier::ClassFacetParser;
     }
 
-    fn as_class_component_section_parser(&self) -> Option<&TranspilerFrontendClassComponentSectionParser> {
+    fn as_class_facet_parser(&self) -> Option<&TranspilerFrontendClassFacetParser> {
         return Some(&self);
     }
 }
 
-impl TranspilerFrontendClassComponentSectionParser {
+impl TranspilerFrontendClassFacetParser {
 
     pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
-        return Box::new(TranspilerFrontendClassComponentSectionParser {
+        return Box::new(TranspilerFrontendClassFacetParser {
             section_parser: TranspilerFrontendSectionParser::create_with_visibility_and_dynamic_name(
-                &TranspilerFrontendClassComponentSectionParser::validate_class_component_section_name,
+                &TranspilerFrontendClassFacetParser::validate_class_facet_name,
                 external_indentation_level,
                 context,
                 line
@@ -49,33 +49,33 @@ impl TranspilerFrontendClassComponentSectionParser {
         });
     }
 
-    pub fn validate_class_component_section_name(class_component_section_name: &str, line: &TranspilerFrontendLine) -> bool {
-        let original = class_component_section_name.to_string();
+    pub fn validate_class_facet_name(class_facet_name: &str, line: &TranspilerFrontendLine) -> bool {
+        let original = class_facet_name.to_string();
         if original != original.replace("__", "_") {
             TranspilationJobOutput::report_error_in_line(
-                format!("Invalid class component section name. Found multiple sequential underscores separating terms in {:?}", original),
-                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                format!("Invalid class facet name. Found multiple sequential underscores separating terms in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                 line
             );
             return false;
         } else if original.ends_with("_") {
             TranspilationJobOutput::report_error_in_line(
-                format!("Invalid class component section name. Found trailing underscore in {:?}", original),
-                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                format!("Invalid class facet name. Found trailing underscore in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                 line
             );
              return false;
         } else if original.starts_with("_") {
             TranspilationJobOutput::report_error_in_line(
-                format!("Invalid class component section name. Found leading underscore in {:?}", original),
-                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                format!("Invalid class facet name. Found leading underscore in {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                 line
             );
             return false;
         } else if original.len() >= 256 {
             TranspilationJobOutput::report_error_in_line(
-                format!("Invalid class component section name. A class name may be at most 256 characters in length, which is still too much for comfort {:?}", original),
-                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                format!("Invalid class facet name. A class name may be at most 256 characters in length, which is still too much for comfort {:?}", original),
+                TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                 line
             );
             return false;
@@ -83,8 +83,8 @@ impl TranspilerFrontendClassComponentSectionParser {
             let starts_with_digit = Regex::new("^[0-9]").unwrap();
             if starts_with_digit.is_match(&original) {
                 TranspilationJobOutput::report_error_in_line(
-                    format!("Invalid class component section name. A class name may not start with a digit {:?}", original),
-                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                    format!("Invalid class facet name. A class name may not start with a digit {:?}", original),
+                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                     line
                 );
                 return false;
@@ -92,8 +92,8 @@ impl TranspilerFrontendClassComponentSectionParser {
             let contains_only_legal_characters = Regex::new("^[a-z0-9_]+$").unwrap();
             if !contains_only_legal_characters.is_match(&original) {
                 TranspilationJobOutput::report_error_in_line(
-                    format!("Invalid class component section name. A class component section name may only contain lower-case ascii characters or underscores {:?}", original),
-                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassComponentSectionNameInvalid,
+                    format!("Invalid class facet name. A class facet name may only contain lower-case ascii characters or underscores {:?}", original),
+                    TranspilationJobOutputErrorCode::TranspilerFrontendModuleParserStatementClassFacetNameInvalid,
                     line
                 );
                 return false;
@@ -102,28 +102,34 @@ impl TranspilerFrontendClassComponentSectionParser {
         return true;
     }
     
-    fn is_valid_class_component_section_subcontent(line: &String) -> bool {
-        for keyword in ["public ", "private ", "protected "] {
-            if line.starts_with(keyword) {
-                return true;
-            }
+    fn is_valid_class_facet_content(line: &String) -> bool {
+        if line.starts_with("method ") {
+            return true;
+        }
+        let split_result = line.split_once(" ");
+        if split_result.is_none() {
+            return false;
+        }
+        let (member_name, remainder) = split_result.unwrap();
+        if remainder.starts_with("is ") || remainder.starts_with("references ") {
+            return true;
         }
         return false;
     }
 
-    fn create_class_component_section_subcontent(context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
+    fn create_class_facet_subcontent(context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         println!("TODO: handle class subcontent: {:?}", line);
     }
 
-    fn maybe_convert_section_node_to_class_component_section_node(&mut self, context: &mut TranspilerFrontendContext) {
+    fn maybe_convert_section_node_to_class_facet_node(&mut self, context: &mut TranspilerFrontendContext) {
         let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::ClassNode);
         if !maybe_section_node.is_none() {
             let section_node = maybe_section_node.as_ref().unwrap().as_section_node().unwrap();
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
-                    Box::new(AbstractSyntaxTreeClassComponentSectionNode {
+                    Box::new(AbstractSyntaxTreeClassFacetNode {
                         maybe_section_visibility: section_node.maybe_section_visibility.clone(),
-                        class_component_section_name: section_node.section_name.clone(), 
+                        class_facet_name: section_node.section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
                     }
@@ -133,15 +139,15 @@ impl TranspilerFrontendClassComponentSectionParser {
     }
 }
 
-impl TranspilerFrontend for TranspilerFrontendClassComponentSectionParser {
+impl TranspilerFrontend for TranspilerFrontendClassFacetParser {
 
     fn append_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.section_parser.append_line(&TranspilerFrontendClassComponentSectionParser::is_valid_class_component_section_subcontent, &TranspilerFrontendClassComponentSectionParser::create_class_component_section_subcontent, context, line);
-        self.maybe_convert_section_node_to_class_component_section_node(context);
+        self.section_parser.append_line(&TranspilerFrontendClassFacetParser::is_valid_class_facet_content, &TranspilerFrontendClassFacetParser::create_class_facet_subcontent, context, line);
+        self.maybe_convert_section_node_to_class_facet_node(context);
     }
 
     fn end_of_file(&mut self, context: &mut TranspilerFrontendContext) {
         self.section_parser.end_of_file(context);
-        self.maybe_convert_section_node_to_class_component_section_node(context);
+        self.maybe_convert_section_node_to_class_facet_node(context);
     }
 }

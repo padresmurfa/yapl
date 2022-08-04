@@ -10,7 +10,8 @@ module org.yaplang.doc.comments:
     class comments:
 
 
-        public methods:
+        public facet methods:
+
 
             -- This is an example of a multi-line prefix-comment that is associated with the following
             -- statement; `method foo:`
@@ -23,11 +24,15 @@ module org.yaplang.doc.comments:
                 code:
                     pass
 
-        private members:
 
-            member foo is integer -- this is a suffix-comment that will be associated with the member variable `foo`
+        private facet members:
 
-        public more_methods:
+
+            foo is integer -- this is a suffix-comment that will be associated with the member variable `foo`
+
+
+        public facet more_methods:
+
 
             method main:
                 code:

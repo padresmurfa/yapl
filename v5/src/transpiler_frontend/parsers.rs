@@ -1,4 +1,4 @@
-pub mod class_component_section_parser;
+pub mod class_facet_parser;
 pub mod class_parser;
 pub mod file_parser;
 pub mod module_parser;
@@ -12,13 +12,13 @@ pub enum TranspilerFrontendParserIdentifier {
     ModuleParser,
     PrefixCommentParser,
     SectionParser,
-    ClassComponentSectionParser
+    ClassFacetParser
 }
 
 pub trait TranspilerFrontendParser {
     fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier;
 
-    fn as_class_component_section_parser(&self) -> Option<&class_component_section_parser::TranspilerFrontendClassComponentSectionParser> { return None; }
+    fn as_class_facet_parser(&self) -> Option<&class_facet_parser::TranspilerFrontendClassFacetParser> { return None; }
     fn as_class_parser(&self) -> Option<&class_parser::TranspilerFrontendClassParser> { return None; }
     fn as_file_parser(&self) -> Option<&file_parser::TranspilerFrontendFileParser> { return None; }
     fn as_module_parser(&self) -> Option<&module_parser::TranspilerFrontendModuleParser> { return None; }
