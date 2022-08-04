@@ -29,42 +29,53 @@
 --
 --     27
 ----------------------------------------------------------------------------------------------------------------------------
-module hungry_rabbit:
+module org.yaplang.examples.hungry_rabbit:
 
 
-    public types:
+    --------------------------------------------------------------------------------------------------------------------
+    -- An unsigned integer, representing a number of carrots.
+    --------------------------------------------------------------------------------------------------------------------
+    type carrots is integer:
+        invariants:
+            carrots >= 0
+            carrots <= 100
 
 
-        --------------------------------------------------------------------------------------------------------------------
-        -- An unsigned integer, representing a number of carrots.
-        --------------------------------------------------------------------------------------------------------------------
-        type carrots is integer and >= 0 and <= 100
+    --------------------------------------------------------------------------------------------------------------------
+    -- A 2-dimensional array, representing a garden. Each value in the array represents the number of
+    -- carrots that can be found in that square of the garden.
+    --------------------------------------------------------------------------------------------------------------------
+    type carrot_matrix is matrix[rows, columns] of carrots:
+        invariants:
+            not carrot_matrix.empty()
+            not carrot_matrix.first().empty()
+            for row in carrot_matrix:
+                row.length() == carrot_matrix.first().length()
 
 
-        --------------------------------------------------------------------------------------------------------------------
-        -- A 2-dimensional array, representing a garden. Each value in the array represents the number of
-        -- carrots that can be found in that square of the garden.
-        --------------------------------------------------------------------------------------------------------------------
-        type carrot_matrix is matrix[rows, columns] of carrots and not carrot_matrix.empty()
+    --------------------------------------------------------------------------------------------------------------------
+    -- A (possibly out-of-bounds) square position within a garden.
+    --------------------------------------------------------------------------------------------------------------------
+    type position is structure:
 
 
-        --------------------------------------------------------------------------------------------------------------------
-        -- A (possibly out-of-bounds) square position within a garden.
-        --------------------------------------------------------------------------------------------------------------------
-        type position is structure:
+        ----------------------------------------------------------------------------------------------------------------
+        -- The row offset, corresponding to the outermost array in a 2-dimensional array that
+        -- represents a garden.
+        ----------------------------------------------------------------------------------------------------------------
+        row is integer:
+            invariants:
+                row >= 0
+                row <= 1000
 
-
-            ----------------------------------------------------------------------------------------------------------------
-            -- The row offset, corresponding to the outermost array in a 2-dimensional array that
-            -- represents a garden.
-            ----------------------------------------------------------------------------------------------------------------
-            member row is integer and >= 0 and <= 1000
-
-            ----------------------------------------------------------------------------------------------------------------
-            -- The column offset, corresponding to the innermost array in the 2-dimensional array that
-            -- represents a garden.
-            ----------------------------------------------------------------------------------------------------------------
-            member column is integer and >= 1 and <= 1000
+        ----------------------------------------------------------------------------------------------------------------
+        -- The column offset, corresponding to the innermost array in the 2-dimensional array that
+        -- represents a garden.
+        ----------------------------------------------------------------------------------------------------------------
+        column is integer:
+            invariants:
+                column >= 1
+                column <= 1000
 
 
     ------------------------------------------------------------------------------------------------------------------------
@@ -73,7 +84,7 @@ module hungry_rabbit:
     singleton hungry_rabbit:
 
 
-        public interface:
+        public facet interface:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -85,13 +96,13 @@ module hungry_rabbit:
                     eaten = forage(carrot_matrix_to_forage=garden)
 
 
-        private state:
+        private facet state:
 
 
             ----------------------------------------------------------------------------------------------------------------
             -- Our garden
             ----------------------------------------------------------------------------------------------------------------
-            member garden is matrix(4,5) of integer = (
+            garden is matrix(4,5) of integer = (
                 5, 7, 8, 6, 3,
                 0, 0, 7, 0, 4,
                 4, 6, 3, 4, 9,
@@ -99,7 +110,7 @@ module hungry_rabbit:
             )
 
 
-        private helper methods:
+        private facet helper_methods:
 
 
             ----------------------------------------------------------------------------------------------------------------

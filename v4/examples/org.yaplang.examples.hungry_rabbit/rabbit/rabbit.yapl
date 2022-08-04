@@ -1,4 +1,4 @@
-module rabbit:
+module org.yaplang.examples.hungry_rabbit.rabbit:
 
 
     ------------------------------------------------------------------------------------------------------------------------
@@ -7,7 +7,7 @@ module rabbit:
     class rabbit:
 
 
-        public constructor:
+        public facet constructors:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -15,14 +15,14 @@ module rabbit:
             ----------------------------------------------------------------------------------------------------------------
             constructor:
                 input:
-                    forage_in_garden is garden -- the garden that the rabbit should forage in
+                    forage_in_garden references garden -- the garden that the rabbit should forage in
                 code:
                     the_farmers_garden   = forage_in_garden
                     possible_centers     = forage_in_garden.get_possible_centers()
                     rabbit_position      = choose_best_square(squares=possible_centers)
 
 
-        public methods:
+        public facet commands:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -54,22 +54,22 @@ module rabbit:
                     return eaten
 
 
-        private state:
+        private facet state:
 
 
             ----------------------------------------------------------------------------------------------------------------
             -- The 'garden' that this Rabbit is foraging in
             ----------------------------------------------------------------------------------------------------------------
-            member the_farmers_garden is garden
+            the_farmers_garden references garden
 
             ----------------------------------------------------------------------------------------------------------------
             -- The position of this Rabbit within 'garden'
             ----------------------------------------------------------------------------------------------------------------
-            member rabbit_position is position
+            rabbit_position is position
 
 
 
-        private helper methods:
+        private facet helper_methods:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,10 @@ module rabbit:
             ----------------------------------------------------------------------------------------------------------------
             method choose_best_square:
                 input:
-                    squares is collection of position and 1 <= squares.length() <= 4 -- the squares to choose from
+                    squares is collection of position -- the squares to choose from
+                preconditions:
+                    1 <= squares.length()
+                    squares.length() <= 4
                 returns:
                     best_square is position -- the square that was determined to be the best
                 code:

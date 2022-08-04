@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Test the singleton containing the main entry point of the executable
 ------------------------------------------------------------------------------------------------------------------------
-test module hungry_rabbit:
+test module org.yaplang.examples.hungry_rabbit:
 
 
     test public interface:

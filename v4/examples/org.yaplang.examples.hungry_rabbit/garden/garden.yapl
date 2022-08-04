@@ -1,4 +1,4 @@
-module garden:
+module org.yaplang.examples.hungry_rabbit.garden:
 
 
     ------------------------------------------------------------------------------------------------------------------------
@@ -7,7 +7,7 @@ module garden:
     class garden:
 
 
-        public constructor:
+        public facet constructor:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -15,12 +15,12 @@ module garden:
             ----------------------------------------------------------------------------------------------------------------
             constructor:
                 input:
-                    using_initial_state is carrot_matrix --  The initial state to use for the garden
+                    using_initial_state references carrot_matrix --  The initial state to use for the garden
                 code:
                     my_carrot_matrix = using_initial_state
 
 
-        public properties:
+        public facet properties:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,9 @@ module garden:
             ----------------------------------------------------------------------------------------------------------------
             method rows:
                 returns:
-                    rows is integer and >= 1
+                    rows is integer
+                postcondition:
+                    rows >= 1
                 code:
                     return rows = my_carrot_matrix.rows().length()
 
@@ -38,12 +40,14 @@ module garden:
             ----------------------------------------------------------------------------------------------------------------
             method columns:
                 returns:
-                    columns is integer and >= 1
+                    columns is integer
+                postcondition:
+                    columns >= 1
                 code:
                     return columns = my_carrot_matrix.columns().length()
 
 
-        public methods:
+        public facet methods:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -124,17 +128,17 @@ module garden:
                     return eaten
 
 
-        private state:
+        private facet state:
 
 
             ----------------------------------------------------------------------------------------------------------------
             -- carrot_matrix is a bi-dimensional array of garden-squares, where each square contains the number
             -- of carrots that are currently to be found at that position in the garden.
             ----------------------------------------------------------------------------------------------------------------
-            member my_carrot_matrix is carrot_matrix and not empty
+            my_carrot_matrix references carrot_matrix where my_carrot_matrix is not empty
 
 
-        private helper methods:
+        private facet helper_methods:
 
 
             ----------------------------------------------------------------------------------------------------------------
@@ -142,7 +146,7 @@ module garden:
             ----------------------------------------------------------------------------------------------------------------
             generator get_possible_center_values:
                 input:                
-                    for_length      is integer and >= 1 -- the length of the row or column
+                    for_length      is integer where for_length >= 1 -- the length of the row or column
                 returns:
                     possibilities   is collection of integer -- the possible centers, given the provided length
                 code:
@@ -161,8 +165,8 @@ module garden:
             method offset_square:
                 input:                
                     around_position     is position -- the position to base from)
-                    delta_row           is integer and (-1 or +1) -- the offset, in rows
-                    delta_column        is integer and (-1 or +1) -- the offset, in columns
+                    delta_row           is integer where delta_row in (-1 or +1) -- the offset, in rows
+                    delta_column        is integer where delta_column in (-1 or +1) -- the offset, in columns
                 returns:
                     square is position  -- the squares at the position + offset
                 code:
