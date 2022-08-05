@@ -2,7 +2,6 @@ use crate::transpiler_frontend::{
     TranspilerFrontend,
     line::TranspilerFrontendLine
 };
-use crate::transpiler_frontend::parsers::TranspilerFrontendParserIdentifier;
 use crate::abstract_syntax_tree::nodes::{
     AbstractSyntaxTreeNodeIdentifier,
     AbstractSyntaxTreeNode

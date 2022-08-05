@@ -3,7 +3,6 @@ pub mod output;
 
 use std::io::BufRead;
 use std::fs;
-use std::panic;
 
 use crate::transpilation_job::output::{
     TranspilationJobOutput,

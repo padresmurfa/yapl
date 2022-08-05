@@ -5,7 +5,7 @@ use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
 use crate::transpiler_frontend::parsers::class_parser::TranspilerFrontendClassParser;
-use crate::transpiler_frontend::parsers::prefix_comment_parser::TranspilerFrontendPrefixCommentParser;
+use crate::transpiler_frontend::parsers::module_function_parser::TranspilerFrontendModuleFunctionParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -15,11 +15,8 @@ use crate::transpilation_job::output::{
     TranspilationJobOutputErrorCode
 };
 use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
+use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
 use crate::abstract_syntax_tree::nodes::module_node::AbstractSyntaxTreeModuleNode;
-use crate::abstract_syntax_tree::nodes::{
-    AbstractSyntaxTreeNodeIdentifier,
-    AbstractSyntaxTreeNode
-};
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendModuleParser {
@@ -27,7 +24,7 @@ pub struct TranspilerFrontendModuleParser {
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendModuleParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier {
         return TranspilerFrontendParserIdentifier::ModuleParser;
     }
 
@@ -38,9 +35,9 @@ impl TranspilerFrontendParser for TranspilerFrontendModuleParser {
 
 impl TranspilerFrontendModuleParser {
 
-    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
+    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendModuleParser> {
         return Box::new(TranspilerFrontendModuleParser {
-            section_parser: TranspilerFrontendSectionParser::create_with_section_type(
+            section_parser: TranspilerFrontendSectionParser::create(
                 "module",
                 &TranspilerFrontendModuleParser::validate_module_name,
                 external_indentation_level,
@@ -51,7 +48,7 @@ impl TranspilerFrontendModuleParser {
     }
 
     pub fn validate_module_name(module_name: &str, line: &TranspilerFrontendLine) -> bool {
-        let original = module_name.to_string();
+        let original = module_name.trim().to_string();
         if original != original.replace("__", "_") {
             TranspilationJobOutput::report_error_in_line(
                 format!("Invalid module name. Found multiple sequential underscores separating terms in {:?}", original),
@@ -153,6 +150,9 @@ impl TranspilerFrontendModuleParser {
         let trimmed_line = line.line_text.trim_start();
         if trimmed_line.starts_with("class ") {
             let parser = TranspilerFrontendClassParser::create(indentation_level, context, line);
+            context.request_push(parser);
+        } else if line.line_text.trim_start().starts_with("function ") {
+            let parser = TranspilerFrontendModuleFunctionParser::create(indentation_level, context, line);
             context.request_push(parser);
         } else {
             println!("unknown module subcontent: {:?}", line);

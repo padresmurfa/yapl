@@ -28,7 +28,7 @@ enum TranspilerFrontendFileParserLineClassification {
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendFileParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier {
         return TranspilerFrontendParserIdentifier::FileParser;
     }
 
@@ -40,7 +40,7 @@ impl TranspilerFrontendParser for TranspilerFrontendFileParser {
 
 impl TranspilerFrontendFileParser {
 
-    pub fn create() -> Box<dyn TranspilerFrontend> {
+    pub fn create() -> Box<TranspilerFrontendFileParser> {
         return Box::new(TranspilerFrontendFileParser {
             internal_indentation_level: 0
         });

@@ -4,7 +4,6 @@ use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
-use crate::transpiler_frontend::parsers::prefix_comment_parser::TranspilerFrontendPrefixCommentParser;
 use crate::transpiler_frontend::parsers::class_facet_parser::TranspilerFrontendClassFacetParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
@@ -14,12 +13,8 @@ use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
-use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 use crate::abstract_syntax_tree::nodes::class_node::AbstractSyntaxTreeClassNode;
-use crate::abstract_syntax_tree::nodes::{
-    AbstractSyntaxTreeNodeIdentifier,
-    AbstractSyntaxTreeNode
-};
+use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendClassParser {
@@ -27,7 +22,7 @@ pub struct TranspilerFrontendClassParser {
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendClassParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier {
         return TranspilerFrontendParserIdentifier::ClassParser;
     }
 
@@ -38,9 +33,9 @@ impl TranspilerFrontendParser for TranspilerFrontendClassParser {
 
 impl TranspilerFrontendClassParser {
 
-    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
+    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendClassParser> {
         return Box::new(TranspilerFrontendClassParser {
-            section_parser: TranspilerFrontendSectionParser::create_with_section_type(
+            section_parser: TranspilerFrontendSectionParser::create(
                 "class",
                 &TranspilerFrontendClassParser::validate_class_name,
                 external_indentation_level,
@@ -51,7 +46,7 @@ impl TranspilerFrontendClassParser {
     }
 
     pub fn validate_class_name(class_name: &str, line: &TranspilerFrontendLine) -> bool {
-        let original = class_name.to_string();
+        let original = class_name.trim().to_string();
         if original != original.replace("__", "_") {
             TranspilationJobOutput::report_error_in_line(
                 format!("Invalid class name. Found multiple sequential underscores separating terms in {:?}", original),
@@ -106,7 +101,13 @@ impl TranspilerFrontendClassParser {
     fn is_valid_class_facet(line: &String) -> bool {
         for keyword in ["public ", "private ", "protected "] {
             if line.starts_with(keyword) {
-                return true;
+                let maybe_facet = line.split_once(" ");
+                if !maybe_facet.is_none() {
+                    let (_, remainder) = maybe_facet.unwrap();
+                    if remainder.starts_with("facet ") {
+                        return true;
+                    }
+                }
             }
         }
         return false;

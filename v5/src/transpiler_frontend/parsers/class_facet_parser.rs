@@ -4,7 +4,7 @@ use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
-use crate::transpiler_frontend::parsers::prefix_comment_parser::TranspilerFrontendPrefixCommentParser;
+use crate::transpiler_frontend::parsers::class_method_parser::TranspilerFrontendClassMethodParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -13,13 +13,8 @@ use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
-use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
-use crate::abstract_syntax_tree::nodes::class_node::AbstractSyntaxTreeClassNode;
 use crate::abstract_syntax_tree::nodes::class_facet_node::AbstractSyntaxTreeClassFacetNode;
-use crate::abstract_syntax_tree::nodes::{
-    AbstractSyntaxTreeNodeIdentifier,
-    AbstractSyntaxTreeNode
-};
+use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendClassFacetParser {
@@ -27,7 +22,7 @@ pub struct TranspilerFrontendClassFacetParser {
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendClassFacetParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier {
         return TranspilerFrontendParserIdentifier::ClassFacetParser;
     }
 
@@ -38,9 +33,10 @@ impl TranspilerFrontendParser for TranspilerFrontendClassFacetParser {
 
 impl TranspilerFrontendClassFacetParser {
 
-    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
+    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendClassFacetParser> {
         return Box::new(TranspilerFrontendClassFacetParser {
-            section_parser: TranspilerFrontendSectionParser::create_with_visibility_and_dynamic_name(
+            section_parser: TranspilerFrontendSectionParser::create_with_visibility(
+                "facet",
                 &TranspilerFrontendClassFacetParser::validate_class_facet_name,
                 external_indentation_level,
                 context,
@@ -50,7 +46,7 @@ impl TranspilerFrontendClassFacetParser {
     }
 
     pub fn validate_class_facet_name(class_facet_name: &str, line: &TranspilerFrontendLine) -> bool {
-        let original = class_facet_name.to_string();
+        let original = class_facet_name.trim().to_string();
         if original != original.replace("__", "_") {
             TranspilationJobOutput::report_error_in_line(
                 format!("Invalid class facet name. Found multiple sequential underscores separating terms in {:?}", original),
@@ -103,22 +99,30 @@ impl TranspilerFrontendClassFacetParser {
     }
     
     fn is_valid_class_facet_content(line: &String) -> bool {
-        if line.starts_with("method ") {
+        if line.starts_with("--") {
+            return true;
+        }
+        if line.starts_with("constructor ") || line.starts_with("method ") || line.starts_with("generator ") {
             return true;
         }
         let split_result = line.split_once(" ");
         if split_result.is_none() {
             return false;
         }
-        let (member_name, remainder) = split_result.unwrap();
+        let (_, remainder) = split_result.unwrap();
         if remainder.starts_with("is ") || remainder.starts_with("references ") {
             return true;
         }
         return false;
     }
 
-    fn create_class_facet_subcontent(context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        println!("TODO: handle class subcontent: {:?}", line);
+    fn create_class_facet_subcontent(internal_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
+        if line.line_text.trim_start().starts_with("method ") {
+            let parser = TranspilerFrontendClassMethodParser::create(internal_indentation_level, context, line);
+            context.request_push(parser);
+        } else {
+            println!("TODO: handle class subcontent: {:?}", line);
+        }
     }
 
     fn maybe_convert_section_node_to_class_facet_node(&mut self, context: &mut TranspilerFrontendContext) {
@@ -142,7 +146,11 @@ impl TranspilerFrontendClassFacetParser {
 impl TranspilerFrontend for TranspilerFrontendClassFacetParser {
 
     fn append_line(&mut self, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        self.section_parser.append_line(&TranspilerFrontendClassFacetParser::is_valid_class_facet_content, &TranspilerFrontendClassFacetParser::create_class_facet_subcontent, context, line);
+        let internal_indentation_level = self.section_parser.internal_indentation_level;
+        let create_class_facet_closure = move |context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine| {
+            TranspilerFrontendClassFacetParser::create_class_facet_subcontent(internal_indentation_level, context, line);
+        };
+        self.section_parser.append_line(&TranspilerFrontendClassFacetParser::is_valid_class_facet_content, &create_class_facet_closure, context, line);
         self.maybe_convert_section_node_to_class_facet_node(context);
     }
 

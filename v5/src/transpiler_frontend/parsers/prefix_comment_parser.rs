@@ -1,5 +1,3 @@
-use regex::Regex;
-
 use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
@@ -40,7 +38,7 @@ struct PrefixCommentItem {
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendPrefixCommentParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier {
         return TranspilerFrontendParserIdentifier::PrefixCommentParser;
     }
     fn as_prefix_comment_parser(&self) -> Option<&TranspilerFrontendPrefixCommentParser> {
@@ -50,7 +48,7 @@ impl TranspilerFrontendParser for TranspilerFrontendPrefixCommentParser {
 
 impl TranspilerFrontendPrefixCommentParser {
 
-    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontend> {
+    pub fn create(external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendPrefixCommentParser> {
         let mut result = Box::new(TranspilerFrontendPrefixCommentParser {
             external_indentation_level: external_indentation_level,
             internal_indentation_level: external_indentation_level,

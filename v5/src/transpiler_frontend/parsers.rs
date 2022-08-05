@@ -1,12 +1,20 @@
 pub mod class_facet_parser;
 pub mod class_parser;
 pub mod file_parser;
+pub mod callable_parser;
+pub mod module_function_parser;
+pub mod class_method_parser;
 pub mod module_parser;
 pub mod section_parser;
 pub mod prefix_comment_parser;
 
+use crate::transpiler_frontend::TranspilerFrontend;
+
 #[derive(PartialEq)]
 pub enum TranspilerFrontendParserIdentifier {
+    CallableParser,
+    ModuleFunctionParser,
+    ClassMethodParser,
     ClassParser,
     FileParser,
     ModuleParser,
@@ -15,9 +23,12 @@ pub enum TranspilerFrontendParserIdentifier {
     ClassFacetParser
 }
 
-pub trait TranspilerFrontendParser {
-    fn get_parser_type_identifier() -> TranspilerFrontendParserIdentifier;
+pub trait TranspilerFrontendParser : TranspilerFrontend {
+    fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier;
 
+    fn as_module_function_parser(&self) -> Option<&module_function_parser::TranspilerFrontendModuleFunctionParser> { return None; }
+    fn as_callable_parser(&self) -> Option<&callable_parser::TranspilerFrontendCallableParser> { return None; }
+    fn as_class_method_parser(&self) -> Option<&class_method_parser::TranspilerFrontendClassMethodParser> { return None; }
     fn as_class_facet_parser(&self) -> Option<&class_facet_parser::TranspilerFrontendClassFacetParser> { return None; }
     fn as_class_parser(&self) -> Option<&class_parser::TranspilerFrontendClassParser> { return None; }
     fn as_file_parser(&self) -> Option<&file_parser::TranspilerFrontendFileParser> { return None; }
