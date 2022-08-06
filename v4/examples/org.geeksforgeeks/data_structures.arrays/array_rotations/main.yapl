@@ -38,7 +38,7 @@ module main:
 			-- The rotate function
 			----------------------------------------------------------------------------------------------------------------
 			method rotate:
-				input:
+				inputs:
 					the_array is array of integer and is mutable -- the array that should be rotated
 					distance is integer -- the distance that the array should be rotated
 				code:

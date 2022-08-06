@@ -7,7 +7,7 @@ use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreeP
 #[derive(Debug, Clone)]
 pub struct AbstractSyntaxTreeCallableNode {
     pub callable_type: String,
-    pub callable_name: String,
+    pub maybe_callable_name: Option<String>,
     pub maybe_prefix_comment: Option<AbstractSyntaxTreePrefixCommentNode>,
     pub maybe_suffix_comment: Option<String>
 }

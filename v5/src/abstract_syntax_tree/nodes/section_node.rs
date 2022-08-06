@@ -13,7 +13,8 @@ pub enum AbstractSyntaxTreeSectionNodeVisibility {
 
 #[derive(Debug, Clone)]
 pub struct AbstractSyntaxTreeSectionNode {
-    pub section_name: String,
+    pub maybe_section_type: Option<String>,
+    pub maybe_section_name: Option<String>,
     pub maybe_section_visibility: Option<AbstractSyntaxTreeSectionNodeVisibility>,
     pub maybe_prefix_comment: Option<AbstractSyntaxTreePrefixCommentNode>,
     pub maybe_suffix_comment: Option<String>

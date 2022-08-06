@@ -63,7 +63,7 @@ module main:
 			-- The two-sum finder function
 			----------------------------------------------------------------------------------------------------------------
 			method find_first_two_sum_for:
-				input:
+				inputs:
 					the_array is array of integer 	-- the array to find the sums in
 					the_sum is integer 				-- the sum we shall seek
 				returns:
@@ -90,7 +90,7 @@ module main:
 			-- The two-sum finder function
 			----------------------------------------------------------------------------------------------------------------
 			generator find_two_sums_for:
-				input:
+				inputs:
 					the_array is array of integer 	-- the array to find the sums in
 					the_sum is integer 				-- the sum we shall seek
 				returns:

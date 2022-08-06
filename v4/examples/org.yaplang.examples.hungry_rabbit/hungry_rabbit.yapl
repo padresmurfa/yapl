@@ -117,7 +117,7 @@ module org.yaplang.examples.hungry_rabbit:
             -- Spawn a hungry rabbit, and make it go foraging for carrots in a garden
             ----------------------------------------------------------------------------------------------------------------
             method forage:
-                input:
+                inputs:
                     carrot_matrix_to_forage is carrot_matrix -- the initial state of the garden
                 returns:
                     eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree

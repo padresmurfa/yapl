@@ -37,7 +37,9 @@ pub enum TranspilationJobOutputErrorCode {
     TranspilerFrontendModuleParserStatementClassNameInvalid = 15,
     TranspilerFrontendModuleParserStatementClassFacetNameInvalid = 16,
     TranspilerFrontendCallableParserStatementCallableNameInvalid = 17,
-    TranspilerFrontendSectionParserStatementMustNotHavePreceedingJunk = 18
+    TranspilerFrontendSectionParserStatementMustNotHavePreceedingJunk = 18,
+    TranspilerFrontendCallableFacetParserStatementMustBeTerminatedByColon = 19,
+    TranspilerFrontendCallableFacetParserFacetNameInvalid = 20
 }
 
 #[derive(Debug)]

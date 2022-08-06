@@ -166,10 +166,11 @@ impl TranspilerFrontendModuleParser {
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeModuleNode {
-                    fully_qualified_module_name: section_node.section_name.clone(), 
-                    maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
-                    maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
-                })
+                        maybe_fully_qualified_module_name: section_node.maybe_section_name.clone(), 
+                        maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
+                        maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
+                    }
+                )
             );
         }
     }

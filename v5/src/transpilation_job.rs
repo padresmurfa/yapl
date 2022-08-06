@@ -42,7 +42,7 @@ impl TranspilationJob {
             let mut context = TranspilerFrontendContext::create();
             context.push(TranspilerFrontendFileParser::create());
             let buf_reader = std::io::BufReader::new(file_result.unwrap());
-            let mut line_number:usize = 0;
+            let mut line_number:usize = 1;
             for line in buf_reader.lines() {
                 if line.is_err() {
                     TranspilationJobOutput::report_error(

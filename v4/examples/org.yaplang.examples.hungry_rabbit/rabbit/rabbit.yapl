@@ -14,7 +14,7 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             -- Initialize a rabbit
             ----------------------------------------------------------------------------------------------------------------
             constructor:
-                input:
+                inputs:
                     forage_in_garden references garden -- the garden that the rabbit should forage in
                 code:
                     the_farmers_garden   = forage_in_garden
@@ -76,7 +76,7 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             -- Choose the best square to forage in next, from among the specified squares
             ----------------------------------------------------------------------------------------------------------------
             method choose_best_square:
-                input:
+                inputs:
                     squares is collection of position -- the squares to choose from
                 preconditions:
                     1 <= squares.length()

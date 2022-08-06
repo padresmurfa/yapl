@@ -7,7 +7,7 @@ use crate::abstract_syntax_tree::nodes::section_node::AbstractSyntaxTreeSectionN
 
 #[derive(Debug, Clone)]
 pub struct AbstractSyntaxTreeClassFacetNode {
-    pub class_facet_name: String,
+    pub maybe_class_facet_name: Option<String>,
     pub maybe_section_visibility: Option<AbstractSyntaxTreeSectionNodeVisibility>,
     pub maybe_prefix_comment: Option<AbstractSyntaxTreePrefixCommentNode>,
     pub maybe_suffix_comment: Option<String>

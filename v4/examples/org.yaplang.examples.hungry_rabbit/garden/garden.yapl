@@ -7,14 +7,14 @@ module org.yaplang.examples.hungry_rabbit.garden:
     class garden:
 
 
-        public facet constructor:
+        public facet construction:
 
 
             ----------------------------------------------------------------------------------------------------------------
             -- Initialize a garden.
             ----------------------------------------------------------------------------------------------------------------
             constructor:
-                input:
+                inputs:
                     using_initial_state references carrot_matrix --  The initial state to use for the garden
                 code:
                     my_carrot_matrix = using_initial_state
@@ -29,7 +29,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             method rows:
                 returns:
                     rows is integer
-                postcondition:
+                postconditions:
                     rows >= 1
                 code:
                     return rows = my_carrot_matrix.rows().length()
@@ -41,7 +41,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             method columns:
                 returns:
                     columns is integer
-                postcondition:
+                postconditions:
                     columns >= 1
                 code:
                     return columns = my_carrot_matrix.columns().length()
@@ -75,7 +75,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- Determine a list of possible squares to move to within the garden, from a given position.
             ----------------------------------------------------------------------------------------------------------------
             generator get_possible_moves:
-                input:
+                inputs:
                     around_position is position -- the starting position to retrieve legal moves around
                 returns:
                     moves is collection of position -- the set of possible moves around position within the garden
@@ -101,7 +101,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- Retrieve the number of carrots in a given garden-square.
             ----------------------------------------------------------------------------------------------------------------
             method get_carrots:
-                input:
+                inputs:
                     at_position is position -- the position of the garden-square
                 returns:
                     got_carrots is carrots -- the number of carrots in the square.
@@ -113,7 +113,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- Eat (i.e. clear) the carrots at the given position, and determine how many carrots were in the square.
             ----------------------------------------------------------------------------------------------------------------
             method eat_carrots_at:
-                input:
+                inputs:
                     at_position is position -- the position to eat carrots at
                 returns:
                     eaten is carrots -- the number of carrots that were eaten
@@ -145,7 +145,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- determine the possible centers for rows or columns of the provided length
             ----------------------------------------------------------------------------------------------------------------
             generator get_possible_center_values:
-                input:                
+                inputs:                
                     for_length      is integer where for_length >= 1 -- the length of the row or column
                 returns:
                     possibilities   is collection of integer -- the possible centers, given the provided length
@@ -163,7 +163,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- create a square at an offset around a position
             ----------------------------------------------------------------------------------------------------------------
             method offset_square:
-                input:                
+                inputs:                
                     around_position     is position -- the position to base from)
                     delta_row           is integer where delta_row in (-1 or +1) -- the offset, in rows
                     delta_column        is integer where delta_column in (-1 or +1) -- the offset, in columns
@@ -179,7 +179,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- determine whether or not position is within the bounds of this garden
             ----------------------------------------------------------------------------------------------------------------
             method is_within_our_bounds:
-                input:
+                inputs:
                     check_position is position               -- the position to determine if is within our bounds
                 returns:
                     answer is boolean                        -- whether or not the position is within our bounds

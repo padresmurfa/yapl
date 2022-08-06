@@ -4,6 +4,7 @@ use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
+use crate::transpiler_frontend::parsers::callable_facet_parser::TranspilerFrontendCallableFacetParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -100,19 +101,12 @@ impl TranspilerFrontendCallableParser {
     }
     
     fn is_valid_callable_subcontent(line: &String) -> bool {
-        // TODO: better parsing
-        let valid_forms_of_subcontent = ["returns:", "emits:", "code:", "input:", "preconditions:", "postconditions:"];
-        for valid_subcontent in valid_forms_of_subcontent {
-            if line.starts_with(valid_subcontent) {
-                return true;
-            }
-        }
-        return false;
+        return TranspilerFrontendCallableFacetParser::is_valid_callable_facet(line);
     }
 
-    fn create_callable_subcontent(_indentation_level: usize, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        // TODO: better parsing
-        println!("TODO handle subcontent of callable: {:?}", line);
+    fn create_callable_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
+        let parser = TranspilerFrontendCallableFacetParser::create(indentation_level, context, line);
+        context.request_push(parser);
     }
 
     fn maybe_convert_section_node_to_callable_node(&mut self, context: &mut TranspilerFrontendContext) {
@@ -123,7 +117,7 @@ impl TranspilerFrontendCallableParser {
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeCallableNode {
                         callable_type: self.callable_type.clone(),
-                        callable_name: section_node.section_name.clone(), 
+                        maybe_callable_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
                     }

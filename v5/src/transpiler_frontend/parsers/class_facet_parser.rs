@@ -133,7 +133,7 @@ impl TranspilerFrontendClassFacetParser {
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeClassFacetNode {
                         maybe_section_visibility: section_node.maybe_section_visibility.clone(),
-                        class_facet_name: section_node.section_name.clone(), 
+                        maybe_class_facet_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
                     }

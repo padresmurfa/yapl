@@ -36,9 +36,9 @@ enum TranspilerFrontendSectionParserLineClassification {
 }
 
 // section-name, line
-type SectionNameValidator = dyn Fn(&str, &TranspilerFrontendLine) -> bool;
-type SectionLineContentClassifier = dyn Fn(&String) -> bool;
-type SectionLineContentParserCreator = dyn Fn(&mut TranspilerFrontendContext, &TranspilerFrontendLine);
+pub type SectionNameValidator = dyn Fn(&str, &TranspilerFrontendLine) -> bool;
+pub type SectionLineContentClassifier = dyn Fn(&String) -> bool;
+pub type SectionLineContentParserCreator = dyn Fn(&mut TranspilerFrontendContext, &TranspilerFrontendLine);
 
 impl TranspilerFrontendSectionParser {
 
@@ -53,18 +53,24 @@ impl TranspilerFrontendSectionParser {
         } else {
             None
         };
-        let mut result_section_parser = TranspilerFrontendSectionParser::create_impl(true, section_type, section_name_validator, external_indentation_level, context, line);
+        let mut result_section_parser = TranspilerFrontendSectionParser::create_impl(true, section_type, Some(section_name_validator), None, external_indentation_level, context, line);
         result_section_parser.maybe_section_visibility = maybe_section_visibility;
         return result_section_parser;        
     }
 
     pub fn create(section_type: &str, section_name_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
         return TranspilerFrontendSectionParser::create_impl(
-            false, section_type, section_name_validator, external_indentation_level, context, line
+            false, section_type, Some(section_name_validator), None, external_indentation_level, context, line
         );
     }
 
-    fn create_impl(skip_visibility: bool, section_type: &str, section_name_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+    pub fn create_dynamically_typed_unnamed(section_type: &str, section_dynamic_type_validator: &SectionNameValidator, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+        return TranspilerFrontendSectionParser::create_impl(
+            false, section_type, None, Some(section_dynamic_type_validator), external_indentation_level, context, line
+        );
+    }
+
+    fn create_impl(skip_visibility: bool, section_type: &str, maybe_section_name_validator: Option<&SectionNameValidator>, maybe_section_dynamic_type_validator: Option<&SectionNameValidator>, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
         let maybe_prefix_comment_dyn = context.maybe_pop_abstract_syntax_tree_node(external_indentation_level, AbstractSyntaxTreeNodeIdentifier::PrefixCommentNode);
         let maybe_prefix_comment = if maybe_prefix_comment_dyn.is_none() {
             None
@@ -108,20 +114,45 @@ impl TranspilerFrontendSectionParser {
                 line
             );
         } else {
-            let (section_name, untrimmed_remainder) = maybe_section_name_and_remainder.as_ref().unwrap();
-            result_section_parser.maybe_section_name = Some(section_name.trim_start().to_string());
-            if section_name_validator(&section_name, line) {
-                let remainder = untrimmed_remainder.trim_start();
-                let maybe_split = remainder.split_once("--");
-                if !maybe_split.is_none() {
-                    let (maybe_comment_symbol, untrimmed_comment_comment) = maybe_split.unwrap();
-                    let trimmed_suffix_comment = untrimmed_comment_comment.trim();
-                    if !trimmed_suffix_comment.is_empty() {
-                        result_section_parser.maybe_suffix_comment = Some(trimmed_suffix_comment.to_string());
+            if maybe_section_name_validator.is_none() {
+                let section_dynamic_type_validator = maybe_section_dynamic_type_validator.unwrap();
+                // reposition ourselves...
+                let (dynamic_section_type, untrimmed_remainder) = line.line_text.trim_start().split_once(":").unwrap();
+                if section_dynamic_type_validator(&dynamic_section_type, line) {
+                    if Some(dynamic_section_type.to_string()) != result_section_parser.maybe_section_type {
+                        panic!("Internal coding error - the caller should have already verified the dynamic section type ({:?},{:?})", Some(dynamic_section_type), result_section_parser.maybe_section_type);
                     }
+                    result_section_parser.maybe_section_type = Some(dynamic_section_type.to_string());
+                    let remainder = untrimmed_remainder.trim_start();
+                    let maybe_split = remainder.split_once("--");
+                    if !maybe_split.is_none() {
+                        let (maybe_comment_symbol, untrimmed_comment_comment) = maybe_split.unwrap();
+                        let trimmed_suffix_comment = untrimmed_comment_comment.trim();
+                        if !trimmed_suffix_comment.is_empty() {
+                            result_section_parser.maybe_suffix_comment = Some(trimmed_suffix_comment.to_string());
+                        }
+                    }
+                } else {
+                    // an error will have been added to result_section_parser
+                    result_section_parser.maybe_section_type = None;
                 }
             } else {
-                // an error will have been added to result_section_parser
+                let section_name_validator = maybe_section_name_validator.unwrap();
+                let (section_name, untrimmed_remainder) = maybe_section_name_and_remainder.as_ref().unwrap();
+                result_section_parser.maybe_section_name = Some(section_name.trim_start().to_string());
+                if section_name_validator(&section_name, line) {
+                    let remainder = untrimmed_remainder.trim_start();
+                    let maybe_split = remainder.split_once("--");
+                    if !maybe_split.is_none() {
+                        let (maybe_comment_symbol, untrimmed_comment_comment) = maybe_split.unwrap();
+                        let trimmed_suffix_comment = untrimmed_comment_comment.trim();
+                        if !trimmed_suffix_comment.is_empty() {
+                            result_section_parser.maybe_suffix_comment = Some(trimmed_suffix_comment.to_string());
+                        }
+                    }
+                } else {
+                    // an error will have been added to result_section_parser
+                }
             }
         }
         return result_section_parser;
@@ -184,7 +215,6 @@ impl TranspilerFrontendSectionParser {
     }
 
     fn emit_abstract_syntax_tree_section_node(&self, context: &mut TranspilerFrontendContext) {
-        println!("Emitting {:?}-{:?}-section node to AST: {:?} {:?} {:?}", self.maybe_section_visibility, self.maybe_section_type, self.maybe_section_name, self.maybe_prefix_comment_parser, self.maybe_suffix_comment);
         let maybe_prefix_comment = if self.maybe_prefix_comment_parser.is_none() {
             None
         } else {
@@ -196,9 +226,9 @@ impl TranspilerFrontendSectionParser {
         } else {
             Some(self.maybe_suffix_comment.as_ref().unwrap().clone())
         };
-        let section_name = self.maybe_section_name.as_ref().unwrap().clone();
         let node = Box::new(AbstractSyntaxTreeSectionNode {
-            section_name: section_name,
+            maybe_section_type: self.maybe_section_type.clone(),
+            maybe_section_name: self.maybe_section_name.clone(),
             maybe_section_visibility: self.maybe_section_visibility.clone(),
             maybe_prefix_comment: maybe_prefix_comment,
             maybe_suffix_comment: maybe_suffix_comment

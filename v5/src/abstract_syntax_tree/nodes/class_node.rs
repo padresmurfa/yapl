@@ -6,7 +6,7 @@ use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreeP
 
 #[derive(Debug, Clone)]
 pub struct AbstractSyntaxTreeClassNode {
-    pub class_name: String,
+    pub maybe_class_name: Option<String>,
     pub maybe_prefix_comment: Option<AbstractSyntaxTreePrefixCommentNode>,
     pub maybe_suffix_comment: Option<String>
 }
