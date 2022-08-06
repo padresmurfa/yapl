@@ -113,6 +113,16 @@ impl TranspilerFrontendCallableParser {
         let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::SectionNode);
         if !maybe_section_node.is_none() {
             let section_node = maybe_section_node.as_ref().unwrap().as_section_node().unwrap();
+            let mut facet_nodes = Vec::new();
+            loop {
+                let maybe_facet_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::CallableFacetNode);
+                if !maybe_facet_node.is_none() {
+                    let facet_node = maybe_facet_node.as_ref().unwrap().as_callable_facet_node().unwrap();
+                    facet_nodes.push(facet_node.clone());
+                } else {
+                    break;
+                }
+            }
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeCallableNode {
@@ -120,6 +130,7 @@ impl TranspilerFrontendCallableParser {
                         maybe_callable_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
+                        facet_nodes: facet_nodes
                     }
                 )
             );

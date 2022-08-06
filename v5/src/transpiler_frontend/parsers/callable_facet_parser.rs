@@ -1,8 +1,8 @@
 use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
-use crate::abstract_syntax_tree::nodes::callable_facet_sub_content_node::{
-    AbstractSyntaxTreeCallableFacetSubContentNode,
+use crate::abstract_syntax_tree::nodes::callable_facet_node::{
+    AbstractSyntaxTreeCallableFacetNode,
     AbstractSyntaxTreeCallableFacetType
 };
 use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
@@ -23,7 +23,7 @@ use crate::transpilation_job::output::{
 pub struct TranspilerFrontendCallableFacetParser {
     maybe_facet_type: Option<AbstractSyntaxTreeCallableFacetType>,
     section_parser: Box<TranspilerFrontendSectionParser>,
-    sub_contents: Vec<AbstractSyntaxTreeCallableFacetSubContentNode>
+    sub_contents: Vec<AbstractSyntaxTreeCallableFacetNode>
 }
 
 impl TranspilerFrontendParser for TranspilerFrontendCallableFacetParser {
@@ -102,7 +102,7 @@ impl TranspilerFrontendCallableFacetParser {
     }
 
     fn create_callable_facet_subcontent(maybe_facet_type:  Option<AbstractSyntaxTreeCallableFacetType>, indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        let callable_facet_subcontent = Box::new(AbstractSyntaxTreeCallableFacetSubContentNode {
+        let callable_facet_subcontent = Box::new(AbstractSyntaxTreeCallableFacetNode {
             maybe_callable_facet_type: maybe_facet_type,
             indentation_level: indentation_level,
             line: line.clone(),
@@ -118,9 +118,9 @@ impl TranspilerFrontendCallableFacetParser {
 
     fn maybe_append_sub_content_to_facet(&mut self, context: &mut TranspilerFrontendContext) {
         loop {
-            let maybe_sub_content_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::ClassFacetSubContentNode);
+            let maybe_sub_content_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::CallableFacetNode);
             if !maybe_sub_content_node.is_none() {
-                let sub_content_node = maybe_sub_content_node.as_ref().unwrap().as_callable_facet_sub_content_node().unwrap();
+                let sub_content_node = maybe_sub_content_node.as_ref().unwrap().as_callable_facet_node().unwrap();
                 self.sub_contents.push(sub_content_node.clone());
             } else {
                 break;

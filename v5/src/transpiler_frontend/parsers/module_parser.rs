@@ -163,12 +163,31 @@ impl TranspilerFrontendModuleParser {
         let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::SectionNode);
         if !maybe_section_node.is_none() {
             let section_node = maybe_section_node.as_ref().unwrap().as_section_node().unwrap();
+            let mut class_nodes = Vec::new();
+            let mut callable_nodes = Vec::new();
+            loop {
+                let maybe_class_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::ClassNode);
+                if !maybe_class_node.is_none() {
+                    let class_node = maybe_class_node.as_ref().unwrap().as_class_node().unwrap();
+                    class_nodes.push(class_node.clone());
+                } else {
+                    let maybe_callable_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::CallableNode);
+                    if !maybe_callable_node.is_none() {
+                        let callable_node = maybe_callable_node.as_ref().unwrap().as_callable_node().unwrap();
+                        callable_nodes.push(callable_node.clone());
+                    } else {
+                        break;
+                    }
+                }
+            }
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeModuleNode {
                         maybe_fully_qualified_module_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
+                        class_nodes: class_nodes,
+                        callable_nodes: callable_nodes
                     }
                 )
             );

@@ -17,7 +17,7 @@ pub enum AbstractSyntaxTreeCallableFacetType {
 }
 
 #[derive(Debug, Clone)]
-pub struct AbstractSyntaxTreeCallableFacetSubContentNode {
+pub struct AbstractSyntaxTreeCallableFacetNode {
     pub maybe_callable_facet_type: Option<AbstractSyntaxTreeCallableFacetType>,
     pub line: TranspilerFrontendLine, // todo: this is not how we move info from frontend to the AST
     pub indentation_level: usize,
@@ -25,12 +25,12 @@ pub struct AbstractSyntaxTreeCallableFacetSubContentNode {
     pub maybe_suffix_comment: Option<String>
 }
 
-impl AbstractSyntaxTreeNode for AbstractSyntaxTreeCallableFacetSubContentNode {
+impl AbstractSyntaxTreeNode for AbstractSyntaxTreeCallableFacetNode {
     fn get_node_type_identifier(&self) -> AbstractSyntaxTreeNodeIdentifier {
-        return AbstractSyntaxTreeNodeIdentifier::ClassFacetSubContentNode;
+        return AbstractSyntaxTreeNodeIdentifier::CallableFacetNode;
     }
 
-    fn as_callable_facet_sub_content_node(&self) -> Option<&AbstractSyntaxTreeCallableFacetSubContentNode> {
+    fn as_callable_facet_node(&self) -> Option<&AbstractSyntaxTreeCallableFacetNode> {
         return Some(&self);
     }
     

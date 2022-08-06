@@ -126,9 +126,19 @@ impl TranspilerFrontendClassFacetParser {
     }
 
     fn maybe_convert_section_node_to_class_facet_node(&mut self, context: &mut TranspilerFrontendContext) {
-        let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::ClassNode);
+        let maybe_section_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.external_indentation_level, AbstractSyntaxTreeNodeIdentifier::SectionNode);
         if !maybe_section_node.is_none() {
             let section_node = maybe_section_node.as_ref().unwrap().as_section_node().unwrap();
+            let mut callable_nodes = Vec::new();
+            loop {
+                let maybe_callable_node = context.maybe_pop_abstract_syntax_tree_node(self.section_parser.internal_indentation_level, AbstractSyntaxTreeNodeIdentifier::CallableNode);
+                if !maybe_callable_node.is_none() {
+                    let callable_node = maybe_callable_node.as_ref().unwrap().as_callable_node().unwrap();
+                    callable_nodes.push(callable_node.clone());
+                } else {
+                    break;
+                }
+            }
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeClassFacetNode {
@@ -136,6 +146,7 @@ impl TranspilerFrontendClassFacetParser {
                         maybe_class_facet_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),
+                        callable_nodes: callable_nodes
                     }
                 )
             );
