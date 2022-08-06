@@ -8,13 +8,13 @@ test module org.yaplang.examples.hungry_rabbit.rabbit:
 			----------------------------------------------------------------------------------------------------------------
 			-- test the scenario of constructing a rabbit object
 			----------------------------------------------------------------------------------------------------------------
-			scenario constructor:
+			scenario instantiate:
 				given:
 					forage_in_garden = fake garden
 					forage_in_garden.get_possible_centers.possible_centers = fake collection of position
 					choose_best_square.best_square = fake position
 				when:
-					constructor(forage_in_garden)
+					instantiate rabbit(forage_in_garden)
 				then:
 					the_farmers_garden == forage_in_garden
 					possible_centers == forage_in_garden.get_possible_centers.possible_centers
