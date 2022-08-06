@@ -5,7 +5,7 @@ use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
 use crate::transpiler_frontend::parsers::class_parser::TranspilerFrontendClassParser;
-use crate::transpiler_frontend::parsers::module_function_parser::TranspilerFrontendModuleFunctionParser;
+use crate::transpiler_frontend::parsers::callable_parser::TranspilerFrontendCallableParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -142,7 +142,7 @@ impl TranspilerFrontendModuleParser {
     
     fn is_valid_module_subcontent(line: &String) -> bool {
         // TODO: better parsing
-        return line.starts_with("class ") || line.starts_with("function ") || line.starts_with("constant ") || line.starts_with("type ");
+        return line.starts_with("class ") || line.starts_with("function ") || line.starts_with("generator ") || line.starts_with("constant ") || line.starts_with("type ");
     }
 
     fn create_module_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
@@ -152,7 +152,10 @@ impl TranspilerFrontendModuleParser {
             let parser = TranspilerFrontendClassParser::create(indentation_level, context, line);
             context.request_push(parser);
         } else if line.line_text.trim_start().starts_with("function ") {
-            let parser = TranspilerFrontendModuleFunctionParser::create(indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create("function", indentation_level, context, line);
+            context.request_push(parser);
+        } else if line.line_text.trim_start().starts_with("generator ") {
+            let parser = TranspilerFrontendCallableParser::create("generator", indentation_level, context, line);
             context.request_push(parser);
         } else {
             println!("unknown module subcontent: {:?}", line);

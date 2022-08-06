@@ -4,7 +4,7 @@ use crate::transpiler_frontend::context::TranspilerFrontendContext;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
-use crate::transpiler_frontend::parsers::class_method_parser::TranspilerFrontendClassMethodParser;
+use crate::transpiler_frontend::parsers::callable_parser::TranspilerFrontendCallableParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
@@ -102,7 +102,7 @@ impl TranspilerFrontendClassFacetParser {
         if line.starts_with("--") {
             return true;
         }
-        if line.starts_with("constructor ") || line.starts_with("method ") || line.starts_with("generator ") {
+        if line.starts_with("constructor:") || line.starts_with("method ") || line.starts_with("generator ") {
             return true;
         }
         let split_result = line.split_once(" ");
@@ -118,7 +118,13 @@ impl TranspilerFrontendClassFacetParser {
 
     fn create_class_facet_subcontent(internal_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         if line.line_text.trim_start().starts_with("method ") {
-            let parser = TranspilerFrontendClassMethodParser::create(internal_indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create("method", internal_indentation_level, context, line);
+            context.request_push(parser);
+        } else if line.line_text.trim_start().starts_with("constructor:") {
+            let parser = TranspilerFrontendCallableParser::create("constructor", internal_indentation_level, context, line);
+            context.request_push(parser);
+        } else if line.line_text.trim_start().starts_with("generator ") {
+            let parser = TranspilerFrontendCallableParser::create("generator", internal_indentation_level, context, line);
             context.request_push(parser);
         } else {
             println!("TODO: handle class subcontent: {:?}", line);
