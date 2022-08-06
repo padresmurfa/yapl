@@ -8,7 +8,7 @@ test module org.yaplang.examples.hungry_rabbit.rabbit:
 			----------------------------------------------------------------------------------------------------------------
 			-- test the scenario of constructing a rabbit object
 			----------------------------------------------------------------------------------------------------------------
-			scenario instantiate:
+			scenario constructor:
 				given:
 					forage_in_garden = fake garden
 					forage_in_garden.get_possible_centers.possible_centers = fake collection of position

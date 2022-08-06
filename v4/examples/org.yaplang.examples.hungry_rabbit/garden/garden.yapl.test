@@ -11,7 +11,7 @@ test module org.yaplang.examples.hungry_rabbit.garden:
 			----------------------------------------------------------------------------------------------------------------
 			-- test the scenario of constructing a garden object
 			----------------------------------------------------------------------------------------------------------------
-			scenario instantiate:
+			scenario constructor:
 				given:
 					-- an arbitrary initial state
 					initial_state = fake matrix

@@ -13,7 +13,7 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             ----------------------------------------------------------------------------------------------------------------
             -- Initialize a rabbit
             ----------------------------------------------------------------------------------------------------------------
-            instantiate:
+            constructor:
                 inputs:
                     forage_in_garden references garden -- the garden that the rabbit should forage in
                 code:

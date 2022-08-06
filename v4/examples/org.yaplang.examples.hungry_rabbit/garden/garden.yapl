@@ -13,7 +13,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             -- Initialize a garden.
             ----------------------------------------------------------------------------------------------------------------
-            instantiate:
+            constructor:
                 inputs:
                     using_initial_state references carrot_matrix --  The initial state to use for the garden
                 code:
