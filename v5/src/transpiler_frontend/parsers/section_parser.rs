@@ -70,6 +70,12 @@ impl TranspilerFrontendSectionParser {
         );
     }
 
+    pub fn create_unnamed(section_type: &str, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
+        return TranspilerFrontendSectionParser::create_impl(
+            false, section_type, None, None, external_indentation_level, context, line
+        );
+    }
+
     fn create_impl(skip_visibility: bool, section_type: &str, maybe_section_name_validator: Option<&SectionNameValidator>, maybe_section_dynamic_type_validator: Option<&SectionNameValidator>, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendSectionParser> {
         let maybe_prefix_comment_dyn = context.maybe_pop_abstract_syntax_tree_node(external_indentation_level, AbstractSyntaxTreeNodeIdentifier::PrefixCommentNode);
         let maybe_prefix_comment = if maybe_prefix_comment_dyn.is_none() {
@@ -114,7 +120,9 @@ impl TranspilerFrontendSectionParser {
                 line
             );
         } else {
-            if maybe_section_name_validator.is_none() {
+            if maybe_section_dynamic_type_validator.is_none() && maybe_section_name_validator.is_none() {
+                // alles gut, and no need to do anthing 
+            } else if maybe_section_name_validator.is_none() {
                 let section_dynamic_type_validator = maybe_section_dynamic_type_validator.unwrap();
                 // reposition ourselves...
                 let (dynamic_section_type, untrimmed_remainder) = line.line_text.trim_start().split_once(":").unwrap();
@@ -188,7 +196,7 @@ impl TranspilerFrontendSectionParser {
 
     fn on_error_indented_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected indented line encountered in {}'s {:?}-section scope", self.maybe_section_name.as_ref().unwrap(), self.maybe_section_type),
+            format!("Unexpected indented line encountered in section name={:?}, type={:?} scope", self.maybe_section_name, self.maybe_section_type),
             TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserInvalidIdentedLine,
             line
         );
@@ -196,7 +204,7 @@ impl TranspilerFrontendSectionParser {
 
     fn on_error_junk_line(&mut self, _context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         TranspilationJobOutput::report_error_in_line(
-            format!("Unexpected initial token encountered in {}'s {:?}-section scope", self.maybe_section_name.as_ref().unwrap(), self.maybe_section_type),
+            format!("Unexpected initial token encountered insection name={:?}, type={:?} scope", self.maybe_section_name, self.maybe_section_type),
             TranspilationJobOutputErrorCode::TranspilerFrontendSectionParserInvalidStartingToken,
             line
         );

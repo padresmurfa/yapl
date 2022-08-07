@@ -65,6 +65,8 @@ impl TranspilationJob {
                 context.push(current);
                 context.handle_pending_requests();
             }
+            println!("abstract syntax tree:");
+            context.debug_print_abstract_syntax_tree();
         }
     }
 

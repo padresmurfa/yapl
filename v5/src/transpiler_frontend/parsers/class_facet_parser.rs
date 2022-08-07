@@ -15,6 +15,7 @@ use crate::transpilation_job::output::{
 };
 use crate::abstract_syntax_tree::nodes::class_facet_node::AbstractSyntaxTreeClassFacetNode;
 use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
+use crate::abstract_syntax_tree::nodes::callable_node::AbstractSyntaxTreeCallableType;
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendClassFacetParser {
@@ -118,13 +119,13 @@ impl TranspilerFrontendClassFacetParser {
 
     fn create_class_facet_subcontent(internal_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
         if line.line_text.trim_start().starts_with("method ") {
-            let parser = TranspilerFrontendCallableParser::create("method", internal_indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create(AbstractSyntaxTreeCallableType::ClassMethod, internal_indentation_level, context, line);
             context.request_push(parser);
         } else if line.line_text.trim_start().starts_with("constructor:") {
-            let parser = TranspilerFrontendCallableParser::create("constructor", internal_indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create(AbstractSyntaxTreeCallableType::ClassConstructor, internal_indentation_level, context, line);
             context.request_push(parser);
         } else if line.line_text.trim_start().starts_with("generator ") {
-            let parser = TranspilerFrontendCallableParser::create("generator", internal_indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create(AbstractSyntaxTreeCallableType::ClassGeneratorMethod, internal_indentation_level, context, line);
             context.request_push(parser);
         } else {
             println!("TODO: handle class subcontent: {:?}", line);

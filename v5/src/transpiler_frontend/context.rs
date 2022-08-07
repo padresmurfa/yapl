@@ -117,4 +117,11 @@ impl TranspilerFrontendContext {
     pub fn is_empty(&self) -> bool {
         return self.transpiler_frontend_stack.is_empty();
     }
+
+    pub fn debug_print_abstract_syntax_tree(&self) {
+        for index in 0..self.abstract_syntax_tree_stack.len() {
+            let node = &self.abstract_syntax_tree_stack[index];
+            println!("AST NODE #{} => {:?}", 1 + index, node);
+        }
+    }
 }

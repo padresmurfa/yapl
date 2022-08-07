@@ -3,8 +3,7 @@ pub mod class_parser;
 pub mod file_parser;
 pub mod callable_parser;
 pub mod callable_facet_parser;
-pub mod module_function_parser;
-pub mod class_method_parser;
+pub mod callable_return_facet_parser;
 pub mod module_parser;
 pub mod section_parser;
 pub mod prefix_comment_parser;
@@ -13,7 +12,7 @@ use crate::transpiler_frontend::TranspilerFrontend;
 
 #[derive(PartialEq)]
 pub enum TranspilerFrontendParserIdentifier {
-    CallableFacetParser,
+    CallableReturnFacetParser,
     CallableParser,
     ClassParser,
     FileParser,
@@ -26,7 +25,7 @@ pub enum TranspilerFrontendParserIdentifier {
 pub trait TranspilerFrontendParser : TranspilerFrontend {
     fn get_parser_type_identifier(&self) -> TranspilerFrontendParserIdentifier;
 
-    fn as_callable_facet_parser(&self) -> Option<&callable_facet_parser::TranspilerFrontendCallableFacetParser> { return None; }
+    fn as_callable_return_facet_parser(&self) -> Option<&callable_return_facet_parser::TranspilerFrontendCallableReturnFacetParser> { return None; }
     fn as_callable_parser(&self) -> Option<&callable_parser::TranspilerFrontendCallableParser> { return None; }
     fn as_class_facet_parser(&self) -> Option<&class_facet_parser::TranspilerFrontendClassFacetParser> { return None; }
     fn as_class_parser(&self) -> Option<&class_parser::TranspilerFrontendClassParser> { return None; }

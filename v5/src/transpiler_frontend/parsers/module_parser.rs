@@ -14,9 +14,9 @@ use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
-use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
 use crate::abstract_syntax_tree::nodes::module_node::AbstractSyntaxTreeModuleNode;
+use crate::abstract_syntax_tree::nodes::callable_node::AbstractSyntaxTreeCallableType;
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendModuleParser {
@@ -152,10 +152,10 @@ impl TranspilerFrontendModuleParser {
             let parser = TranspilerFrontendClassParser::create(indentation_level, context, line);
             context.request_push(parser);
         } else if line.line_text.trim_start().starts_with("function ") {
-            let parser = TranspilerFrontendCallableParser::create("function", indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create(AbstractSyntaxTreeCallableType::ModuleFunction, indentation_level, context, line);
             context.request_push(parser);
         } else if line.line_text.trim_start().starts_with("generator ") {
-            let parser = TranspilerFrontendCallableParser::create("generator", indentation_level, context, line);
+            let parser = TranspilerFrontendCallableParser::create(AbstractSyntaxTreeCallableType::ModuleGeneratorFunction, indentation_level, context, line);
             context.request_push(parser);
         } else {
             println!("unknown module subcontent: {:?}", line);

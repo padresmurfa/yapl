@@ -5,20 +5,25 @@ use crate::transpiler_frontend::line::TranspilerFrontendLine;
 use crate::transpiler_frontend::TranspilerFrontend;
 use crate::transpiler_frontend::parsers::section_parser::TranspilerFrontendSectionParser;
 use crate::transpiler_frontend::parsers::callable_facet_parser::TranspilerFrontendCallableFacetParser;
+use crate::transpiler_frontend::parsers::callable_return_facet_parser::TranspilerFrontendCallableReturnFacetParser;
 use crate::transpiler_frontend::parsers::{
     TranspilerFrontendParser,
     TranspilerFrontendParserIdentifier
 };
-use crate::abstract_syntax_tree::nodes::callable_node::AbstractSyntaxTreeCallableNode;
+use crate::abstract_syntax_tree::nodes::callable_node::{
+    AbstractSyntaxTreeCallableNode,
+    AbstractSyntaxTreeCallableType
+};
 use crate::transpilation_job::output::{
     TranspilationJobOutput,
     TranspilationJobOutputErrorCode
 };
 use crate::abstract_syntax_tree::nodes::AbstractSyntaxTreeNodeIdentifier;
+use crate::abstract_syntax_tree::nodes::callable_facet_node::AbstractSyntaxTreeCallableFacetType;
 
 #[derive(Debug, Clone)]
 pub struct TranspilerFrontendCallableParser {
-    callable_type: String,
+    callable_type: AbstractSyntaxTreeCallableType,
     section_parser: Box<TranspilerFrontendSectionParser>
 }
 
@@ -34,17 +39,36 @@ impl TranspilerFrontendParser for TranspilerFrontendCallableParser {
 
 impl TranspilerFrontendCallableParser {
 
-    pub fn create(callable_type: &str, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<dyn TranspilerFrontendParser> {
-        return Box::new(TranspilerFrontendCallableParser {
-            callable_type: callable_type.to_string(),
-            section_parser: TranspilerFrontendSectionParser::create(
-                callable_type,
-                &TranspilerFrontendCallableParser::validate_callable_name,
-                external_indentation_level,
-                context,
-                line
-            )
-        });
+    pub fn create(callable_type: AbstractSyntaxTreeCallableType, external_indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) -> Box<TranspilerFrontendCallableParser> {
+        let callable_type_str = match callable_type {
+            AbstractSyntaxTreeCallableType::ModuleFunction => "function",
+            AbstractSyntaxTreeCallableType::ModuleGeneratorFunction => "generator",
+            AbstractSyntaxTreeCallableType::ClassMethod => "method",
+            AbstractSyntaxTreeCallableType::ClassGeneratorMethod => "generator",
+            AbstractSyntaxTreeCallableType::ClassConstructor => "constructor"
+        };
+        if callable_type == AbstractSyntaxTreeCallableType::ClassConstructor {
+            return Box::new(TranspilerFrontendCallableParser {
+                callable_type: callable_type,
+                section_parser: TranspilerFrontendSectionParser::create_unnamed(
+                    callable_type_str,
+                    external_indentation_level,
+                    context,
+                    line
+                )
+            });
+        } else {
+            return Box::new(TranspilerFrontendCallableParser {
+                callable_type: callable_type,
+                section_parser: TranspilerFrontendSectionParser::create(
+                    callable_type_str,
+                    &TranspilerFrontendCallableParser::validate_callable_name,
+                    external_indentation_level,
+                    context,
+                    line
+                )
+            });
+        }
     }
 
     pub fn validate_callable_name(callable_name: &str, line: &TranspilerFrontendLine) -> bool {
@@ -105,8 +129,11 @@ impl TranspilerFrontendCallableParser {
     }
 
     fn create_callable_subcontent(indentation_level: usize, context: &mut TranspilerFrontendContext, line: &TranspilerFrontendLine) {
-        let parser = TranspilerFrontendCallableFacetParser::create(indentation_level, context, line);
-        context.request_push(parser);
+        let classification = TranspilerFrontendCallableFacetParser::get_callable_facet_type(&line.line_text);
+        if classification == Some(AbstractSyntaxTreeCallableFacetType::ReturnFacet) {
+            let parser = TranspilerFrontendCallableReturnFacetParser::create(indentation_level, context, line);
+            context.request_push(parser);
+        }
     }
 
     fn maybe_convert_section_node_to_callable_node(&mut self, context: &mut TranspilerFrontendContext) {
@@ -126,7 +153,7 @@ impl TranspilerFrontendCallableParser {
             context.push_abstract_syntax_tree_node(
                 self.section_parser.external_indentation_level, 
                     Box::new(AbstractSyntaxTreeCallableNode {
-                        callable_type: self.callable_type.clone(),
+                        callable_type: self.callable_type,
                         maybe_callable_name: section_node.maybe_section_name.clone(), 
                         maybe_prefix_comment: section_node.maybe_prefix_comment.clone(),
                         maybe_suffix_comment: section_node.maybe_suffix_comment.clone(),

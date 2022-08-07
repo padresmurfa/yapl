@@ -5,7 +5,7 @@ use crate::abstract_syntax_tree::nodes::{
 use crate::abstract_syntax_tree::nodes::prefix_comment_node::AbstractSyntaxTreePrefixCommentNode;
 use crate::transpiler_frontend::line::TranspilerFrontendLine;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum AbstractSyntaxTreeCallableFacetType {
     ReturnFacet,
     EmitFacet,
