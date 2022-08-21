@@ -48,8 +48,15 @@ class Job(object):
         lexer = YAPLLexer()
         for line in reader.read_lines():
             lexer_line = lexer.analyze_line(line)
+            leading_token = lexer_line.peek_leading_token()
             current_context = self.__context_stack.current_context()
-            current_context.process_line(lexer_line)
+            while (not self.__context_stack.is_empty()) and (not leading_token.is_empty_line()) and (leading_token.get_offset() < current_context.get_indentation_level()):
+                current_context.process_end_of_context(lexer_line)
+                current_context = current_context.pop_to_parent_context()
+            if current_context is None:
+                assert False, "did not expect to wind up in the root context"
+            else:
+                current_context.process_line(lexer_line)
             if self.failed():
                 # TODO: consider recovering
                 break
@@ -59,41 +66,41 @@ class Job(object):
             assert self.__context_stack.is_empty(), "expected the whole context stack to have been torn down during process-end-of-file"
         initial_context.validate_contents()
 
-    def error(self, component, error_code, error_message, location):
+    def error(self, component, error_code, error_message, location, fully_qualified_name):
         self.set_failed()
         if location is None:
-            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\"), message={}".format(
-                component, error_code, self.get_input_file_name(), error_message
+            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\", name=\"{}\"), message={}".format(
+                component, error_code, self.get_input_file_name(), fully_qualified_name, error_message
             ))
         elif isinstance(location, Lexeme):
             lexeme = location
             lexical_line = lexeme.get_lexical_line()
-            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\", line {}, offset={}), lexeme={}, message={}".format(
-                component, error_code, self.get_input_file_name(), lexical_line.get_line_number(), lexeme.get_offset(), lexeme.get_printable_value(), error_message
+            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\", line {}, offset={}, name=\"{}\"), lexeme={}, message={}".format(
+                component, error_code, self.get_input_file_name(), lexical_line.get_line_number(), lexeme.get_offset(), fully_qualified_name, lexeme.get_printable_value(), error_message
             ))
         else:
             assert isinstance(location, LexicallyAnalyzedLine)
             lexical_line = location
-            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\", line {}), message={}".format(
-                component, error_code, self.get_input_file_name(), lexical_line.get_line_number(), error_message
+            print("ERROR: reported_by(component={}, error_code={}), location(file=\"{}\", line {}, name=\"{}\"), message={}".format(
+                component, error_code, self.get_input_file_name(), lexical_line.get_line_number(), fully_qualified_name, error_message
             ))
 
-    def trace(self, component, trace_message, location):
+    def trace(self, component, trace_message, location, fully_qualified_name):
         if not self.__verbose:
             return
         if location is None:
-            print("TRACE: reported_by(component={}), location(file=\"{}\"), message={}".format(
-                component, self.get_input_file_name(), trace_message
+            print("TRACE: reported_by(component={}), location(file=\"{}\", name=\"{}\"), message={}".format(
+                component, self.get_input_file_name(), fully_qualified_name, trace_message
             ))
         elif isinstance(location, Lexeme):
             lexeme = location
             lexical_line = lexeme.get_lexical_line()
-            print("TRACE: reported_by(component={}), location(file=\"{}\", line {}, offset={}), lexeme={}, message={}".format(
-                component, self.get_input_file_name(), lexical_line.get_line_number(), lexeme.get_offset(), lexeme.get_printable_value(), trace_message
+            print("TRACE: reported_by(component={}), location(file=\"{}\", line {}, offset={}, name=\"{}\"), lexeme={}, message={}".format(
+                component, self.get_input_file_name(), lexical_line.get_line_number(), lexeme.get_offset(), fully_qualified_name, lexeme.get_printable_value(), trace_message
             ))
         else:
             assert isinstance(location, LexicallyAnalyzedLine)
             lexical_line = location
-            print("TRACE: reported_by(component={}), location(file=\"{}\", line {}), message={}".format(
-                component, self.get_input_file_name(), lexical_line.get_line_number(), trace_message
+            print("TRACE: reported_by(component={}), location(file=\"{}\", line {}, name=\"{}\"), message={}".format(
+                component, self.get_input_file_name(), lexical_line.get_line_number(), fully_qualified_name, trace_message
             ))

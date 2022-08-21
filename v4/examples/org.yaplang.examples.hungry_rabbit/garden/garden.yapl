@@ -53,7 +53,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             -- Determine a list of squares that could be considered the center of this garden.
             ----------------------------------------------------------------------------------------------------------------
-            generator get_possible_centers:
+            generator method get_possible_centers:
                 returns:
                     possible_centers is collection of position -- the possible centers of the garden.
                 code:
@@ -74,7 +74,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             -- Determine a list of possible squares to move to within the garden, from a given position.
             ----------------------------------------------------------------------------------------------------------------
-            generator get_possible_moves:
+            generator method get_possible_moves:
                 inputs:
                     around_position is position -- the starting position to retrieve legal moves around
                 returns:
@@ -144,7 +144,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             -- determine the possible centers for rows or columns of the provided length
             ----------------------------------------------------------------------------------------------------------------
-            generator get_possible_center_values:
+            generator method get_possible_center_values:
                 inputs:                
                     for_length      is integer where for_length >= 1 -- the length of the row or column
                 returns:

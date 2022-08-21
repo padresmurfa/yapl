@@ -7,7 +7,7 @@ class ContextBaseClass(metaclass=abc.ABCMeta):
         Abstract base class used by all Context objects
     """
 
-    def __init__(self, job, parent_context, component):
+    def __init__(self, job, parent_context, component, indentation_level):
         """
             initializes this Context base-class
 
@@ -19,6 +19,13 @@ class ContextBaseClass(metaclass=abc.ABCMeta):
         self.__job = job
         self.__contents = []
         self.__component = component
+        self.__indentation_level = indentation_level
+
+    def get_indentation_level(self):
+        """
+            retrieves the indentation level that this context is declared on
+        """
+        return self.__indentation_level
 
     def get_contents(self):
         """
@@ -93,13 +100,13 @@ class ContextBaseClass(metaclass=abc.ABCMeta):
         """
             forwards an error message, with an error code (string), and a location-of-origin, to the job
         """
-        self.get_job().error(self.__component, error_code, message, location)
+        self.get_job().error(self.__component, error_code, message, location, self.get_fully_qualified_name())
 
     def trace(self, message, location):
         """
             forwards a trace message, with a location-of-origin, to the job
         """
-        self.get_job().trace(self.__component, message, location)
+        self.get_job().trace(self.__component, message, location, self.get_fully_qualified_name())
 
     def maybe_pop_prefix_comments_at_offset(self, offset):
         """
@@ -130,13 +137,20 @@ class ContextBaseClass(metaclass=abc.ABCMeta):
         """
         pass
 
-    @abc.abstractmethod
+    def process_end_of_context(self, lexer_line):
+        """
+            called by the framework on the current Context when the end-of-context is reached unceremoniously, e.g. due to the start of a new
+            less-indented context.
+        """
+        self.trace("end-of-context encountered", lexer_line)
+
     def process_end_of_file(self):
         """
             called by the framework on the current Context when the end-of-file is reached. The Context should pop itself from the stack,
             and forward the process_end_of_file call to its parent context, if any.
         """
-        pass
+        self.pop_to_parent_context().process_end_of_file()
+        
 
     def validate_contents(self):
         """
@@ -145,6 +159,20 @@ class ContextBaseClass(metaclass=abc.ABCMeta):
         contents = self.get_contents()
         for content in contents:
             if not isinstance(content, ContextBaseClass):
-                self.error("CONTEXT-HAS-UNPROCESSED-CONTENTS", "internal error - context not fully processed", content)
+                self.trace("validating contexts: context not fully processed ({})".format(content), content)
             else:
                 content.validate_contents()
+
+    def get_fully_qualified_name(self):
+        """
+            retrieves the fully-qualified name of this context
+        """
+        assert self.__parent_context is not None, "root-level contexts must override get_fully_qualified_name()"
+        return self.__parent_context.get_fully_qualified_name() + "." + self.get_name()
+
+    @abc.abstractmethod
+    def get_name(self):
+        """
+            retrieves the name of this context
+        """
+        pass

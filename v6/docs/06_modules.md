@@ -44,7 +44,7 @@ Sub-modules should be declared in their own files.
 
 ### Why?
 
-Shorter files are better for tools, such as the transpiler.
+Shorter files are better for tools, such as the transpiler, and for humans as well.
 
 ## 6. Module Statement Comments
 

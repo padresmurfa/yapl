@@ -15,12 +15,24 @@ class FileContext(ContextBaseClass):
             'job' is the job that this context is part of.
             'input_file_name' is the absolute filename that contains the YAPL file that this FileContext encapsulates
         """
-        ContextBaseClass.__init__(self, job, None, "FILE")
+        ContextBaseClass.__init__(self, job, None, "FILE", indentation_level=0)
         assert os.path.abspath(input_file_name) == input_file_name, "expected input_file_name to be an absolute file name"
         self.__input_file_name = input_file_name
 
     def __str__(self):
         return "YAPL frontend file context for file '{}'".format(self.__input_file_name)
+
+    def get_fully_qualified_name(self):
+        """
+            retrieves the fully-qualified name of this context
+        """
+        return self.__input_file_name
+
+    def get_name(self):
+        """
+            retrieves the name of this context
+        """
+        return self.__input_file_name
 
     def process_line(self, lexer_line):
         """
@@ -29,8 +41,7 @@ class FileContext(ContextBaseClass):
         ContextBaseClass.push_lexer_line(self, lexer_line)
         leading_token = lexer_line.peek_leading_token()
         assert leading_token is not None, "expected a leading token here: {}".format(lexer_line)
-        if leading_token.get_offset() != 0:
-            # we don't a non-empty line in file-scope at any other offset than 0
+        if leading_token.get_offset() != self.get_indentation_level():
             self.error("FILE-SCOPED-CONTENTS-MUST-RESIDE-AT-INDENT-ZERO", "file-scoped contents must reside at indentation-level zero",  leading_token)
         elif leading_token.is_keyword("module"):
             self.trace("module statement encountered", leading_token)
@@ -51,9 +62,9 @@ class FileContext(ContextBaseClass):
         """
         # remove the module statement and any optional prefix comment lines
         module_statement_line = self.pop_lexer_line()
-        prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(0)
+        prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(self.get_indentation_level())
         # create the module context, attach it as a child of this context, and pass control to it
-        module_context = ModuleContext(self)
+        module_context = ModuleContext(self, self.get_indentation_level())
         # forward the module statement and the prefix lines to the module context
         for prefix_comment_line in prefix_comment_lines:
             module_context.process_line(prefix_comment_line)

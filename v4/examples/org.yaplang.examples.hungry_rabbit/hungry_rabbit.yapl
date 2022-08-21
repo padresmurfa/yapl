@@ -56,8 +56,7 @@ module org.yaplang.examples.hungry_rabbit:
     --------------------------------------------------------------------------------------------------------------------
     -- A (possibly out-of-bounds) square position within a garden.
     --------------------------------------------------------------------------------------------------------------------
-    type position is structure:
-
+    structure position:
 
         ----------------------------------------------------------------------------------------------------------------
         -- The row offset, corresponding to the outermost array in a 2-dimensional array that

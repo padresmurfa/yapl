@@ -1,38 +1,30 @@
 from transpiler.frontend.contexts.context import ContextBaseClass
+from transpiler.frontend.contexts.class_facet_context import ClassFacetContext
 
 class ClassContext(ContextBaseClass):
     """
-        A context-sensitive parser for parsing a class within a YAPL file
+        A context-sensitive parser for parsing a class within a YAPL-module
     """
 
-    def __init__(self, parent_module_context):
+    def __init__(self, parent_module_context, indentation_level):
         """
             initializes the ClassContext
 
             'parent_module_context' is the ModuleContext that contains this ClassContext
         """
-        ContextBaseClass.__init__(self, None, parent_module_context, "CLASS")
+        ContextBaseClass.__init__(self, None, parent_module_context, "CLASS", indentation_level)
         self.__class_name = None
         self.__prefix_comments = []
         self.__suffix_comment = ""
 
-    def get_debug_class_fully_qualified_name(self):
+    def get_name(self):
         """
-            returns a debug-suitable version of this class's fully-qualified name, including the fully-qualified name of the module
-            that contains it
-        """
-        module_fully_qualified_name = self.get_parent_context().get_debug_module_fully_qualified_name()
-        class_name = self.get_debug_class_name()
-        return module_fully_qualified_name + "." + class_name
-
-    def get_debug_class_name(self):
-        """
-            returns a debug-suitable version of this class's name.
+            retrieves the name of this context
         """
         return self.__class_name if self.__class_name is not None else "<unknown>"
 
     def __str__(self):
-        return "YAPL frontend class context for class '{}'".format(self.get_debug_class_fully_qualified_name())
+        return "YAPL frontend class context for class '{}'".format(self.get_fully_qualified_name())
 
     def process_line(self, lexer_line):
         """
@@ -40,10 +32,12 @@ class ClassContext(ContextBaseClass):
         """
         ContextBaseClass.push_lexer_line(self, lexer_line)
         leading_token = lexer_line.peek_leading_token()
-        if leading_token.get_offset() == 4:
+        if leading_token.get_offset() == self.get_indentation_level():
             self.__process_line_class_statement_header(leading_token)
-        elif leading_token.get_offset() == 8:
+        elif leading_token.get_offset() == self.get_indentation_level() + 4:
             self.__process_line_class_body(leading_token)
+        elif leading_token.is_empty_line():
+            ContextBaseClass.pop_lexer_line(self)
         else:
             self.error("EXPECTED-CONTENT-AT-INDENT-TWO", "class declarations may only include direct content at indent level two (offset: 8 characters)", leading_token)
 
@@ -51,7 +45,6 @@ class ClassContext(ContextBaseClass):
         """
             Helper function for process_line that handles the leading class declaration statement
         """
-        # prefix comment and class statement happen at indent 4
         if leading_token.is_keyword("class"):
             self.__process_line_class_statement(leading_token)
         elif leading_token.is_comment():
@@ -68,7 +61,6 @@ class ClassContext(ContextBaseClass):
         """
             Helper function for process_line that handles the leading class declaration statement
         """
-        # prefix comment and class statement happen at indent 4
         self.trace("class statement encountered", leading_token)
         lexer_line = self.peek_lexer_line().consume(leading_token)
         class_name = lexer_line.peek_leading_token()
@@ -100,19 +92,35 @@ class ClassContext(ContextBaseClass):
 
     def __process_line_class_body(self, leading_token):
         """
-            Helper function for process_line that handles the leading class declaration statement
+            Helper function for process_line that handles the class's body
         """
-        self.trace("ignoring class content", lexer_line)
-        # TODO: class facets
+        if leading_token.is_visibility_level():
+            class_facet_type_keyword = self.peek_lexer_line().clone().consume(leading_token).peek_leading_token()
+            if class_facet_type_keyword.is_class_facet_type():
+                self.__process_line_class_body_facet_statement()
+            else:
+                self.error("EXPECTED-FACET-KEYWORD", "class-facet statements should start with a visibility-level, followed by the facet keyword", facet_keyword)
+        else:
+            self.error("UNEXPECTED-CLASS-CONTENT", "YAPL classes may only contain class-facet statements", leading_token)
 
+    def __process_line_class_body_facet_statement(self):
+        """
+            helper function for process_line, which handles lines that contain a class-facet statement
 
-    def process_end_of_file(self):
+            Removes the class-facet statement line and the prefix comment lines from the unprocessed contents, and
+            forwards them to a ClassFacetContext object that is created as a child of this object.
         """
-            called by the framework on the current Context when the end-of-file is reached. The Context should pop itself from the stack,
-            and forward the process_end_of_file call to its parent context, if any.
-        """
-        self.pop_to_parent_context().process_end_of_file()
-        
+        # remove the class statement and any optional prefix comment lines
+        class_facet_statement_line = self.pop_lexer_line()
+        prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(self.get_indentation_level() + 4)
+        # create the class context, attach it as a child of this context, and pass control to it
+        class_facet_context = ClassFacetContext(self, self.get_indentation_level() + 4)
+        # forward the class statement and the prefix lines to the class context
+        for prefix_comment_line in prefix_comment_lines:
+            class_facet_context.process_line(prefix_comment_line)
+        class_facet_context.process_line(class_facet_statement_line)
+        self.push_child_context(class_facet_context)
+
     def validate_contents(self):
         """
             called by the framework after processing the file, to validate the overall contents of the context
@@ -120,6 +128,8 @@ class ClassContext(ContextBaseClass):
         ContextBaseClass.validate_contents(self)
         if not (self.get_content_class_prefix_comments() or self.get_content_class_suffix_comment()):
             self.error("CLASS-MUST-BE-COMMENTED", "a YAPL class must be commented, either using prefix- or suffix-notation", None)
+        if not self.get_content_class_facets():
+            self.error("CLASS-MUST-HAVE-FACETS", "a YAPL class must have one or more facets", None)
 
     def get_content_class_name(self):
         """
@@ -129,13 +139,23 @@ class ClassContext(ContextBaseClass):
 
     def get_content_class_prefix_comments(self):
         """
-            Retrieves the prefix-comments of this ClassContext, as they shall be exposed to the abstract-syntax-tree
+            Retrieves the prefix-comments of this class, as they shall be exposed to the abstract-syntax-tree
         """
         return self.__prefix_comments
 
     def get_content_class_suffix_comment(self):
         """
-            Retrieves the suffix-comment of this ClassContext, as it shall be exposed to the abstract-syntax-tree
+            Retrieves the suffix-comment of this class, as it shall be exposed to the abstract-syntax-tree
         """
         return self.__suffix_comment
 
+    def get_content_class_facets(self):
+        """
+            retrieves the list of facets contained within this class, which should be > 0 for a valid YAPL file
+        """
+        facets = []
+        contents = self.get_contents()
+        for content in contents:
+            if isinstance(content, ClassFacetContext):
+                facets.append(content)
+        return facets

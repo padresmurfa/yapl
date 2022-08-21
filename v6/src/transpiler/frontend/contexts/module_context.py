@@ -6,22 +6,31 @@ class ModuleContext(ContextBaseClass):
         A context-sensitive parser for handling a YAPL module
     """
 
-    def __init__(self, parent_file_context):
+    def __init__(self, parent_file_context, indentation_level):
         """
             initializies the parser
 
             'parent_file_context' is the parent FileContext object that this ModuleContext resides within.
         """
-        ContextBaseClass.__init__(self, None, parent_file_context, "MODULE")
+        ContextBaseClass.__init__(self, None, parent_file_context, "MODULE", indentation_level=indentation_level)
         self.__module_fully_qualified_name = None
         self.__prefix_comments = []
         self.__suffix_comment = ""
 
-    def get_debug_module_fully_qualified_name(self):
+    def get_fully_qualified_name(self):
+        """
+            retrieves the fully-qualified name of this context
+        """
         return self.__module_fully_qualified_name if self.__module_fully_qualified_name is not None else "<unknown>"
 
+    def get_name(self):
+        """
+            retrieves the name of this module, which is the last token in its fully-qualified name
+        """
+        return self.get_fully_qualified_name().split(".")[-1]
+
     def __str__(self):
-        return "YAPL frontend module context for module '{}'".format(self.get_debug_module_fully_qualified_name())
+        return "YAPL frontend module context for module '{}'".format(self.get_fully_qualified_name())
 
     def process_line(self, lexer_line):
         """
@@ -29,9 +38,9 @@ class ModuleContext(ContextBaseClass):
         """
         ContextBaseClass.push_lexer_line(self, lexer_line)
         leading_token = lexer_line.peek_leading_token()
-        if leading_token.get_offset() == 0:
+        if leading_token.get_offset() == self.get_indentation_level():
             self.__process_module_statement_line(leading_token)
-        elif leading_token.get_offset() == 4:
+        elif leading_token.get_offset() == self.get_indentation_level() + 4:
             self.__process_module_body_line(leading_token)
         else:
             self.error("EXPECTED-CONTENT-AT-INDENT-ONE", "module declarations may only include direct content at indent level one (offset: 4 characters)", leading_token)
@@ -56,9 +65,9 @@ class ModuleContext(ContextBaseClass):
         self.trace("class statement encountered", leading_token)
         # remove the class statement and any optional prefix comment lines
         class_statement_line = self.pop_lexer_line()
-        prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(4)
+        prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(self.get_indentation_level() + 4)
         # create the class context, attach it as a child of this context, and pass control to it
-        class_context = ClassContext(self)
+        class_context = ClassContext(self, self.get_indentation_level() + 4)
         # forward the class statement and the prefix lines to the class context
         for prefix_comment_line in prefix_comment_lines:
             class_context.process_line(prefix_comment_line)
@@ -126,9 +135,6 @@ class ModuleContext(ContextBaseClass):
                     self.error("EXPECTED-SUFFIX-COMMENT-FOR-MODULE-STATEMENT", "module statements may only be followed by suffix comments in the same line", suffix_comment)
         ContextBaseClass.pop_lexer_line(self)
 
-    def process_end_of_file(self):
-        self.pop_to_parent_context().process_end_of_file()
-        
     def validate_contents(self):
         ContextBaseClass.validate_contents(self)
         if not (self.get_content_module_prefix_comments() or self.get_content_module_suffix_comment()):

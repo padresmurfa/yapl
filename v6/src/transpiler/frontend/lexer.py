@@ -56,7 +56,7 @@ class LexicallyAnalyzedLine(object):
     def consume(self, leading_token):
         result = self.clone()
         popped_leading_token = result.pop_leading_token()
-        assert leading_token is popped_leading_token, "expected the leading token to be the one provided"
+        assert leading_token is popped_leading_token, "expected the leading token to be the one provided ({}), not {}".format(str(leading_token), str(popped_leading_token))
         return result
 
 class Lexer(object):

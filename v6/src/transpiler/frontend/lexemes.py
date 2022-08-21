@@ -16,7 +16,7 @@ def join_words(*patterns):
     parenthesized = []
     for pattern in patterns:
         parenthesized.append("(" + pattern + "$)")
-        parenthesized.append("(" + pattern + "[^a-z0-9_])")
+        parenthesized.append("(" + pattern + "\\b)")
     joined = "|".join(parenthesized)
     return "^(" + joined + ")"
 
@@ -31,7 +31,6 @@ def consume(tokens, input, pattern, constructor, offset):
             print("         " + ((_value.pos -1) * "-") + "⬆")
         raise
     if token_result:
-        # this only works in hacky cases :(
         token = token_result[0].rstrip()
         tokens.append(constructor(token, offset))
         output = input[len(token):]
@@ -94,8 +93,40 @@ class Lexeme(object):
     def get_lexeme_value(self):
         return self.__value
 
+    def is_callable(self, value=None):
+        if not isinstance(self, Callable):
+            return False
+        if value is not None:
+            if value != self.__value:
+                return False
+        return True
+
+    def is_callable_segment(self, value=None):
+        if not isinstance(self, CallableSegment):
+            return False
+        if value is not None:
+            if value != self.__value:
+                return False
+        return True
+
     def is_keyword(self, value=None):
         if not isinstance(self, Keyword):
+            return False
+        if value is not None:
+            if value != self.__value:
+                return False
+        return True
+
+    def is_class_facet_type(self, value=None):
+        if not isinstance(self, ClassFacetType):
+            return False
+        if value is not None:
+            if value != self.__value:
+                return False
+        return True
+
+    def is_visibility_level(self, value=None):
+        if not isinstance(self, VisibilityLevel):
             return False
         if value is not None:
             if value != self.__value:
@@ -249,10 +280,23 @@ class Keyword(Lexeme):
     def consume(tokens, input, offset):
         pattern = join_words(
             "module",
-            "class",
-            "facet",
+            "class"
         )
         return consume(tokens, input, pattern, Keyword, offset)
+
+class ClassFacetType(Lexeme):
+
+    def __init__(self, characters, offset):
+        Lexeme.__init__(self, characters, offset)
+
+    @staticmethod
+    def consume(tokens, input, offset):
+        pattern = join_words(
+            "facet",
+            "interface",
+            "trait",
+        )
+        return consume(tokens, input, pattern, ClassFacetType, offset)
 
 class Callable(Lexeme):
 
@@ -262,9 +306,21 @@ class Callable(Lexeme):
     @staticmethod
     def consume(tokens, input, offset):
         pattern = join_words(
-            "function", "generator", "constructor", "method"
+            "function", "generator", "constructor", "method", "getter", "setter", "closure"
         )
         return consume(tokens, input, pattern, Callable, offset)
+
+class CallableSegment(Lexeme):
+
+    def __init__(self, characters, offset):
+        Lexeme.__init__(self, characters, offset)
+
+    @staticmethod
+    def consume(tokens, input, offset):
+        pattern = join_words(
+            "inputs", "returns", "errors", "code", "emits", "preconditions", "postconditions"
+        )
+        return consume(tokens, input, pattern, CallableSegment, offset)
 
 class VisibilityLevel(Lexeme):
 
@@ -331,8 +387,10 @@ ALL_LEXEME_TYPES = [
     TwoGlyphSymbol,
     LiteralBoolean,
     Keyword,
+    ClassFacetType,
     VisibilityLevel,
     Callable,
+    CallableSegment,
     LiteralNumber,
     SingleGlyphSymbol,
     QualifiedToken,
