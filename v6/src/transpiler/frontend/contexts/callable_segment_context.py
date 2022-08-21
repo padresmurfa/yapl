@@ -1,4 +1,6 @@
 from transpiler.frontend.contexts.context import ContextBaseClass
+from transpiler.frontend.contexts.identifier_declaration_context import IdentifierDeclarationContext
+from transpiler.frontend.contexts.error_declaration_context import ErrorDeclarationContext
 
 class CallableSegmentContext(ContextBaseClass):
     """
@@ -80,9 +82,37 @@ class CallableSegmentContext(ContextBaseClass):
         """
             Helper function for process_line that handles the leading callable segment statement
         """
-        self.trace("ignoring callable segment body {}".format(str(leading_token)), leading_token)
+        if self.__callable_segment_name in ("inputs", "returns", "emits"):
+            # remove the identifier declaration statement and any optional prefix comment lines
+            identifier_declaration_statement_line = self.pop_lexer_line()
+            prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(self.get_indentation_level() + 4)
+            # create the identifier-declaration context, attach it as a child of this context, and pass control to it
+            identifier_declaration_context = IdentifierDeclarationContext(self, self.get_indentation_level() + 4)
+            # forward the identifier-declaration statement and the prefix lines to the child context
+            for prefix_comment_line in prefix_comment_lines:
+                identifier_declaration_context.process_line(prefix_comment_line)
+            identifier_declaration_context.process_line(identifier_declaration_statement_line)
+            self.push_child_context(identifier_declaration_context)
+        elif self.__callable_segment_name == "errors":
+            # remove the error declaration statement and any optional prefix comment lines
+            error_declaration_statement_line = self.pop_lexer_line()
+            prefix_comment_lines = self.maybe_pop_prefix_comments_at_offset(self.get_indentation_level() + 4)
+            # create the error-declaration context, attach it as a child of this context, and pass control to it
+            error_declaration_context = IdentifierDeclarationContext(self, self.get_indentation_level() + 4)
+            # forward the error-declaration statement and the prefix lines to the child context
+            for prefix_comment_line in prefix_comment_lines:
+                error_declaration_context.process_line(prefix_comment_line)
+            error_declaration_context.process_line(error_declaration_statement_line)
+            self.push_child_context(error_declaration_context)
+        elif self.__callable_segment_name == "code":
+            self.error("NOT-YET-IMPLEMENTED", "ignoring callable (type={}) segment body {}".format(self.__callable_segment_name, str(leading_token)), leading_token)
+        elif self.__callable_segment_name == "preconditions":
+            self.error("NOT-YET-IMPLEMENTED", "ignoring callable (type={}) segment body {}".format(self.__callable_segment_name, str(leading_token)), leading_token)
+        elif self.__callable_segment_name == "postconditions":
+            self.error("NOT-YET-IMPLEMENTED", "ignoring callable (type={}) segment body {}".format(self.__callable_segment_name, str(leading_token)), leading_token)
+        else:
+            self.error("NOT-IMPLEMENTED", "ignoring callable (type={}) segment body {}".format(self.__callable_segment_name, str(leading_token)), leading_token)
         ContextBaseClass.pop_lexer_line(self)
-        # TODO: segment-content
 
     def validate_contents(self):
         """
@@ -91,6 +121,8 @@ class CallableSegmentContext(ContextBaseClass):
         ContextBaseClass.validate_contents(self)
         if not self.get_content_callable_segment_name():
             self.error("CALLABLE-SEGMENT-MUST-HAVE-NAME", "a YAPL callable-segment must have a name", None)
+        if not self.get_content_identifier_declarations():
+            self.error("CALLABLE-SEGMENT-MUST-HAVE-CONTENT", "a YAPL callable-segment must have one or more content declarations", None)
         # TODO: sub-content
 
     def get_content_callable_segment_name(self):
@@ -98,3 +130,25 @@ class CallableSegmentContext(ContextBaseClass):
             Retrieves the name of this callable-segment, as it shall be exposed to the abstract-syntax-tree
         """
         return self.__callable_segment_name
+
+    def get_content_identifier_declarations(self):
+        """
+            retrieves the list of identifier declarations contained within this callable segment, which should non-empty for an input, returns or emits segment
+        """
+        identifier_declarations = []
+        contents = self.get_contents()
+        for content in contents:
+            if isinstance(content, IdentifierDeclarationContext):
+                identifier_declarations.append(content)
+        return identifier_declarations
+
+    def get_content_error_declarations(self):
+        """
+            retrieves the list of error declarations contained within this callable segment, which should be non-empty for an error declaration segment
+        """
+        error_declarations = []
+        contents = self.get_contents()
+        for content in contents:
+            if isinstance(content, IdentifierDeclarationContext):
+                error_declarations.append(content)
+        return error_declarations

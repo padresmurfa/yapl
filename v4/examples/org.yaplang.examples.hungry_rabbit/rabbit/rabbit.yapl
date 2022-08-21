@@ -32,9 +32,9 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
                 returns:
                     eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
                 emits:
-                    carrots_were_eaten -- when the rabbit eats carrots in a square
-                    rabbit_moved -- when the rabbit moved after eating
-                    rabbit_went_to_sleep -- when the rabbit has gone to sleep
+                    carrots_were_eaten is boolean -- when the rabbit eats carrots in a square
+                    rabbit_moved is boolean -- when the rabbit moved after eating
+                    rabbit_went_to_sleep is boolean -- when the rabbit has gone to sleep
                 code:
                     eaten = 0
 
@@ -79,8 +79,8 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
                 inputs:
                     squares is collection of position -- the squares to choose from
                 preconditions:
-                    1 <= squares.length()
-                    squares.length() <= 4
+                    length_must_be_positive = squares.length() >= 1
+                    length_must_not_exceed_four = squares.length() <= 4
                 returns:
                     best_square is position -- the square that was determined to be the best
                 code:

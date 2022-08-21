@@ -69,10 +69,10 @@ class CallableContext(ContextBaseClass):
         self.__callable_type = leading_token.get_lexeme_value()
         lexer_line = self.peek_lexer_line().consume(leading_token)
         callable_name = lexer_line.peek_leading_token()
-        if not callable_name.is_token():
-            self.error("EXPECTED-TOKEN", "callables must have a name", callable_name)
-        elif not callable_name.is_valid_token():
-            self.error("EXPECTED-VALID-TOKEN", "callable names must be valid tokens", callable_name)
+        if not callable_name.is_identifier():
+            self.error("EXPECTED-IDENTIFIER", "callables must have a name", callable_name)
+        elif not callable_name.is_valid_identifier():
+            self.error("EXPECTED-VALID-IDENTIFIER", "callable names must be valid identifiers", callable_name)
         else:
             self.__callable_name = callable_name.get_lexeme_value()
             self.trace("callable name: {}".format(self.__callable_name), callable_name)

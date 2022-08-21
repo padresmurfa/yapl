@@ -73,10 +73,10 @@ class ClassFacetContext(ContextBaseClass):
             self.__class_facet_type = class_facet_type_keyword.get_lexeme_value()
             lexer_line = lexer_line.consume(class_facet_type_keyword)
             facet_name = lexer_line.peek_leading_token()
-            if not facet_name.is_token():
-                self.error("EXPECTED-TOKEN", "class-facets must have a name", facet_name)
-            elif not facet_name.is_valid_token():
-                self.error("EXPECTED-VALID-TOKEN", "class-facet names must be valid tokens", facet_name)
+            if not facet_name.is_identifier():
+                self.error("EXPECTED-IDENTIFIER", "class-facets must have a name", facet_name)
+            elif not facet_name.is_valid_identifier():
+                self.error("EXPECTED-VALID-IDENTIFIER", "class-facet names must be valid identifiers", facet_name)
             else:
                 self.__class_facet_name = facet_name.get_lexeme_value()
                 self.trace("class facet name: {}".format(self.__class_facet_name), facet_name)
@@ -107,9 +107,11 @@ class ClassFacetContext(ContextBaseClass):
                 self.__process_line_class_facet_callable_statement()
             else:
                 self.error("EXPECTED-METHOD-OR-GENERATOR-METHOD", "class-facets may contain constructors, methods, or generator methods, but cannot contain functions")
+        elif leading_token.is_comment():
+            # assuming that this is a callable-comment
+            pass
         else:
-            self.trace("ignoring class-facet content", leading_token)
-            # TODO: member variables
+            self.error("NOT-IMPLEMENTED", "ignoring class-facet content", leading_token)
 
     def __process_line_class_facet_callable_statement(self):
         """

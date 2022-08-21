@@ -30,7 +30,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
                 returns:
                     rows is integer
                 postconditions:
-                    rows >= 1
+                    must_be_positive = rows >= 1
                 code:
                     return rows = my_carrot_matrix.rows().length()
 
@@ -42,7 +42,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
                 returns:
                     columns is integer
                 postconditions:
-                    columns >= 1
+                    must_be_positive = columns >= 1
                 code:
                     return columns = my_carrot_matrix.columns().length()
 
@@ -135,7 +135,7 @@ module org.yaplang.examples.hungry_rabbit.garden:
             -- carrot_matrix is a bi-dimensional array of garden-squares, where each square contains the number
             -- of carrots that are currently to be found at that position in the garden.
             ----------------------------------------------------------------------------------------------------------------
-            my_carrot_matrix references carrot_matrix where my_carrot_matrix is not empty
+            my_carrot_matrix references carrot_matrix
 
 
         private facet helper_methods:
@@ -146,9 +146,11 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             generator method get_possible_center_values:
                 inputs:                
-                    for_length      is integer where for_length >= 1 -- the length of the row or column
+                    for_length is integer -- the length of the row or column
+                preconditions:
+                    length_must_be_positive = for_length >= 1
                 returns:
-                    possibilities   is collection of integer -- the possible centers, given the provided length
+                    possibilities is collection of integer -- the possible centers, given the provided length
                 code:
                     -- create and return the first possible center
                     center = for_length / 2
@@ -164,9 +166,12 @@ module org.yaplang.examples.hungry_rabbit.garden:
             ----------------------------------------------------------------------------------------------------------------
             method offset_square:
                 inputs:                
-                    around_position     is position -- the position to base from)
-                    delta_row           is integer where delta_row in (-1 or +1) -- the offset, in rows
-                    delta_column        is integer where delta_column in (-1 or +1) -- the offset, in columns
+                    around_position is position -- the position to base from)
+                    delta_row is integer -- the offset, in rows
+                    delta_column is integer -- the offset, in columns
+                precondtions:
+                    assert delta_row in (-1, +1)
+                    assert delta_column in (-1, +1)
                 returns:
                     square is position  -- the squares at the position + offset
                 code:

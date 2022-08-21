@@ -120,7 +120,7 @@ The transpilation process uses these comments to create docstring comments autom
         returns:
             moved is boolean -- true if the rabbit moved. false otherwise
         emits:
-            rabbit_moved -- if the rabbit moved to another square
+            rabbit_moved is boolean -- if the rabbit moved to another square
         code:
 ```
 

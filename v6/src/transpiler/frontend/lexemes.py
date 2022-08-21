@@ -142,14 +142,20 @@ class Lexeme(object):
     def is_comment_horizontal_rule(self):
         return isinstance(self, CommentHorizontalRule)
 
+    def is_identifier_declaration_type(self):
+        return isinstance(self, IdentifierDeclarationType)        
+
     def is_empty_line(self):
         return isinstance(self, EmptyLine)
 
-    def is_token(self):
-        return isinstance(self, Token) or isinstance(self, QualifiedToken)
+    def is_identifier(self):
+        return isinstance(self, Identifier) or isinstance(self, QualifiedIdentifier)
 
-    def is_qualified_token(self):
-        return isinstance(self, QualifiedToken)
+    def is_unqualified_identifier(self):
+        return isinstance(self, Identifier)
+
+    def is_qualified_identifier(self):
+        return isinstance(self, QualifiedIdentifier)
 
     def is_symbol(self, value=None):
         if not (isinstance(self, TwoGlyphSymbol) or isinstance(self, SingleGlyphSymbol)):
@@ -211,7 +217,7 @@ class Comment(Lexeme):
         pattern = "^(--.*)$"
         return consume(tokens, input, pattern, Comment, offset)
 
-class QualifiedToken(Lexeme):
+class QualifiedIdentifier(Lexeme):
 
     def __init__(self, characters, offset):
         Lexeme.__init__(self, characters, offset)
@@ -231,14 +237,14 @@ class QualifiedToken(Lexeme):
     @staticmethod
     def consume(tokens, input, offset):
         pattern = r"^([a-z][a-z0-9_]+)\.([a-z][a-z0-9_\.]+)"
-        return consume(tokens, input, pattern, QualifiedToken, offset)
+        return consume(tokens, input, pattern, QualifiedIdentifier, offset)
 
-class Token(Lexeme):
+class Identifier(Lexeme):
 
     def __init__(self, characters, offset):
         Lexeme.__init__(self, characters, offset)
 
-    def is_valid_token(self):
+    def is_valid_identifier(self):
         value = self.get_lexeme_value()
         if "__" in value:
             return False
@@ -249,7 +255,7 @@ class Token(Lexeme):
     @staticmethod
     def consume(tokens, input, offset):
         pattern = "^([a-z][a-z0-9_]+)"
-        return consume(tokens, input, pattern, Token, offset)
+        return consume(tokens, input, pattern, Identifier, offset)
 
 class TwoGlyphSymbol(Lexeme):
 
@@ -334,6 +340,19 @@ class VisibilityLevel(Lexeme):
         )
         return consume(tokens, input, pattern, VisibilityLevel, offset)
 
+class IdentifierDeclarationType(Lexeme):
+
+    def __init__(self, characters, offset):
+        Lexeme.__init__(self, characters, offset)
+
+    @staticmethod
+    def consume(tokens, input, offset):
+        # note - the 'is' keyword is used for more things, so it will be moving out of IdentifierDeclarationType
+        pattern = join_words(
+            "is", "references"
+        )
+        return consume(tokens, input, pattern, IdentifierDeclarationType, offset)
+
 class LiteralNumber(Lexeme):
 
     def __init__(self, token, offset):
@@ -393,6 +412,7 @@ ALL_LEXEME_TYPES = [
     CallableSegment,
     LiteralNumber,
     SingleGlyphSymbol,
-    QualifiedToken,
-    Token,
+    IdentifierDeclarationType,
+    QualifiedIdentifier,
+    Identifier,
 ]

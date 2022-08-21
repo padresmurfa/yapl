@@ -37,8 +37,8 @@ module org.yaplang.examples.hungry_rabbit:
     --------------------------------------------------------------------------------------------------------------------
     type carrots is integer:
         invariants:
-            carrots >= 0
-            carrots <= 100
+            must_be_non_negative_integer = carrots >= 0
+            must_not_exceed_maximum_reasonable_carrot_count = carrots <= 100
 
 
     --------------------------------------------------------------------------------------------------------------------
@@ -47,11 +47,7 @@ module org.yaplang.examples.hungry_rabbit:
     --------------------------------------------------------------------------------------------------------------------
     type carrot_matrix is matrix[rows, columns] of carrots:
         invariants:
-            not carrot_matrix.empty()
-            not carrot_matrix.first().empty()
-            for row in carrot_matrix:
-                row.length() == carrot_matrix.first().length()
-
+            must_not_be_empty_matrix = not carrot_matrix.empty()
 
     --------------------------------------------------------------------------------------------------------------------
     -- A (possibly out-of-bounds) square position within a garden.
@@ -64,8 +60,8 @@ module org.yaplang.examples.hungry_rabbit:
         ----------------------------------------------------------------------------------------------------------------
         row is integer:
             invariants:
-                row >= 0
-                row <= 1000
+                must_be_non_negative_integer = row >= 0
+                must_not_be_too_large = row <= 1000
 
         ----------------------------------------------------------------------------------------------------------------
         -- The column offset, corresponding to the innermost array in the 2-dimensional array that
@@ -73,8 +69,8 @@ module org.yaplang.examples.hungry_rabbit:
         ----------------------------------------------------------------------------------------------------------------
         column is integer:
             invariants:
-                column >= 1
-                column <= 1000
+                must_be_non_negative_integer = column >= 0
+                must_not_be_too_large = column <= 1000
 
 
     ------------------------------------------------------------------------------------------------------------------------

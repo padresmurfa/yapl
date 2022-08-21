@@ -51,9 +51,11 @@ class ModuleContext(ContextBaseClass):
         """
         if leading_token.is_keyword("class"):
             self.__process_module_body_line_containing_class_statement(leading_token)
+        elif leading_token.is_comment():
+            # assuming that this is a class-comment
+            pass
         else:
-            # TODO: more module content, like functions, generators, types and constants
-            self.trace("ignoring module content", leading_token)
+            self.error("NOT-IMPLEMENTED", "ignoring module content", leading_token)
 
     def __process_module_body_line_containing_class_statement(self, leading_token):
         """
@@ -110,7 +112,7 @@ class ModuleContext(ContextBaseClass):
         self.trace("module statement encountered", leading_token)
         lexer_line = self.peek_lexer_line().consume(leading_token)
         module_name = lexer_line.peek_leading_token()
-        if not module_name.is_qualified_token():
+        if not module_name.is_qualified_identifier():
             self.error("EXPECTED-QUALIFIED-NAME", "modules must have fully qualified names", module_name)
         elif not module_name.is_valid_fully_qualified_token():
             self.error("EXPECTED-VALID-FULLY-QUALIFIED-NAME", "modules must have VALID fully qualified names. A valid fully-qualified module name must consist of at least three dot-separated valid tokens.", module_name)

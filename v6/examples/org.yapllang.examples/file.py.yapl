@@ -14,6 +14,14 @@ module org.yapllang.examples.file:
             -- The fubar method, for testing purposes
             --------------------------------------------------------------------------------------------------------
             method fubar:
+                inputs:
+                    forage_in_garden references garden -- the garden that the rabbit should forage in
+                returns:
+                    eaten is integer -- the number of carrots eaten
+                emits:
+                    rabbit_moved is boolean -- if the rabbit moved to another square
+                errors:
+                    rabbit_couldnt_move -- the rabbit just couldn't move :(
                 code:
                     pass
 
@@ -23,8 +31,16 @@ module org.yapllang.examples.file:
             -- The foobar method, for testing purposes
             --------------------------------------------------------------------------------------------------------
             method foobar:
+                returns:
+                    eaten is integer -- the number of carrots eaten
+                errors:
+                    rabbit_couldnt_move -- the rabbit just couldn't move :(
                 code:
-                    pass
+                    eaten = this.fubar(garden)
+                    if eaten == fubar.rabbit_couldnt_move:
+                        error foobar.rabbit_couldnt_move
+                    else:
+                        return eaten = eaten
 
         public trait beh:
 

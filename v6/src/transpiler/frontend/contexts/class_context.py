@@ -64,10 +64,10 @@ class ClassContext(ContextBaseClass):
         self.trace("class statement encountered", leading_token)
         lexer_line = self.peek_lexer_line().consume(leading_token)
         class_name = lexer_line.peek_leading_token()
-        if not class_name.is_token():
-            self.error("EXPECTED-TOKEN", "classes must have a name", class_name)
-        elif not class_name.is_valid_token():
-            self.error("EXPECTED-VALID-TOKEN", "class names must be valid tokens", class_name)
+        if not class_name.is_identifier():
+            self.error("EXPECTED-IDENTIFIER", "classes must have a name", class_name)
+        elif not class_name.is_valid_identifier():
+            self.error("EXPECTED-VALID-IDENTIFIER", "class names must be valid identifiers", class_name)
         else:
             self.__class_name = class_name.get_lexeme_value()
             self.trace("class name: {}".format(self.__class_name), class_name)
