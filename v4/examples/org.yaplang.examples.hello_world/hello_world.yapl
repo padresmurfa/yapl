@@ -10,13 +10,16 @@ module hello_world:
     ------------------------------------------------------------------------------------------------------------------------
     singleton hello_world:
 
+
         --------------------------------------------------------------------------------------------------------------------
         -- The main entry point of the executable
         --------------------------------------------------------------------------------------------------------------------
         method main:
+
             code:
+
                 -- load our message from the translation system
                 hello_world="Hello world!"
                 
                 -- inform the world, that we said hello
-                effect = terminal.write_line(line=hello_world)
+                terminal.write_line(line=hello_world)

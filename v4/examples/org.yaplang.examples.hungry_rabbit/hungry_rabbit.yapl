@@ -49,6 +49,7 @@ module org.yaplang.examples.hungry_rabbit:
         invariants:
             must_not_be_empty_matrix = not carrot_matrix.empty()
 
+
     --------------------------------------------------------------------------------------------------------------------
     -- A (possibly out-of-bounds) square position within a garden.
     --------------------------------------------------------------------------------------------------------------------
@@ -79,6 +80,7 @@ module org.yaplang.examples.hungry_rabbit:
     singleton hungry_rabbit:
 
 
+        --------------------------------------------------------------------------------------------------------------------
         public facet interface:
 
 
@@ -86,11 +88,14 @@ module org.yaplang.examples.hungry_rabbit:
             -- The main entry point of the executable
             ----------------------------------------------------------------------------------------------------------------
             method main:
+
                 code:
+
                     -- solve the hungry rabbit problem, given this garden
                     eaten = forage(carrot_matrix_to_forage=garden)
 
 
+        --------------------------------------------------------------------------------------------------------------------
         private facet state:
 
 
@@ -105,6 +110,7 @@ module org.yaplang.examples.hungry_rabbit:
             )
 
 
+        --------------------------------------------------------------------------------------------------------------------
         private facet helper_methods:
 
 
@@ -112,11 +118,13 @@ module org.yaplang.examples.hungry_rabbit:
             -- Spawn a hungry rabbit, and make it go foraging for carrots in a garden
             ----------------------------------------------------------------------------------------------------------------
             method forage:
-                inputs:
+
+                input:
+
                     carrot_matrix_to_forage is carrot_matrix -- the initial state of the garden
-                returns:
-                    eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
+
                 code:
+
                     -- instantiate our rabbit and garden abstractions
                     the_garden = garden(using_initial_state=carrot_matrix_to_forage)
                     the_rabbit = rabbit(forage_in_garden=the_garden)
@@ -124,3 +132,6 @@ module org.yaplang.examples.hungry_rabbit:
                     -- let the rabbit loose in the garden
                     return eaten = the_rabbit.forage()
 
+                output:
+
+                    returns eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree

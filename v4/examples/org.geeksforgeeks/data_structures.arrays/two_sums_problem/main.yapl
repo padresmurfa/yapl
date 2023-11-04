@@ -33,7 +33,9 @@ module main:
 		-- The main entry point of the executable
 		--------------------------------------------------------------------------------------------------------------------
 		method main:
+
 			code:
+
 				-- create the array that we shall use for the two-sum problem
 				arr = stack.new array (
 					0, -1, 2, -3, 1
@@ -43,33 +45,28 @@ module main:
 				x = -2
 
 				-- perform the actual two-sum search
-				result = try find_first_two_sum_for(the_array=arr, sum=x)
-
-				-- emit a message, informing the user whether or not a pair exists
-				if result == not_found:
-					terminal.write_line(valid_pair_doesnt_exist="No valid pair exists.")
-				else:
-					first, second = result
-					terminal.write_line(valid_pair_exists="A valid pair exists at positions (${first.position}, ${second.position}) with the values ${first.value} and ${second.value} and the sum ${x}")
+				result = find_first_two_sum_for(the_array=arr, sum=x):
+					handle not_found:
+						terminal.write_line(valid_pair_doesnt_exist="No valid pair exists.")
+				first = result.first
+				second = result.second
+				terminal.write_line(valid_pair_exists="A valid pair exists at positions (${first.position}, ${second.position}) with the values ${first.value} and ${second.value} and the sum ${x}")
 
 
-
-		--------------------------------------------------------------------------------------------------------------------
-		-- private implementation
-		--------------------------------------------------------------------------------------------------------------------
+        --------------------------------------------------------------------------------------------------------------------
+		private facet implementation:
 
 
 			----------------------------------------------------------------------------------------------------------------
 			-- The two-sum finder function
 			----------------------------------------------------------------------------------------------------------------
 			method find_first_two_sum_for:
-				inputs:
+
+				input:
+
 					the_array is array of integer 	-- the array to find the sums in
 					the_sum is integer 				-- the sum we shall seek
-				returns:
-					the_two_sum is two_sum
-				throws:
-					not_found -- indicates that a valid two-sum was not found
+
 				code:
 					-- fetch the valid two-sums
 					two_sums = find_two_sums_for(the_array, the_sum)
@@ -80,22 +77,29 @@ module main:
 
 					-- if there is no valid two-sum, we throw an error to inform our caller
 					if two_sums is empty:
-						throw not_found
+						raise not_found
 
 					-- we are only interested in the first two-sum, without regards to how many there are
 					two_sum = two_sums.first()
+
+				output:
+
+					raises not_found -- indicates that a valid two-sum was not found
+					returns the_two_sum is two_sum_solution
 
 
 			----------------------------------------------------------------------------------------------------------------
 			-- The two-sum finder function
 			----------------------------------------------------------------------------------------------------------------
 			generator find_two_sums_for:
-				inputs:
+
+				input:
+
 					the_array is array of integer 	-- the array to find the sums in
 					the_sum is integer 				-- the sum we shall seek
-				returns:
-					two_sums is collection of two_sum
+
 				code:
+
 					-- create a sequence of indices representing the possible positions within the array
 					positions = range(min=0, max=the_array.size())
 
@@ -118,13 +122,28 @@ module main:
 							second_position = two_sum_part(position = j, value = values.second())
 
 							-- package them up, and return them
-							yield result = two_sum(first=first_position, second=second_position)
+							yield result = two_sum_solution(first=first_position, second=second_position)
+
+				output:
+
+					returns two_sums is collection of two_sum_solution
 
 
 			----------------------------------------------------------------------------------------------------------------
 			-- A type definition for a two-sum
 			----------------------------------------------------------------------------------------------------------------
-			type two_sum is pair of two_sum_part
+			structure two_sum_solution:
+
+				------------------------------------------------------------------------------------------------------------
+				-- the first value in the two-sum
+				------------------------------------------------------------------------------------------------------------
+				member first is two_sum_part
+
+
+				------------------------------------------------------------------------------------------------------------
+				-- the second value in the two-sum
+				------------------------------------------------------------------------------------------------------------
+				member second is two_sum_part
 
 
 			----------------------------------------------------------------------------------------------------------------

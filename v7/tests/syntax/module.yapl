@@ -1,0 +1,2 @@
+module org.yapllang.tests.syntax.module:
+    ; this is the semantic description comment for the syntax test module

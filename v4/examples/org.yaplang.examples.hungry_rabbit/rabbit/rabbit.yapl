@@ -7,6 +7,7 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
     class rabbit:
 
 
+        --------------------------------------------------------------------------------------------------------------------
         public facet constructors:
 
 
@@ -14,14 +15,19 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             -- Initialize a rabbit
             ----------------------------------------------------------------------------------------------------------------
             constructor:
-                inputs:
+
+                input:
+
                     forage_in_garden references garden -- the garden that the rabbit should forage in
+
                 code:
+
                     the_farmers_garden   = forage_in_garden
                     possible_centers     = forage_in_garden.get_possible_centers()
                     rabbit_position      = choose_best_square(squares=possible_centers)
 
 
+        --------------------------------------------------------------------------------------------------------------------
         public facet commands:
 
 
@@ -29,31 +35,34 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             -- Make the rabbit go foraging for carrots in the garden.
             ----------------------------------------------------------------------------------------------------------------
             method forage:
-                returns:
-                    eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
-                emits:
-                    carrots_were_eaten is boolean -- when the rabbit eats carrots in a square
-                    rabbit_moved is boolean -- when the rabbit moved after eating
-                    rabbit_went_to_sleep is boolean -- when the rabbit has gone to sleep
+
                 code:
+
                     eaten = 0
 
                     -- continuously eat carrots, while carrots are to be had
-                    mutation rabbit_went_to_sleep:
-                        repeat:
-                            mutation carrots_were_eaten:
-                                ate_carrots = eat_carrots()
-                                carrots_were_eaten = ate_carrots > 0
-                            eaten += ate_carrots
-                            mutation rabbit_moved:
-                                moved = move()
-                                rabbit_moved = moved
-                        while moved
+                    for turn in forever:
+                        ate_carrots = eat_carrots()
+                        emit turn.carrots_were_eaten = ate_carrots > 0
+                        eaten += ate_carrots
+                        moved = move()
+                        emit turn.rabbit_moved = moved
+                        if not moved:
+                            break
+                    emit rabbit_went_to_sleep
 
                     -- return the number of carrots that we ate
                     return eaten
 
+                output:
 
+                    emits turn[].carrots_were_eaten is boolean -- when the rabbit eats carrots in a square
+                    emits turn[].rabbit_moved is boolean -- when the rabbit moved after eating
+                    emits rabbit_went_to_sleep -- when the rabbit has gone to sleep
+                    returns eaten is carrots -- the number of carrots that the rabbit ate during its foraging spree
+
+
+        --------------------------------------------------------------------------------------------------------------------
         private facet state:
 
 
@@ -68,7 +77,7 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             rabbit_position is position
 
 
-
+        --------------------------------------------------------------------------------------------------------------------
         private facet helper_methods:
 
 
@@ -76,50 +85,69 @@ module org.yaplang.examples.hungry_rabbit.rabbit:
             -- Choose the best square to forage in next, from among the specified squares
             ----------------------------------------------------------------------------------------------------------------
             method choose_best_square:
-                inputs:
+
+                input:
+
                     squares is collection of position -- the squares to choose from
-                preconditions:
+
+                precondition:
+
                     length_must_be_positive = squares.length() >= 1
                     length_must_not_exceed_four = squares.length() <= 4
-                returns:
-                    best_square is position -- the square that was determined to be the best
+
                 code:
+
                     get_carrots = the_farmers_garden.get_carrots
                     return best_square = squares.max(max_by=get_carrots)
+
+                output:
+
+                    returns best_square is position -- the square that was determined to be the best
 
 
             ----------------------------------------------------------------------------------------------------------------
             -- Eat the carrots at the rabbit's current position
             ----------------------------------------------------------------------------------------------------------------
             method eat_carrots:
-                returns:
-                    eaten is carrots -- The number of carrots that were eaten
-                emits:
-                    carrots_were_eaten -- if at least one carrot was eaten
+
                 code:
-                    mutation carrots_were_eaten:
+
+                    -- if the rabbit finds carrots to eat, then the garden will be affected
+                    mutate the_farmers_garden:
                         eaten = the_farmers_garden.eat_carrots(at_position=rabbit_position)
-                        carrots_were_eaten = eaten > 0
-                    return eaten
+                        emit carrots_were_eaten = eaten > 0
+                        return eaten
+
+                output:
+
+                    emits carrots_were_eaten is boolean -- if at least one carrot was eaten
+                    returns eaten is carrots -- The number of carrots that were eaten
+
 
             ----------------------------------------------------------------------------------------------------------------
             -- Move the rabbit to the best possible square, from the current position, for foraging.
             ----------------------------------------------------------------------------------------------------------------
             method move:
-                returns:
-                    moved is boolean -- true if the rabbit moved. false otherwise
-                emits:
-                    rabbit_moved -- if the rabbit moved to another square
+
                 code:
+
                     choices = the_farmers_garden.get_possible_moves(around_position=rabbit_position)
 
                     -- let the rabbit go to sleep, if it couldn't move
                     if is_empty = choices are empty:
+                        emit rabbit_moved = false
                         return moved = false
 
                     -- look around, and move to the best neighboring square for carrot munching
                     else:
                         choice = choose_best_square(squares=choices)
-                        mutation rabbit_moved:
+                        -- if the rabbit moves, then the position is updated
+                        mutate rabbit_position:
                             rabbit_position = choice
+                        emit rabbit_moved = true
                         return moved = true
+
+                output:
+
+                    emits rabbit_moved is boolean -- if the rabbit moved to another square
+                    returns moved is boolean -- true if the rabbit moved. false otherwise

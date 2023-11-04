@@ -1,0 +1,77 @@
+module org.yapllang.examples.file:
+
+    ; A file that is used for testing purposes
+
+class foo:
+
+    ; A class that is used for testing purposes
+
+    usage:
+
+        instance = foo()
+
+    facet bar:
+
+        method fubar:
+
+            ; The fubar method, for testing purposes
+    
+            usage:
+        
+                eaten = fubar(forage_in_garden)
+
+            input:
+                        
+                forage_in_garden references garden ; the garden that the rabbit should forage in
+
+            output:
+
+                eaten is integer ; the number of carrots eaten
+
+            exceptions:
+
+                rabbit_couldnt_move is exception ; the rabbit just couldn't move :(
+
+            code:
+
+                throw rabbit_couldnt_move
+
+    interface baz:
+
+        method foobar:
+
+            ; The foobar method, for testing purposes
+            
+            usage:
+            
+                eaten = foobar()
+            
+            output:
+            
+                eaten is integer ; the number of carrots eaten
+
+            exceptions:
+
+                rabbit_couldnt_move is exception ; the rabbit just couldn't move :(
+
+            code:
+            
+                eaten = fubar(garden):
+                    catch fubar.rabbit_couldnt_move:
+                        throw foobar.rabbit_couldnt_move
+
+                return eaten
+
+    trait beh:
+
+        method foobaz:
+
+            ; The foobaz method, for testing purposes
+            
+            usage:
+            
+                foobaz()
+
+            code:
+
+                noop

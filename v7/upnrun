@@ -1,0 +1,3 @@
+#/bin/zsh
+./update
+node parse.js tests/syntax/module.yapl

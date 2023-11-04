@@ -10,38 +10,52 @@ module org.yaplang.doc.comments:
     class comments:
 
 
+        -----------------------------------------------------------------------------------------------------------
         public facet constructor:
 
             constructor:
+
                 code:
+
                     pass
 
+
+        -----------------------------------------------------------------------------------------------------------
         public facet methods:
 
 
             -- This is an example of a multi-line prefix-comment that is associated with the following
             -- statement; `method foo:`
             method foo:
+
                 code:
+
                     pass
+
 
             -- This is an example of a single-line prefix-comment that is also associated with the following statement, `method foo:`
             method bar:
+
                 code:
+
                     pass
 
 
+        -----------------------------------------------------------------------------------------------------------
         private facet members:
 
 
             foo is integer -- this is a suffix-comment that will be associated with the member variable `foo`
 
 
+        -----------------------------------------------------------------------------------------------------------
         public facet more_methods:
 
 
             method main:
+
                 code:
+
                     -- this is an inline-comment. it is not at the same level as `code:`, above, thus it does not need to be separated from
                     -- that statement by a blank line. It does however need to be separated by a blank line from the subsequent stdout call,
                     -- otherwise it would be associated with that line in transpiler output such as debug traces.
@@ -52,9 +66,12 @@ module org.yaplang.doc.comments:
             -- Move the rabbit to the best possible square, from the current position, for foraging.
             ----------------------------------------------------------------------------------------------------------------
             method move:
-                returns:
-                    moved is boolean -- true if the rabbit moved. false otherwise
-                emits:
-                    rabbit_moved is boolean -- if the rabbit moved to another square
+
                 code:
+
                     pass
+
+                output:
+
+                    emits rabbit_moved is boolean -- if the rabbit moved to another square
+                    returns moved is boolean -- true if the rabbit moved. false otherwise

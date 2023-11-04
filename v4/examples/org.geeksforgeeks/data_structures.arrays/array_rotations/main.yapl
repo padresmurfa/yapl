@@ -16,32 +16,41 @@ module main:
 	------------------------------------------------------------------------------------------------------------------------
 	singleton executable:
 
+
 		--------------------------------------------------------------------------------------------------------------------
 		-- The main entry point of the executable
 		--------------------------------------------------------------------------------------------------------------------
 		method main:
+
 			code:
+
 				-- create the array that we shall rotate in-place
 				arr = array (
 					1, 2, 3, 4, 5, 6, 7
 				)
 
-				-- rotate the array in-place
+				-- rotate arr in-place
 				rotate(the_array=arr, distance=2)
 
+				-- if this were not just a sample app, then we would report on the results
 
-		--------------------------------------------------------------------------------------------------------------------
-		-- private implementation
-		--------------------------------------------------------------------------------------------------------------------
+
+        --------------------------------------------------------------------------------------------------------------------
+		private facet implementation:
+
 
 			----------------------------------------------------------------------------------------------------------------
 			-- The rotate function
 			----------------------------------------------------------------------------------------------------------------
 			method rotate:
-				inputs:
+
+				input:
+
 					the_array is array of integer and is mutable -- the array that should be rotated
-					distance is integer -- the distance that the array should be rotated
+					distance  is integer 					     -- the distance that the array should be rotated
+
 				code:
+
 					-- if the array is empty, then there is no work to be done
 					if is_empty = the_array is empty:
 						return
@@ -61,7 +70,7 @@ module main:
 						actual_distance = array_size + actual_distance
 
 					-- select position 0 as our initial source
-					position = 0,
+					position = 0
 					value = the_array.get(position)
 
 					-- perform exactly N swaps, where N is the size of the array

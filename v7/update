@@ -1,0 +1,2 @@
+#/bin/zsh
+../../dmitry-soshnikov-syntax/bin/syntax -g grammar.syntax.g.js -m lalr1 -o yaplparser.js --loc
