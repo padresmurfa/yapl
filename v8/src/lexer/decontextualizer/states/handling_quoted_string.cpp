@@ -12,7 +12,7 @@ void handlingQuotedString(const preprocessor::PreprocessorToken &token, Decontex
         case preprocessor::PreprocessorTokenType::QUOTED_STRING:
             {
                 preprocessor::PreprocessorToken newToken(token);
-                newToken.type = preprocessor::PreprocessorTokenType::END_QUOTED_STRING;
+                newToken.type = preprocessor::PreprocessorTokenType::END_SINGLE_LINE_STRING;
                 context.push(DecontextualizerState::HANDLING_QUOTED_STRING, newToken);
             }
             break;
@@ -28,10 +28,8 @@ void handlingQuotedString(const preprocessor::PreprocessorToken &token, Decontex
 
         case preprocessor::PreprocessorTokenType::NORMAL:
         case preprocessor::PreprocessorTokenType::COMMA:
-        case preprocessor::PreprocessorTokenType::SINGLE_LINE_COMMENT:
-        case preprocessor::PreprocessorTokenType::SEMICOLON:
-        case preprocessor::PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT:
-        case preprocessor::PreprocessorTokenType::END_MULTI_LINE_COMMENT:
+        case preprocessor::PreprocessorTokenType::MINUS_MINUS:
+        case preprocessor::PreprocessorTokenType::MINUS_MINUS_MINUS:
         case preprocessor::PreprocessorTokenType::MULTI_LINE_STRING:
         case preprocessor::PreprocessorTokenType::OPEN_PARENTHESIS:
         case preprocessor::PreprocessorTokenType::OPEN_BRACKET:

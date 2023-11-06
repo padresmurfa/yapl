@@ -51,29 +51,17 @@ const std::vector<preprocessor::PreprocessorToken>& DecontextualizerLine::getTok
 
 std::string DecontextualizerLine::toString() const {
     std::stringstream ss;
-    ss
+/*    ss
         << "=============================================" << std::endl
         << "PreprocessorLine: " << preprocessorLine_.toString()  << std::endl
         << "---------"  << std::endl
         << " Decontextualized Tokens: " << std::endl;
-
+*/
     using preprocessor::PreprocessorToken;
     using preprocessor::PreprocessorTokenType;
     // #PreprocessorTokenTypeNamesNeedToBeKeptInSync
     for (const PreprocessorToken& token : getTokens()) {
         switch (token.type) {
-            case PreprocessorTokenType::SINGLE_LINE_COMMENT:
-                ss << "  SINGLE_LINE_COMMENT: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::SEMICOLON:
-                ss << "  SEMICOLON: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT:
-                ss << "  BEGIN_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::END_MULTI_LINE_COMMENT:
-                ss << "  END_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                break;
             case PreprocessorTokenType::QUOTED_STRING:
                 ss << "  QUOTED_STRING: " << token.text << std::endl;
                 break;
@@ -107,17 +95,23 @@ std::string DecontextualizerLine::toString() const {
             case PreprocessorTokenType::COMMA:
                 ss << "  COMMA: " << token.text << std::endl;
                 break;
+            case PreprocessorTokenType::MINUS_MINUS:
+                ss << "  MINUS_MINUS: " << token.text << std::endl;
+                break;
+            case PreprocessorTokenType::MINUS_MINUS_MINUS:
+                ss << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
+                break;
             case PreprocessorTokenType::NORMAL:
                 ss << "  NORMAL: " << token.text << std::endl;
                 break;
             case PreprocessorTokenType::COMMENT_OR_STRING_CONTENT:
                 ss << "  COMMENT_OR_STRING_CONTENT: " << token.text << std::endl;
                 break;
-            case PreprocessorTokenType::BEGIN_QUOTED_STRING:
-                ss << "  BEGIN_QUOTED_STRING: " << token.text << std::endl;
+            case PreprocessorTokenType::BEGIN_SINGLE_LINE_STRING:
+                ss << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
-            case PreprocessorTokenType::END_QUOTED_STRING:
-                ss << "  END_QUOTED_STRING: " << token.text << std::endl;
+            case PreprocessorTokenType::END_SINGLE_LINE_STRING:
+                ss << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
             case PreprocessorTokenType::BEGIN_MULTI_LINE_STRING:
                 ss << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
@@ -130,6 +124,12 @@ std::string DecontextualizerLine::toString() const {
                 break;
             case PreprocessorTokenType::END_BLOCK:
                 ss << "  END_BLOCK: " << token.text << std::endl;
+                break;
+            case PreprocessorTokenType::BEGIN_SINGLE_LINE_COMMENT:
+                ss << "  BEGIN_SINGLE_LINE_COMMENT: " << token.text << std::endl;
+                break;
+            case PreprocessorTokenType::END_SINGLE_LINE_COMMENT:
+                ss << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
                 break;
             default:
                 throw DecontextualizerException("oops");

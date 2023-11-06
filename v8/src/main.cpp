@@ -14,25 +14,28 @@ int main(int argc, char* argv[]) {
 
         std::string filename = argv[1];
 
+/*
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " FILE READER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
+        */
         auto fileReader = lexer::file_reader::FileReader(filename);
-        fileReader.print();
+        /*fileReader.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " PREPROCESSOR" << std::endl;
-        std::cout << "--------------------------------------------------------" << std::endl;
+        std::cout << "--------------------------------------------------------" << std::endl;*/
         auto preprocessorLines = lexer::preprocessor::PreprocessorLines::preprocess(fileReader.getLines());
-        preprocessorLines.print();
+/*        preprocessorLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " DECONTEXTUALIZER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
+        */
         auto decontextualizerLines = lexer::decontextualizer::DecontextualizerLines::decontextualize(preprocessorLines);
         decontextualizerLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;

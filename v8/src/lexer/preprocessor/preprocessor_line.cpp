@@ -117,7 +117,7 @@ void PreprocessorLine::initializeTokens() {
     // #PreprocessorTokenTypeNamesNeedToBeKeptInSync
     // #CharacterEscapesNeedToBeKeptInSync
 
-    while (std::regex_search(remainingText, match, std::regex(R"((\/\/|;|\/\*|\*\/|"""|"|\\[0-7]{1,3}|\\x[0-9A-Fa-F]+|\\u[0-9A-Fa-F]{4}|\\U[0-9A-Fa-F]{8}|\\[\"tnr\\bfva'\?]|:|\(|\)|\[|\]|\{|\}|\,))"))) {
+    while (std::regex_search(remainingText, match, std::regex(R"((-{2,}|"""|"|\\[0-7]{1,3}|\\x[0-9A-Fa-F]+|\\u[0-9A-Fa-F]{4}|\\U[0-9A-Fa-F]{8}|\\[\"tnr\\bfva'\?]|:|\(|\)|\[|\]|\{|\}|\,))"))) {
         if (match.position() > 0) {
             // Add normal text before the match as a token
             auto normalText = remainingText.substr(0, match.position());
@@ -128,15 +128,7 @@ void PreprocessorLine::initializeTokens() {
     // #PreprocessorTokenTypeNamesNeedToBeKeptInSync
         auto matchedText = std::string(match[0]);
         // Determine the type of token
-        if (matchedText == "//") {
-            tokens_.push_back({PreprocessorTokenType::SINGLE_LINE_COMMENT, matchedText, location});
-        } else if (matchedText == ";") {
-            tokens_.push_back({PreprocessorTokenType::SEMICOLON, matchedText, location});
-        } else if (matchedText == "/*") {
-            tokens_.push_back({PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT, matchedText, location});
-        } else if (matchedText == "*/") {
-            tokens_.push_back({PreprocessorTokenType::END_MULTI_LINE_COMMENT, matchedText, location});
-        } else if (matchedText == "\"\"\"") {
+        if (matchedText == "\"\"\"") {
             tokens_.push_back({PreprocessorTokenType::MULTI_LINE_STRING, matchedText, location});
         } else if (matchedText == "\"") {
             tokens_.push_back({PreprocessorTokenType::QUOTED_STRING, matchedText, location});
@@ -158,6 +150,15 @@ void PreprocessorLine::initializeTokens() {
             tokens_.push_back({PreprocessorTokenType::CLOSE_CURLY_BRACE, matchedText, location});
         } else if (matchedText == ",") {
             tokens_.push_back({PreprocessorTokenType::COMMA, matchedText, location});
+        } else if (matchedText[0] == '-') {
+            PreprocessorTokenType tokenType;
+            if (matchedText.size() > 2) {
+                tokenType = PreprocessorTokenType::MINUS_MINUS_MINUS;
+            } else {
+                tokenType = PreprocessorTokenType::MINUS_MINUS;
+            }
+            // NOTE: this will conflict if we add - or -- to the token list 
+            tokens_.push_back({tokenType, matchedText, location});
         }
         if (!matchedText.empty()) {
             location = location.offsetByBytes(matchedText.size());
@@ -188,18 +189,6 @@ std::string PreprocessorLine::toString() const {
     // #PreprocessorTokenTypeNamesNeedToBeKeptInSync
     for (const PreprocessorToken& token : getTokens()) {
         switch (token.type) {
-            case PreprocessorTokenType::SINGLE_LINE_COMMENT:
-                ss << "  SINGLE_LINE_COMMENT: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::SEMICOLON:
-                ss << "  SEMICOLON: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT:
-                ss << "  BEGIN_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                break;
-            case PreprocessorTokenType::END_MULTI_LINE_COMMENT:
-                ss << "  END_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                break;
             case PreprocessorTokenType::QUOTED_STRING:
                 ss << "  QUOTED_STRING: " << token.text << std::endl;
                 break;
@@ -233,17 +222,23 @@ std::string PreprocessorLine::toString() const {
             case PreprocessorTokenType::COMMA:
                 ss << "  COMMA: " << token.text << std::endl;
                 break;
+            case PreprocessorTokenType::MINUS_MINUS:
+                ss << "  MINUS_MINUS: " << token.text << std::endl;
+                break;
+            case PreprocessorTokenType::MINUS_MINUS_MINUS:
+                ss << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
+                break;
             case PreprocessorTokenType::NORMAL:
                 ss << "  NORMAL: " << token.text << std::endl;
                 break;
             case PreprocessorTokenType::COMMENT_OR_STRING_CONTENT:
                 ss << "  COMMENT_OR_STRING_CONTENT: " << token.text << std::endl;
                 break;
-            case PreprocessorTokenType::BEGIN_QUOTED_STRING:
-                ss << "  BEGIN_QUOTED_STRING: " << token.text << std::endl;
+            case PreprocessorTokenType::BEGIN_SINGLE_LINE_STRING:
+                ss << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
-            case PreprocessorTokenType::END_QUOTED_STRING:
-                ss << "  END_QUOTED_STRING: " << token.text << std::endl;
+            case PreprocessorTokenType::END_SINGLE_LINE_STRING:
+                ss << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
             case PreprocessorTokenType::BEGIN_MULTI_LINE_STRING:
                 ss << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;

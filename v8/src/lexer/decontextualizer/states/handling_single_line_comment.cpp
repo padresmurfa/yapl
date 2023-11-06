@@ -10,9 +10,8 @@ void handlingSingleLineComment(const preprocessor::PreprocessorToken &token, Dec
     switch (token.type) {
         case preprocessor::PreprocessorTokenType::NORMAL:
         case preprocessor::PreprocessorTokenType::COMMA:
-        case preprocessor::PreprocessorTokenType::SINGLE_LINE_COMMENT:
-        case preprocessor::PreprocessorTokenType::SEMICOLON:
-        case preprocessor::PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT:
+        case preprocessor::PreprocessorTokenType::MINUS_MINUS:
+        case preprocessor::PreprocessorTokenType::MINUS_MINUS_MINUS:
         case preprocessor::PreprocessorTokenType::QUOTED_STRING:
         case preprocessor::PreprocessorTokenType::ESCAPED_CHARACTER:
         case preprocessor::PreprocessorTokenType::MULTI_LINE_STRING:
@@ -20,7 +19,6 @@ void handlingSingleLineComment(const preprocessor::PreprocessorToken &token, Dec
         case preprocessor::PreprocessorTokenType::OPEN_BRACKET:
         case preprocessor::PreprocessorTokenType::OPEN_CURLY_BRACE:
         case preprocessor::PreprocessorTokenType::COLON:
-        case preprocessor::PreprocessorTokenType::END_MULTI_LINE_COMMENT:
         case preprocessor::PreprocessorTokenType::CLOSE_PARENTHESIS:
         case preprocessor::PreprocessorTokenType::CLOSE_CURLY_BRACE:
         case preprocessor::PreprocessorTokenType::CLOSE_BRACKET:

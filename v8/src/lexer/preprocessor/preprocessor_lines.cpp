@@ -62,18 +62,6 @@ void PreprocessorLines::print() const {
         // #PreprocessorTokenTypeNamesNeedToBeKeptInSync
         for (const PreprocessorToken& token : line.getTokens()) {
             switch (token.type) {
-                case PreprocessorTokenType::SINGLE_LINE_COMMENT:
-                    std::cout << "  SINGLE_LINE_COMMENT: " << token.text << std::endl;
-                    break;
-                case PreprocessorTokenType::SEMICOLON:
-                    std::cout << "  SEMICOLON: " << token.text << std::endl;
-                    break;
-                case PreprocessorTokenType::BEGIN_MULTI_LINE_COMMENT:
-                    std::cout << "  BEGIN_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                    break;
-                case PreprocessorTokenType::END_MULTI_LINE_COMMENT:
-                    std::cout << "  END_MULTI_LINE_COMMENT: " << token.text << std::endl;
-                    break;
                 case PreprocessorTokenType::QUOTED_STRING:
                     std::cout << "  QUOTED_STRING: " << token.text << std::endl;
                     break;
@@ -107,17 +95,23 @@ void PreprocessorLines::print() const {
                 case PreprocessorTokenType::COMMA:
                     std::cout << "  COMMA: " << token.text << std::endl;
                     break;
+                case PreprocessorTokenType::MINUS_MINUS:
+                    std::cout << "  MINUS_MINUS: " << token.text << std::endl;
+                    break;
+                case PreprocessorTokenType::MINUS_MINUS_MINUS:
+                    std::cout << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
+                    break;
                 case PreprocessorTokenType::NORMAL:
                     std::cout << "  NORMAL: " << token.text << std::endl;
                     break;
                 case PreprocessorTokenType::COMMENT_OR_STRING_CONTENT:
                     std::cout << "  COMMENT_OR_STRING_CONTENT: " << token.text << std::endl;
                     break;
-                case PreprocessorTokenType::BEGIN_QUOTED_STRING:
-                    std::cout << "  BEGIN_QUOTED_STRING: " << token.text << std::endl;
+                case PreprocessorTokenType::BEGIN_SINGLE_LINE_STRING:
+                    std::cout << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
                     break;
-                case PreprocessorTokenType::END_QUOTED_STRING:
-                    std::cout << "  END_QUOTED_STRING: " << token.text << std::endl;
+                case PreprocessorTokenType::END_SINGLE_LINE_STRING:
+                    std::cout << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
                     break;
                 case PreprocessorTokenType::BEGIN_MULTI_LINE_STRING:
                     std::cout << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
@@ -130,6 +124,12 @@ void PreprocessorLines::print() const {
                     break;
                 case PreprocessorTokenType::END_BLOCK:
                     std::cout << "  END_BLOCK: " << token.text << std::endl;
+                    break;
+                case PreprocessorTokenType::BEGIN_SINGLE_LINE_COMMENT:
+                    std::cout << "  BEGIN_SINGLE_LINE_COMMENT: " << token.text << std::endl;
+                    break;
+                case PreprocessorTokenType::END_SINGLE_LINE_COMMENT:
+                    std::cout << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
                     break;
                 default:
                     throw Exception("oops");

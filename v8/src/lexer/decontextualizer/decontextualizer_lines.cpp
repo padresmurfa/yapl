@@ -7,8 +7,6 @@
 #include "states/handling_indented_block.hpp"
 #include "states/handling_normal_stuff.hpp"
 #include "states/handling_single_line_comment.hpp"
-#include "states/handling_semantic_comment.hpp"
-#include "states/handling_multi_line_comment.hpp"
 #include "states/handling_quoted_string.hpp"
 #include "states/handling_multi_line_string.hpp"
 #include "states/handling_parenthesis.hpp"
@@ -63,7 +61,6 @@ void handleEndOfLine(DecontextualizerContext& context) {
             case DecontextualizerState::HANDLING_INDENTED_BLOCK:
             case DecontextualizerState::HANDLING_BEGIN_FILE:
             case DecontextualizerState::HANDLING_NORMAL_STUFF:
-            case DecontextualizerState::HANDLING_MULTI_LINE_COMMENT:
             case DecontextualizerState::HANDLING_MULTI_LINE_STRING:
             case DecontextualizerState::HANDLING_PARENTHESIS:
             case DecontextualizerState::HANDLING_BRACKETS:
@@ -71,13 +68,16 @@ void handleEndOfLine(DecontextualizerContext& context) {
                 break;
 
             case DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT:
-                context.pop(DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT);
-                loop = true;
-                break;
-
-            case DecontextualizerState::HANDLING_SEMANTIC_COMMENT:
-                context.pop(DecontextualizerState::HANDLING_SEMANTIC_COMMENT);
-                loop = true;
+                {
+                    context.pop(DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT);
+                    preprocessor::PreprocessorToken newToken({
+                        PreprocessorTokenType::END_SINGLE_LINE_COMMENT,
+                        "",
+                        context.getCurrentLine().getFileLocation()
+                    });
+                    context.pushOutputToken(newToken);
+                    loop = true;
+                }
                 break;
 
             case DecontextualizerState::HANDLING_QUOTED_STRING:
@@ -102,17 +102,17 @@ void handleEndOfFile(DecontextualizerContext& context) {
                 break;
 
             case DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT:
-                context.pop(DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT);
-                loop = true;
+                {
+                    context.pop(DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT);
+                    preprocessor::PreprocessorToken newToken({
+                        PreprocessorTokenType::END_SINGLE_LINE_COMMENT,
+                        "",
+                        context.getCurrentLine().getFileLocation()
+                    });
+                    context.pushOutputToken(newToken);
+                    loop = true;
+                }
                 break;
-
-            case DecontextualizerState::HANDLING_SEMANTIC_COMMENT:
-                context.pop(DecontextualizerState::HANDLING_SEMANTIC_COMMENT);
-                loop = true;
-                break;
-
-            case DecontextualizerState::HANDLING_MULTI_LINE_COMMENT:
-                throw context.unclosedOpenedBlockException("missing multi-line comment terminator");
 
             case DecontextualizerState::HANDLING_MULTI_LINE_STRING:
                 throw context.unclosedOpenedBlockException("missing multi-line string terminator");
@@ -173,12 +173,6 @@ DecontextualizerLines DecontextualizerLines::decontextualize(const lexer::prepro
                     break;
                 case DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT:
                     handlingSingleLineComment(token, context);
-                    break;
-                case DecontextualizerState::HANDLING_SEMANTIC_COMMENT:
-                    handlingSemanticComment(token, context);
-                    break;
-                case DecontextualizerState::HANDLING_MULTI_LINE_COMMENT:
-                    handlingMultiLineComment(token, context);
                     break;
                 case DecontextualizerState::HANDLING_QUOTED_STRING:
                     handlingQuotedString(token, context);

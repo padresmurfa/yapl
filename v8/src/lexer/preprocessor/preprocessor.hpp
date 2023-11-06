@@ -15,10 +15,6 @@ namespace preprocessor {
 // When updating this code, make sure that you keep 'preprocessorTokenTypeNames' in sync
 enum class PreprocessorTokenType {
     NORMAL,
-    SINGLE_LINE_COMMENT,
-    SEMICOLON,
-    BEGIN_MULTI_LINE_COMMENT,
-    END_MULTI_LINE_COMMENT,
     QUOTED_STRING,
     ESCAPED_CHARACTER,
     // TODO: add support for \xHH, \uHHHH and \UHHHHHHHH
@@ -31,16 +27,19 @@ enum class PreprocessorTokenType {
     OPEN_CURLY_BRACE,
     CLOSE_CURLY_BRACE,
     COMMA,
+    MINUS_MINUS,
+    MINUS_MINUS_MINUS,
 
     // decontextualizer token types
     COMMENT_OR_STRING_CONTENT,
-    BEGIN_QUOTED_STRING,
-    END_QUOTED_STRING,
+    BEGIN_SINGLE_LINE_STRING,
+    END_SINGLE_LINE_STRING,
     BEGIN_MULTI_LINE_STRING,
     END_MULTI_LINE_STRING,
     BEGIN_BLOCK,
-    END_BLOCK
-
+    END_BLOCK,
+    BEGIN_SINGLE_LINE_COMMENT,
+    END_SINGLE_LINE_COMMENT
 };
 
 

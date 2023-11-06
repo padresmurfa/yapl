@@ -14,8 +14,6 @@ std::string to_string(const DecontextualizerState state)
         case DecontextualizerState::HANDLING_BEGIN_FILE: return "HANDLING_BEGIN_FILE";
         case DecontextualizerState::HANDLING_NORMAL_STUFF: return "HANDLING_NORMAL_STUFF";
         case DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT: return "HANDLING_SINGLE_LINE_COMMENT";
-        case DecontextualizerState::HANDLING_SEMANTIC_COMMENT: return "HANDLING_SEMANTIC_COMMENT";
-        case DecontextualizerState::HANDLING_MULTI_LINE_COMMENT: return "HANDLING_MULTI_LINE_COMMENT";
         case DecontextualizerState::HANDLING_QUOTED_STRING: return "HANDLING_QUOTED_STRING";
         case DecontextualizerState::HANDLING_MULTI_LINE_STRING: return "HANDLING_MULTI_LINE_STRING";
         case DecontextualizerState::STARTING_INDENTED_BLOCK: return "STARTING_INDENTED_BLOCK";

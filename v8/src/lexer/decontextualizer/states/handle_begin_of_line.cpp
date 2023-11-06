@@ -64,11 +64,9 @@ void handleBeginOfLine(DecontextualizerContext& context) {
         switch (state) {
             case DecontextualizerState::STARTING_INDENTED_BLOCK:
                 handleBeginOfLine_StartingIndentedBlock(context, line);
-                std::cout << "post-starting-indented-block " << line.toString() << std::endl;
                 break;
 
             case DecontextualizerState::HANDLING_SINGLE_LINE_COMMENT:
-            case DecontextualizerState::HANDLING_SEMANTIC_COMMENT:
             case DecontextualizerState::HANDLING_QUOTED_STRING:
                 throw context.exception("should not begin a line in single-line-comment, semantic-comment, or quoted-string mode");
 
@@ -91,7 +89,6 @@ void handleBeginOfLine(DecontextualizerContext& context) {
                 handleBeginOfLine_BeginFileOrNormalStuff(context, line, state);
                 break;
 
-            case DecontextualizerState::HANDLING_MULTI_LINE_COMMENT:
             case DecontextualizerState::HANDLING_MULTI_LINE_STRING:
                 // we care neither about indenting or dedenting in comments and strings
                 // TODO: consider if this is really the case...
