@@ -1,0 +1,66 @@
+--------------------------------------------------------------------------------------------------------------------
+-- A file that is used for testing purposes
+-- its very testy...
+--------------------------------------------------------------------------------------------------------------------
+module org.yapllang.examples.file:
+
+    ----------------------------------------------------------------------------------------------------------------
+    -- A class that is used for testing purposes
+    ----------------------------------------------------------------------------------------------------------------
+    class foo:
+
+        -----------------------------------------------------------------------------------------------------------
+        public facet bar:
+
+            --------------------------------------------------------------------------------------------------------
+            -- The fubar method, for testing purposes
+            --------------------------------------------------------------------------------------------------------
+            method fubar:
+
+                input:
+
+                    forage_in_garden references garden -- the garden that the rabbit should forage in
+
+                output:
+
+                    emits rabbit_moved is boolean -- if the rabbit moved to another square
+                    raises rabbit_couldnt_move -- the rabbit just couldn't move :(
+                    returns eaten is integer -- the number of carrots eaten
+
+                code:
+
+                    raise rabbit_couldnt_move
+
+        -----------------------------------------------------------------------------------------------------------
+        public interface baz:
+
+            --------------------------------------------------------------------------------------------------------
+            -- The foobar method, for testing purposes
+            --------------------------------------------------------------------------------------------------------
+            method foobar:
+
+                output:
+
+                    raises rabbit_couldnt_move -- the rabbit just couldn't move :(
+                    returns eaten is integer -- the number of carrots eaten
+
+                code:
+
+                    eaten = fubar(garden):
+                        handle rabbit_couldnt_move:
+                            raise
+
+                    return eaten
+
+
+        -----------------------------------------------------------------------------------------------------------
+        public trait beh:
+
+            --------------------------------------------------------------------------------------------------------
+            -- The foobaz method, for testing purposes
+            --------------------------------------------------------------------------------------------------------
+            method foobaz:
+
+                code:
+
+                    pass
