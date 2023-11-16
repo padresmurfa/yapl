@@ -57,11 +57,11 @@ size_t FileLocation::getLineOffsetInBytes() const {
 }
 
 FileLocation FileLocation::withLineOffsetInBytes(size_t lineOffsetInBytes) const {
-    return FileLocation(filename_, lineNumber_, fileOffsetInBytes_, lineOffsetInBytes);
+    return FileLocation(filename_, lineNumber_, fileOffsetInBytes_ + lineOffsetInBytes, lineOffsetInBytes_ + lineOffsetInBytes);
 }
 
 FileLocation FileLocation::offsetByBytes(size_t offsetInBytes) const {
-    return FileLocation(filename_, lineNumber_, fileOffsetInBytes_, lineOffsetInBytes_ + offsetInBytes);
+    return FileLocation(filename_, lineNumber_, fileOffsetInBytes_ + offsetInBytes, lineOffsetInBytes_ + offsetInBytes);
 }
 
 std::string FileLocation::toString() const {

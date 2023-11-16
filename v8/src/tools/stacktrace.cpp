@@ -89,11 +89,11 @@ std::ostream& operator<<(std::ostream& os, const StackFrame& obj) {
     static auto ignoreSymbols = {
         "_ZN3org8yapllang5tools9ExceptionC2ERKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEE",
         "_ZN3org8yapllang5lexer14LexerExceptionC2ERKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEE",
-        "_ZN3org8yapllang5lexer16decontextualizer25DecontextualizerExceptionC2ERKNSt3__112basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEE",
-        "_ZN3org8yapllang5lexer16decontextualizer34InvalidTokenInThisContextExceptionC2ERKNS1_12preprocessor17PreprocessorTokenENS2_6states21DecontextualizerStateERKNSt3__112basic_stringIcNSA_11char_traitsIcEENSA_9allocatorIcEEEE",
-        "_ZN3org8yapllang5lexer16decontextualizer34InvalidTokenInThisContextExceptionC1ERKNS1_12preprocessor17PreprocessorTokenENS2_6states21DecontextualizerStateERKNSt3__112basic_stringIcNSA_11char_traitsIcEENSA_9allocatorIcEEEE",
+        "_ZN3org8yapllang5lexer16parser25ParserExceptionC2ERKNSt3__112basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEE",
+        "_ZN3org8yapllang5lexer16parser34InvalidTokenInThisContextExceptionC2ERKNS1_12tokenizeor17PreprocessorTokenENS2_6states21ParserStateERKNSt3__112basic_stringIcNSA_11char_traitsIcEENSA_9allocatorIcEEEE",
+        "_ZN3org8yapllang5lexer16parser34InvalidTokenInThisContextExceptionC1ERKNS1_12tokenizeor17PreprocessorTokenENS2_6states21ParserStateERKNSt3__112basic_stringIcNSA_11char_traitsIcEENSA_9allocatorIcEEEE",
         "_ZN3org8yapllang5tools9ExceptionC1ERKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEE",
-        "_ZN3org8yapllang5lexer16decontextualizer6states23DecontextualizerContext9exceptionERKNSt3__112basic_stringIcNS5_11char_traitsIcEENS5_9allocatorIcEEEE"
+        "_ZN3org8yapllang5lexer16parser6states23ParserContext9exceptionERKNSt3__112basic_stringIcNS5_11char_traitsIcEENS5_9allocatorIcEEEE"
     };
     for (auto i : ignoreSymbols) {
         if (i == obj.symbol) {

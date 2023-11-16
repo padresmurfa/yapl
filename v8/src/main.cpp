@@ -1,7 +1,7 @@
 #include "include.hpp"
 #include "lexer/file_reader/file_reader.hpp"
-#include "lexer/preprocessor/preprocessor_lines.hpp"
-#include "lexer/decontextualizer/decontextualizer_lines.hpp"
+#include "lexer/tokenizer/tokenizer_lines.hpp"
+#include "parser/parser_lines.hpp"
 
 using namespace org::yapllang;
 
@@ -25,19 +25,19 @@ int main(int argc, char* argv[]) {
         std::cout << std::endl;
 
         std::cout << "--------------------------------------------------------" << std::endl;
-        std::cout << " PREPROCESSOR" << std::endl;
+        std::cout << " TOKENIZER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;*/
-        auto preprocessorLines = lexer::preprocessor::PreprocessorLines::preprocess(fileReader.getLines());
-/*        preprocessorLines.print();
+        auto tokenizerLines = lexer::tokenizer::TokenizerLines::tokenize(fileReader.getLines());
+/*        tokenizerLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 
         std::cout << "--------------------------------------------------------" << std::endl;
-        std::cout << " DECONTEXTUALIZER" << std::endl;
+        std::cout << " PARSER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
         */
-        auto decontextualizerLines = lexer::decontextualizer::DecontextualizerLines::decontextualize(preprocessorLines);
-        decontextualizerLines.print();
+        auto parserLines = lexer::parser::ParserLines::parse(tokenizerLines);
+        parserLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 
