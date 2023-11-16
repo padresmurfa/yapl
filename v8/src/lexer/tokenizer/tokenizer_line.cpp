@@ -231,30 +231,6 @@ std::string TokenizerLine::toString() const {
             case TokenizerTokenType::NORMAL:
                 ss << "  NORMAL: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::COMMENT_CONTENT:
-                ss << "  COMMENT_CONTENT: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::STRING_CONTENT:
-                ss << "  STRING_CONTENT: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::BEGIN_SINGLE_LINE_STRING:
-                ss << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::END_SINGLE_LINE_STRING:
-                ss << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::BEGIN_MULTI_LINE_STRING:
-                ss << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::END_MULTI_LINE_STRING:
-                ss << "  END_MULTI_LINE_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::BEGIN_BLOCK:
-                ss << "  BEGIN_BLOCK: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::END_BLOCK:
-                ss << "  END_BLOCK: " << token.text << std::endl;
-                break;
             default:
                 throw lexer::LexerException("oops");
         }

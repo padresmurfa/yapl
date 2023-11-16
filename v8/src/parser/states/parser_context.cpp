@@ -2,11 +2,10 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 namespace states {
 
-ParserContext::ParserContext(const tokenizer::TokenizerLine& line, std::vector<ParserState>& stateStack, std::vector<size_t> &indentation)
+ParserContext::ParserContext(const lexer::tokenizer::TokenizerLine& line, std::vector<ParserState>& stateStack, std::vector<size_t> &indentation)
     : stateStack_(stateStack)
     , line_(line)
     , indentation_(indentation)
@@ -77,16 +76,16 @@ bool ParserContext::wouldIndent(const std::string &newWhitespace) const {
     return newWhitespaceLength > currentWhitespaceLength;
 }
 
-const tokenizer::TokenizerLine &ParserContext::getCurrentLine() const
+const lexer::tokenizer::TokenizerLine &ParserContext::getCurrentLine() const
 {
     return line_;
 }
 
-void ParserContext::pushOutputToken(const tokenizer::TokenizerToken &token) {
+void ParserContext::pushOutputToken(const parser::ParserToken &token) {
     outputTokens_.push_back(token);
 }
 
-void ParserContext::push(ParserState state, const tokenizer::TokenizerToken &token) {
+void ParserContext::push(ParserState state, const parser::ParserToken &token) {
     pushOutputToken(token);
     stateStack_.push_back(state);
 }
@@ -95,7 +94,7 @@ void ParserContext::push(ParserState state) {
     stateStack_.push_back(state);
 }
 
-void ParserContext::pop(ParserState state, const tokenizer::TokenizerToken &token) {
+void ParserContext::pop(ParserState state, const parser::ParserToken &token) {
     pushOutputToken(token);
     pop(state);
 }
@@ -115,11 +114,11 @@ void ParserContext::pop(ParserState expectedState) {
     stateStack_.pop_back();
 }
 
-std::vector<tokenizer::TokenizerToken> &ParserContext::mutateOutputTokens() {
+std::vector<parser::ParserToken> &ParserContext::mutateOutputTokens() {
     return outputTokens_;
 }
 
-const std::vector<tokenizer::TokenizerToken> &ParserContext::getOutputTokens() {
+const std::vector<parser::ParserToken> &ParserContext::getOutputTokens() {
     return outputTokens_;
 }
 
@@ -158,17 +157,17 @@ ParserException ParserContext::parserException(const std::string& message)
     return ParserException(addContextToErrorMessage(message));
 }
 
-ClosingUnopenedBlockException ParserContext::closingUnopenedBlockException(const tokenizer::TokenizerToken& token)
+ClosingUnopenedBlockException ParserContext::closingUnopenedBlockException(const parser::ParserToken& token)
 {
     return ClosingUnopenedBlockException(token);
 }
 
-UnknownEscapeCharacterException ParserContext::unknownEscapeCharacterException(const tokenizer::TokenizerToken& token)
+UnknownEscapeCharacterException ParserContext::unknownEscapeCharacterException(const parser::ParserToken& token)
 {
     return UnknownEscapeCharacterException(token);
 }
 
-InvalidTokenInThisContextException ParserContext::invalidTokenInThisContextException(const tokenizer::TokenizerToken& token, const states::ParserState state, const std::string &message)
+InvalidTokenInThisContextException ParserContext::invalidTokenInThisContextException(const parser::ParserToken& token, const states::ParserState state, const std::string &message)
 {
     return InvalidTokenInThisContextException(token, state, addContextToErrorMessage(message));
 }
@@ -178,9 +177,9 @@ UnclosedOpenedBlockException ParserContext::unclosedOpenedBlockException(const s
     return UnclosedOpenedBlockException(addContextToErrorMessage(message));
 }
 
-LexerException ParserContext::lexerException(const std::string& message)
+lexer::LexerException ParserContext::lexerException(const std::string& message)
 {
-    return LexerException(addContextToErrorMessage(message));
+    return lexer::LexerException(addContextToErrorMessage(message));
 }
 
 Exception ParserContext::exception(const std::string& message)
@@ -191,6 +190,5 @@ Exception ParserContext::exception(const std::string& message)
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org

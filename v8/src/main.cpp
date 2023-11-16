@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
         std::cout << " PARSER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
         */
-        auto parserLines = lexer::parser::ParserLines::parse(tokenizerLines);
+        auto parserLines = parser::ParserLines::parse(tokenizerLines);
         parserLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;

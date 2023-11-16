@@ -11,6 +11,7 @@ namespace lexer {
 namespace tokenizer {
     class TokenizerLines;
 }
+}
 namespace parser {
 
 class ParserLines {
@@ -32,7 +33,6 @@ private:
 };
 
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
 

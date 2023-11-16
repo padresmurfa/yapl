@@ -11,14 +11,14 @@ namespace lexer {
 namespace tokenizer {
     class TokenizerToken;
 }
+}
 namespace parser {
 namespace states {
 
-void handlingIndentedBlock(const tokenizer::TokenizerToken &token, ParserContext& context);
+void handlingIndentedBlock(const lexer::tokenizer::TokenizerToken &token, ParserContext& context);
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
 

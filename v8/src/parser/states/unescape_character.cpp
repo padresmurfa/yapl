@@ -1,16 +1,16 @@
 #include "handling_normal_stuff.hpp"
 #include "../parser_exception.hpp"
 #include "lexer/tokenizer/tokenizer.hpp"
+#include "parser/parser.hpp"
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 namespace states {
 
 // ##CharacterEscapesNeedToBeKeptInSync
 // when character escape codes are added/removed, they must be kept in sync with our unescape function
-std::string unescapeCharacter(const std::string &escapedCharacter, const lexer::tokenizer::TokenizerToken &token) {
+std::string unescapeCharacter(const std::string &escapedCharacter, const parser::ParserToken &token) {
     // \"tnr\\bfv0a
     if (escapedCharacter.size() == 1) {
         switch (escapedCharacter[0]) {
@@ -98,6 +98,5 @@ while (std::regex_search(remainingText, match, std::regex(R"(|\\\\U[0-9A-Fa-F]{8
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org

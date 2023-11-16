@@ -16,13 +16,12 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 
 using states::ParserState;
 using states::ParserContext;
-using tokenizer::TokenizerToken;
-using tokenizer::TokenizerTokenType;
+using lexer::tokenizer::TokenizerToken;
+using lexer::tokenizer::TokenizerTokenType;
 
 ParserLines::ParserLines() {
 }
@@ -51,11 +50,11 @@ ParserLines::iterator ParserLines::end() const {
     return lines_.end();
 }
 
-bool maybeMergeTokens(std::vector<TokenizerToken>::iterator &currentToken) {
+bool maybeMergeTokens(std::vector<ParserToken>::iterator &currentToken) {
     auto previousToken = std::prev(currentToken);
     if (previousToken->type == currentToken->type) {
-        if (currentToken->type == TokenizerTokenType::COMMENT_CONTENT
-        || currentToken->type == TokenizerTokenType::STRING_CONTENT) {
+        if (currentToken->type == ParserTokenType::COMMENT_CONTENT
+        || currentToken->type == ParserTokenType::STRING_CONTENT) {
             auto expectedNextToken = previousToken->location.getFileOffsetInBytes() + previousToken->text.size();
             if (expectedNextToken == currentToken->location.getFileOffsetInBytes()) {
                 previousToken->text.append(currentToken->text);
@@ -85,8 +84,8 @@ void handleEndOfLine(ParserContext& context) {
             case ParserState::HANDLING_SINGLE_LINE_COMMENT:
                 {
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
-                    tokenizer::TokenizerToken newToken({
-                        TokenizerTokenType::END_SINGLE_LINE_COMMENT,
+                    ParserToken newToken({
+                        ParserTokenType::END_SINGLE_LINE_COMMENT,
                         "",
                         context.getCurrentLine().getFileLocation()
                     });
@@ -102,7 +101,7 @@ void handleEndOfLine(ParserContext& context) {
                 throw context.exception("unexpected state (" + to_string(state) + ") at EOL");
         }
     }
-    std::vector<tokenizer::TokenizerToken> &tokens = context.mutateOutputTokens();
+    std::vector<ParserToken> &tokens = context.mutateOutputTokens();
     auto it = tokens.begin();
     while (it != tokens.end()) {
         // Check if the current element is equal to the previous one
@@ -130,8 +129,8 @@ void handleEndOfFile(ParserContext& context) {
             case ParserState::HANDLING_SINGLE_LINE_COMMENT:
                 {
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
-                    tokenizer::TokenizerToken newToken({
-                        TokenizerTokenType::END_SINGLE_LINE_COMMENT,
+                    ParserToken newToken({
+                        ParserTokenType::END_SINGLE_LINE_COMMENT,
                         "",
                         context.getCurrentLine().getFileLocation()
                     });
@@ -163,8 +162,8 @@ void handleEndOfFile(ParserContext& context) {
                     int dedents = context.maybeDedent("");
                     while (dedents-- > 0) {
                         context.pop(ParserState::HANDLING_INDENTED_BLOCK);
-                        tokenizer::TokenizerToken newToken({
-                            TokenizerTokenType::END_BLOCK,
+                        ParserToken newToken({
+                            ParserTokenType::END_BLOCK,
                             "",
                             context.getCurrentLine().getFileLocation()
                         });
@@ -250,6 +249,5 @@ void ParserLines::print() const {
 }
 
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org

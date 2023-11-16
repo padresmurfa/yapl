@@ -2,15 +2,14 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 namespace states {
 
 using states::ParserState;
 using states::ParserContext;
-using tokenizer::TokenizerLine;
-using tokenizer::TokenizerToken;
-using tokenizer::TokenizerTokenType;
+using lexer::tokenizer::TokenizerLine;
+using parser::ParserToken;
+using parser::ParserTokenType;
 
 void handleBeginOfLine_StartingIndentedBlock(ParserContext& context, const TokenizerLine& line) {
     if (line.getLineWithoutWhitespace().empty()) {
@@ -19,8 +18,8 @@ void handleBeginOfLine_StartingIndentedBlock(ParserContext& context, const Token
     }
     context.indent(line.getLeadingWhitespace());
     context.pop(ParserState::STARTING_INDENTED_BLOCK);
-    tokenizer::TokenizerToken newToken({
-        TokenizerTokenType::BEGIN_BLOCK,
+    parser::ParserToken newToken({
+        ParserTokenType::BEGIN_BLOCK,
         "",
         context.getCurrentLine().getFileLocation()
     });
@@ -44,8 +43,8 @@ void handleBeginOfLine_BeginFileOrNormalStuff(ParserContext& context, const Toke
     int dedents = context.maybeDedent(line.getLeadingWhitespace());
     while (dedents-- > 0) {
         context.pop(ParserState::HANDLING_INDENTED_BLOCK);
-        tokenizer::TokenizerToken newToken({
-            TokenizerTokenType::END_BLOCK,
+        parser::ParserToken newToken({
+            ParserTokenType::END_BLOCK,
             "",
             context.getCurrentLine().getFileLocation()
         });
@@ -102,6 +101,5 @@ void handleBeginOfLine(ParserContext& context) {
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org

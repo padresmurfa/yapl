@@ -2,7 +2,6 @@
  
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 
 ParserException::ParserException(const std::string& message) : Exception(message)
@@ -18,7 +17,7 @@ ParserException& ParserException::operator=(const ParserException& other) {
     return *this;
 }
 
-ClosingUnopenedBlockException::ClosingUnopenedBlockException(const tokenizer::TokenizerToken& token)
+ClosingUnopenedBlockException::ClosingUnopenedBlockException(const parser::ParserToken& token)
     : ParserException("Closing Unopened Block: " + token.toString())
     , token_(token)
 {   
@@ -43,7 +42,7 @@ ClosingUnopenedBlockException& ClosingUnopenedBlockException::operator=(const Cl
 }
 
 
-UnknownEscapeCharacterException::UnknownEscapeCharacterException(const tokenizer::TokenizerToken& token)
+UnknownEscapeCharacterException::UnknownEscapeCharacterException(const parser::ParserToken& token)
     : ParserException("Unknown Escape Character: '" + token.toString() + "'")
     , token_(token)
 {   
@@ -68,7 +67,7 @@ UnknownEscapeCharacterException& UnknownEscapeCharacterException::operator=(cons
 }
 
 
-InvalidTokenInThisContextException::InvalidTokenInThisContextException(const tokenizer::TokenizerToken& token, const states::ParserState state, const std::string &message)
+InvalidTokenInThisContextException::InvalidTokenInThisContextException(const parser::ParserToken& token, const states::ParserState state, const std::string &message)
     : ParserException("Invalid Token in this context: '" + token.toString() + "', state=" + to_string(state))
     , token_(token)
     , state_(state)
@@ -118,6 +117,5 @@ UnclosedOpenedBlockException& UnclosedOpenedBlockException::operator=(const Uncl
 
 
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org

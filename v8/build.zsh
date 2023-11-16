@@ -25,6 +25,7 @@
     -g ./src/parser/parser_exception.cpp \
     -g ./src/parser/parser_line.cpp \
     -g ./src/parser/parser_lines.cpp \
+    -g ./src/parser/parser.cpp \
     -g ./src/lexer/file_reader/file_line.cpp \
     -g ./src/lexer/file_reader/file_lines.cpp \
     -g ./src/lexer/file_reader/file_location.cpp \

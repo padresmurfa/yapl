@@ -8,7 +8,6 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 
 using namespace org::yapllang;
@@ -16,24 +15,23 @@ using namespace org::yapllang;
 class ParserLine {
 public:
     ParserLine();
-    ParserLine(const tokenizer::TokenizerLine& line, const std::vector<tokenizer::TokenizerToken> &tokens);
+    ParserLine(const lexer::tokenizer::TokenizerLine& line, const std::vector<ParserToken> &tokens);
     ParserLine(const ParserLine& other);
     ParserLine& operator=(const ParserLine& other);
 
     bool empty() const;
     const lexer::tokenizer::TokenizerLine& getTokenizerLine() const;
     const lexer::file_reader::FileLocation& getFileLocation() const;
-    const std::vector<tokenizer::TokenizerToken>& getTokens() const;
+    const std::vector<ParserToken>& getTokens() const;
 
     std::string toString() const;
 
 private:
     lexer::tokenizer::TokenizerLine tokenizerLine_;
-    std::vector<tokenizer::TokenizerToken> tokens_;
+    std::vector<ParserToken> tokens_;
 };
 
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
 

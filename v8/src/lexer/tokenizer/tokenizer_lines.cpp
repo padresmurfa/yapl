@@ -104,36 +104,6 @@ void TokenizerLines::print() const {
                 case TokenizerTokenType::NORMAL:
                     std::cout << "  NORMAL: " << token.text << std::endl;
                     break;
-                case TokenizerTokenType::COMMENT_CONTENT:
-                    std::cout << "  COMMENT_CONTENT: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::STRING_CONTENT:
-                    std::cout << "  STRING_CONTENT: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::BEGIN_SINGLE_LINE_STRING:
-                    std::cout << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::END_SINGLE_LINE_STRING:
-                    std::cout << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::BEGIN_MULTI_LINE_STRING:
-                    std::cout << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::END_MULTI_LINE_STRING:
-                    std::cout << "  END_MULTI_LINE_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::BEGIN_BLOCK:
-                    std::cout << "  BEGIN_BLOCK: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::END_BLOCK:
-                    std::cout << "  END_BLOCK: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::BEGIN_SINGLE_LINE_COMMENT:
-                    std::cout << "  BEGIN_SINGLE_LINE_COMMENT: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::END_SINGLE_LINE_COMMENT:
-                    std::cout << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
-                    break;
                 default:
                     throw Exception("oops");
             }

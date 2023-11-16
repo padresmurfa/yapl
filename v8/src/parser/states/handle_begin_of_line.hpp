@@ -7,7 +7,6 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 namespace states {
 
@@ -15,7 +14,6 @@ void handleBeginOfLine(ParserContext& context);
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
 

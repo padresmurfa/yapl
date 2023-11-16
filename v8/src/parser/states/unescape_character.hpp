@@ -6,18 +6,14 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
-namespace tokenizer {
-    class TokenizerToken;
-}
 namespace parser {
+class ParserToken;
 namespace states {
 
-std::string unescapeCharacter(const std::string &escapedCharacter, const lexer::tokenizer::TokenizerToken &token);
+std::string unescapeCharacter(const std::string &escapedCharacter, const parser::ParserToken &token);
 
 } // namespace states
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
 

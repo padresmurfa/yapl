@@ -4,17 +4,18 @@
 
 namespace org {
 namespace yapllang {
-namespace lexer {
 namespace parser {
 
 using namespace org::yapllang;
+using lexer::tokenizer::TokenizerToken;
+using lexer::tokenizer::TokenizerTokenType;
 
 ParserLine::ParserLine() {
 }
 
 ParserLine::ParserLine(
         const lexer::tokenizer::TokenizerLine& line,
-        const std::vector<tokenizer::TokenizerToken> &tokens)
+        const std::vector<ParserToken> &tokens)
     : tokenizerLine_(line)
     , tokens_(tokens) {
 }
@@ -45,7 +46,7 @@ const lexer::tokenizer::TokenizerLine& ParserLine::getTokenizerLine() const {
     return tokenizerLine_;    
 }
 
-const std::vector<tokenizer::TokenizerToken>& ParserLine::getTokens() const {
+const std::vector<ParserToken>& ParserLine::getTokens() const {
     return tokens_;
 }
 
@@ -57,81 +58,79 @@ std::string ParserLine::toString() const {
         << "---------"  << std::endl
         << " Parsed Tokens: " << std::endl;
 */
-    using tokenizer::TokenizerToken;
-    using tokenizer::TokenizerTokenType;
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
-    for (const TokenizerToken& token : getTokens()) {
+    for (const ParserToken& token : getTokens()) {
         switch (token.type) {
-            case TokenizerTokenType::QUOTED_STRING:
+            case ParserTokenType::QUOTED_STRING:
                 ss << "  QUOTED_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::ESCAPED_CHARACTER:
+            case ParserTokenType::ESCAPED_CHARACTER:
                 ss << "  ESCAPED_CHARACTER: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::MULTI_LINE_STRING:
+            case ParserTokenType::MULTI_LINE_STRING:
                 ss << "  MULTI_LINE_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::COLON:
+            case ParserTokenType::COLON:
                 ss << "  COLON: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::OPEN_PARENTHESIS:
+            case ParserTokenType::OPEN_PARENTHESIS:
                 ss << "  OPEN_PARENTHESIS: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::CLOSE_PARENTHESIS:
+            case ParserTokenType::CLOSE_PARENTHESIS:
                 ss << "  CLOSE_PARENTHESIS: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::OPEN_BRACKET:
+            case ParserTokenType::OPEN_BRACKET:
                 ss << "  OPEN_BRACKET: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::CLOSE_BRACKET:
+            case ParserTokenType::CLOSE_BRACKET:
                 ss << "  CLOSE_BRACKET: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::OPEN_CURLY_BRACE:
+            case ParserTokenType::OPEN_CURLY_BRACE:
                 ss << "  OPEN_CURLY_BRACE: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::CLOSE_CURLY_BRACE:
+            case ParserTokenType::CLOSE_CURLY_BRACE:
                 ss << "  CLOSE_CURLY_BRACE: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::COMMA:
+            case ParserTokenType::COMMA:
                 ss << "  COMMA: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::MINUS_MINUS:
+            case ParserTokenType::MINUS_MINUS:
                 ss << "  MINUS_MINUS: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::MINUS_MINUS_MINUS:
+            case ParserTokenType::MINUS_MINUS_MINUS:
                 ss << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::NORMAL:
+            case ParserTokenType::NORMAL:
                 ss << "  NORMAL: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::COMMENT_CONTENT:
+            case ParserTokenType::COMMENT_CONTENT:
                 ss << "  COMMENT_CONTENT: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::STRING_CONTENT:
+            case ParserTokenType::STRING_CONTENT:
                 ss << "  STRING_CONTENT: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::BEGIN_SINGLE_LINE_STRING:
+            case ParserTokenType::BEGIN_SINGLE_LINE_STRING:
                 ss << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::END_SINGLE_LINE_STRING:
+            case ParserTokenType::END_SINGLE_LINE_STRING:
                 ss << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::BEGIN_MULTI_LINE_STRING:
+            case ParserTokenType::BEGIN_MULTI_LINE_STRING:
                 ss << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::END_MULTI_LINE_STRING:
+            case ParserTokenType::END_MULTI_LINE_STRING:
                 ss << "  END_MULTI_LINE_STRING: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::BEGIN_BLOCK:
+            case ParserTokenType::BEGIN_BLOCK:
                 ss << "  BEGIN_BLOCK: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::END_BLOCK:
+            case ParserTokenType::END_BLOCK:
                 ss << "  END_BLOCK: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::BEGIN_SINGLE_LINE_COMMENT:
+            case ParserTokenType::BEGIN_SINGLE_LINE_COMMENT:
                 ss << "  BEGIN_SINGLE_LINE_COMMENT: " << token.text << std::endl;
                 break;
-            case TokenizerTokenType::END_SINGLE_LINE_COMMENT:
+            case ParserTokenType::END_SINGLE_LINE_COMMENT:
                 ss << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
                 break;
             default:
@@ -143,6 +142,5 @@ std::string ParserLine::toString() const {
 
 
 } // namespace parser
-} // namespace lexer
 } // namespace yapllang
 } // namespace org
