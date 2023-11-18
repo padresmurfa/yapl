@@ -29,7 +29,12 @@ void handlingParenthesis(const TokenizerToken &token, ParserContext& context) {
             throw context.closingUnopenedBlockException(ParserToken::from(token));
 
         case TokenizerTokenType::MINUS_MINUS_MINUS:
-            throw context.invalidTokenInThisContextException(ParserToken::from(token), ParserState::HANDLING_PARENTHESIS, "A comment-line-separator token is not expected as a token within a parenthesis-block");
+            {
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_MULTI_LINE_COMMENT));
+                newToken.text = "";
+                context.push(ParserState::HANDLING_MULTI_LINE_COMMENT, newToken);
+            }
+            break;
 
         case TokenizerTokenType::MINUS_MINUS:
             {

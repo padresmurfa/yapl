@@ -26,7 +26,7 @@ void handlingSingleLineComment(const TokenizerToken &token, ParserContext& conte
         case TokenizerTokenType::CLOSE_BRACKET:
             {
                 // nothing has a special meaning within a single-line comment in YAPL
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::COMMENT_CONTENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TEMPORARY_SINGLE_LINE_COMMENT_CONTENT));
                 context.pushOutputToken(newToken);
             }
             break;

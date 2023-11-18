@@ -41,7 +41,7 @@ void FileReader::print() const {
 
         std::cout << "Original Line: " << line.getText() << std::endl;
         std::cout << "FileLocation: Line " << fileLocation.getLineNumber()
-                    << " (File Offset " << fileLocation.getFileOffsetInBytes()
+                    << " (File Offset " << fileLocation.getFileOffset()
                     << " (bytes)) in " << fileLocation.getFilename() << std::endl;
     }
 }

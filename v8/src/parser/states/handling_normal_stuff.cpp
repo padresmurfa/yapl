@@ -26,7 +26,11 @@ void handlingNormalStuff(const TokenizerToken &token, ParserContext& context) {
             throw context.invalidTokenInThisContextException(ParserToken::from(token), ParserState::HANDLING_NORMAL_STUFF, "An escaped-character token is not expected as a token within a normal-block");
 
         case TokenizerTokenType::MINUS_MINUS_MINUS:
-            // comment-line-separators are expected, but ignored
+            {
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_MULTI_LINE_COMMENT));
+                newToken.text = "";
+                context.push(ParserState::HANDLING_MULTI_LINE_COMMENT, newToken);
+            }
             break;
 
         case TokenizerTokenType::MINUS_MINUS:

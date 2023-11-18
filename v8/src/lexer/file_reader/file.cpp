@@ -22,6 +22,20 @@ File& File::operator=(const File& other) {
     return *this;
 }
 
+void expandTabs(const std::string &input, std::string &output) {
+    std::stringstream tmp;
+
+    // Iterate through the input string
+    for (char c : input) {
+        if (c == '\t') {
+            tmp << "    ";
+        } else {
+            tmp << c;
+        }
+    }
+    output = tmp.str();
+}
+
 void File::readLines() {
     std::ifstream inputFile(filename_, std::ios::binary); // Open in binary mode
 
@@ -31,11 +45,11 @@ void File::readLines() {
 
     std::string lineText; // Use std::string for text (can be UTF-8 or ASCII)
     size_t lineNumber = 1;
-    size_t fileOffsetInBytes = 0;
+    size_t fileOffset = 0;
 
     try {
         while (std::getline(inputFile, lineText)) {
-            FileLocation fileLocation(filename_, lineNumber, fileOffsetInBytes);
+            FileLocation fileLocation(filename_, lineNumber, fileOffset);
 
             // Validate UTF-8 encoding
             if (!utf8::is_valid(lineText.begin(), lineText.end())) {
@@ -44,13 +58,16 @@ void File::readLines() {
                 throw FileContainedInvalidUTF8Exception(invalidUtf8Location);
             }
 
-            FileLine line(lineText, fileLocation);
+            std::string preprocessedLineText;
+            expandTabs(lineText, preprocessedLineText);
+
+            FileLine line(preprocessedLineText, fileLocation);
 
             // Add the line to the Lines collection
             lines_.addLine(line);
 
             // Calculate the offset for the next line
-            fileOffsetInBytes += lineText.size() + 1; // +1 for the newline character
+            fileOffset += preprocessedLineText.size() + 1; // +1 for the newline character
             lineNumber++;
         }
     } catch (const std::exception& e) {

@@ -88,9 +88,11 @@ void handleBeginOfLine(ParserContext& context) {
                 handleBeginOfLine_BeginFileOrNormalStuff(context, line, state);
                 break;
 
+            case ParserState::HANDLING_MULTI_LINE_COMMENT:
             case ParserState::HANDLING_MULTI_LINE_STRING:
                 // we care neither about indenting or dedenting in comments and strings
-                // TODO: consider if this is really the case...
+                // TODO: consider if this is really the case... we probably want to trim leading whitespace from
+                //       multi-line strings and comments
                 break;
 
             default:

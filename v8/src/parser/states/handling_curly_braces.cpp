@@ -30,7 +30,12 @@ void handlingCurlyBraces(const TokenizerToken &token, ParserContext& context) {
             throw context.closingUnopenedBlockException(ParserToken::from(token));
 
         case TokenizerTokenType::MINUS_MINUS_MINUS:
-            throw context.invalidTokenInThisContextException(ParserToken::from(token), ParserState::HANDLING_CURLY_BRACES, "A comment-line-separator token is not expected as a token within a curly-braces-block");
+            {
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_MULTI_LINE_COMMENT));
+                newToken.text = "";
+                context.push(ParserState::HANDLING_MULTI_LINE_COMMENT, newToken);
+            }
+            break;
 
         case TokenizerTokenType::MINUS_MINUS:
             {

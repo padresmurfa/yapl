@@ -20,18 +20,7 @@ const std::string tokenizerTokenTypeNames[] = {
     "CLOSE_CURLY_BRACE",
     "COMMA",
     "MINUS_MINUS",
-    "MINUS_MINUS_MINUS",
-
-    "COMMENT_CONTENT",
-    "STRING_CONTENT",
-    "BEGIN_SINGLE_LINE_STRING",
-    "END_SINGLE_LINE_STRING",
-    "BEGIN_MULTI_LINE_STRING",
-    "END_MULTI_LINE_STRING",
-    "BEGIN_BLOCK",
-    "END_BLOCK",
-    "BEGIN_SINGLE_LINE_COMMENT",
-    "END_SINGLE_LINE_COMMENT",
+    "MINUS_MINUS_MINUS"
  };
 
 std::string TokenizerToken::toString() const {

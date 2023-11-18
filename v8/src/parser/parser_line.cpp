@@ -58,21 +58,9 @@ std::string ParserLine::toString() const {
         << "---------"  << std::endl
         << " Parsed Tokens: " << std::endl;
 */
-    // #TokenizerTokenTypeNamesNeedToBeKeptInSync
+    // #ParserTokenTypeNamesNeedToBeKeptInSync
     for (const ParserToken& token : getTokens()) {
         switch (token.type) {
-            case ParserTokenType::QUOTED_STRING:
-                ss << "  QUOTED_STRING: " << token.text << std::endl;
-                break;
-            case ParserTokenType::ESCAPED_CHARACTER:
-                ss << "  ESCAPED_CHARACTER: " << token.text << std::endl;
-                break;
-            case ParserTokenType::MULTI_LINE_STRING:
-                ss << "  MULTI_LINE_STRING: " << token.text << std::endl;
-                break;
-            case ParserTokenType::COLON:
-                ss << "  COLON: " << token.text << std::endl;
-                break;
             case ParserTokenType::OPEN_PARENTHESIS:
                 ss << "  OPEN_PARENTHESIS: " << token.text << std::endl;
                 break;
@@ -94,17 +82,14 @@ std::string ParserLine::toString() const {
             case ParserTokenType::COMMA:
                 ss << "  COMMA: " << token.text << std::endl;
                 break;
-            case ParserTokenType::MINUS_MINUS:
-                ss << "  MINUS_MINUS: " << token.text << std::endl;
-                break;
-            case ParserTokenType::MINUS_MINUS_MINUS:
-                ss << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
-                break;
             case ParserTokenType::NORMAL:
                 ss << "  NORMAL: " << token.text << std::endl;
                 break;
-            case ParserTokenType::COMMENT_CONTENT:
-                ss << "  COMMENT_CONTENT: " << token.text << std::endl;
+            case ParserTokenType::SINGLE_LINE_COMMENT_CONTENT:
+                ss << "  SINGLE_LINE_COMMENT_CONTENT: " << token.text << std::endl;
+                break;
+            case ParserTokenType::MULTI_LINE_COMMENT_CONTENT:
+                ss << "  MULTI_LINE_COMMENT_CONTENT: " << token.text << std::endl;
                 break;
             case ParserTokenType::STRING_CONTENT:
                 ss << "  STRING_CONTENT: " << token.text << std::endl;
@@ -132,6 +117,12 @@ std::string ParserLine::toString() const {
                 break;
             case ParserTokenType::END_SINGLE_LINE_COMMENT:
                 ss << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
+                break;
+            case ParserTokenType::BEGIN_MULTI_LINE_COMMENT:
+                ss << "  BEGIN_MULTI_LINE_COMMENT: " << token.text << std::endl;
+                break;
+            case ParserTokenType::END_MULTI_LINE_COMMENT:
+                ss << "  END_MULTI_LINE_COMMENT: " << token.text << std::endl;
                 break;
             default:
                 throw ParserException("oops");

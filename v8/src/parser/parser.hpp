@@ -15,14 +15,10 @@ namespace tokenizer {
 }
 namespace parser {
 
-// ##TokenizerTokenTypeNamesNeedToBeKeptInSync
-// When updating this code, make sure that you keep 'tokenizerTokenTypeNames' in sync
+// ##ParserTokenTypeNamesNeedToBeKeptInSync
+// When updating this code, make sure that you keep 'parserTokenTypeNames' in sync
 enum class ParserTokenType {
     NORMAL,
-    QUOTED_STRING,
-    ESCAPED_CHARACTER, // TODO: add support for \UHHHHHHHH
-    MULTI_LINE_STRING,
-    COLON,
     OPEN_PARENTHESIS,
     CLOSE_PARENTHESIS,
     OPEN_BRACKET,
@@ -30,11 +26,10 @@ enum class ParserTokenType {
     OPEN_CURLY_BRACE,
     CLOSE_CURLY_BRACE,
     COMMA,
-    MINUS_MINUS,
-    MINUS_MINUS_MINUS,
 
     // parser token types
-    COMMENT_CONTENT,
+    SINGLE_LINE_COMMENT_CONTENT,
+    MULTI_LINE_COMMENT_CONTENT,
     STRING_CONTENT,
     BEGIN_SINGLE_LINE_STRING,
     END_SINGLE_LINE_STRING,
@@ -43,7 +38,9 @@ enum class ParserTokenType {
     BEGIN_BLOCK,
     END_BLOCK,
     BEGIN_SINGLE_LINE_COMMENT,
-    END_SINGLE_LINE_COMMENT
+    END_SINGLE_LINE_COMMENT,
+    BEGIN_MULTI_LINE_COMMENT,
+    END_MULTI_LINE_COMMENT
 };
 
 

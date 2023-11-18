@@ -31,8 +31,8 @@ TokenizerLine TokenizerLine::atEOF() const {
     auto location = line_.getFileLocation();
     auto filename = location.getFilename();
     auto lineNumber = location.getLineNumber() + 1;
-    auto fileOffsetInBytes = location.getFileOffsetInBytes() + lineLength;
-    auto newLocation = lexer::file_reader::FileLocation(filename, lineNumber, fileOffsetInBytes);
+    auto fileOffset = location.getFileOffset() + lineLength;
+    auto newLocation = lexer::file_reader::FileLocation(filename, lineNumber, fileOffset);
     auto newFileLine = lexer::file_reader::FileLine("", newLocation);
     TokenizerLine result(newFileLine);
     return result;
