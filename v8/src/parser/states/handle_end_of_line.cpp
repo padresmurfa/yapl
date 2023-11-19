@@ -12,8 +12,8 @@ using lexer::tokenizer::TokenizerTokenType;
 
 bool maybeMergeAdjacentContentTokens(std::vector<ParserToken>::iterator &previousToken, std::vector<ParserToken>::iterator &currentToken) {
     if (previousToken->type == currentToken->type) {
-        if (currentToken->type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT
-        || currentToken->type == ParserTokenType::MULTI_LINE_COMMENT_CONTENT
+        if (currentToken->type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT
+        || currentToken->type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT
         || currentToken->type == ParserTokenType::STRING_CONTENT) {
             if (maybeMergeToken(*previousToken, *currentToken)) {
                 return true;
@@ -24,17 +24,17 @@ bool maybeMergeAdjacentContentTokens(std::vector<ParserToken>::iterator &previou
 }
 
 bool maybeMergeSingleLineCommentTokens(std::vector<ParserToken>::iterator &previousToken, std::vector<ParserToken>::iterator &currentToken) {
-    if (previousToken->type == ParserTokenType::BEGIN_SINGLE_LINE_COMMENT && currentToken->type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT) {
+    if (previousToken->type == ParserTokenType::TMP_BEGIN_SINGLE_LINE_COMMENT && currentToken->type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT) {
         if (maybeMergeToken(*previousToken, *currentToken)) {
             return true;
         }
     }
-    if ((previousToken->type == ParserTokenType::BEGIN_SINGLE_LINE_COMMENT || 
-            previousToken->type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT) &&
-            currentToken->type == ParserTokenType::END_SINGLE_LINE_COMMENT
+    if ((previousToken->type == ParserTokenType::TMP_BEGIN_SINGLE_LINE_COMMENT || 
+            previousToken->type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT) &&
+            currentToken->type == ParserTokenType::TMP_END_SINGLE_LINE_COMMENT
         ) {
         mergeToken(*previousToken, *currentToken);
-        previousToken->type = ParserTokenType::SINGLE_LINE_COMMENT_CONTENT;
+        previousToken->type = ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT;
         return true;
     }
     return false;
@@ -89,7 +89,7 @@ void handleEndOfLine(ParserContext& context) {
                 {
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
                     ParserToken newToken({
-                        ParserTokenType::END_SINGLE_LINE_COMMENT,
+                        ParserTokenType::TMP_END_SINGLE_LINE_COMMENT,
                         "",
                         context.getCurrentLine().getFileLocation()
                     });

@@ -17,7 +17,9 @@ module hello_world:
         method main:
 
             -- load our message from the translation system
-            hello_world="Hello world!"
+            hello_world="""
+                Hello world!
+            """
             
             -- inform the world, that we said hello
             terminal.write_line(line=hello_world)

@@ -28,7 +28,7 @@ void handlingIndentedBlock(const TokenizerToken &token, ParserContext& context) 
 
         case TokenizerTokenType::MINUS_MINUS_MINUS:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_MULTI_LINE_COMMENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT));
                 newToken.text = "";
                 context.push(ParserState::HANDLING_MULTI_LINE_COMMENT, newToken);
             }
@@ -36,7 +36,7 @@ void handlingIndentedBlock(const TokenizerToken &token, ParserContext& context) 
 
         case TokenizerTokenType::MINUS_MINUS:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_SINGLE_LINE_COMMENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_BEGIN_SINGLE_LINE_COMMENT));
                 context.push(ParserState::HANDLING_SINGLE_LINE_COMMENT, newToken);
             }
             break;

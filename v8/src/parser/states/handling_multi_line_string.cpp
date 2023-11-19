@@ -13,7 +13,7 @@ void handlingMultiLineString(const TokenizerToken &token, ParserContext& context
     switch (token.type) {
         case TokenizerTokenType::MULTI_LINE_STRING:
             {
-                context.pop(ParserState::HANDLING_QUOTED_STRING, ParserToken::from(token, ParserTokenType::END_MULTI_LINE_STRING));
+                context.pop(ParserState::HANDLING_MULTI_LINE_STRING, ParserToken::from(token, ParserTokenType::END_MULTI_LINE_STRING));
             }
             break;
 

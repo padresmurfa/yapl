@@ -21,7 +21,7 @@ bool maybeMergeAdjacentSingleLineComments(std::vector<ParserLine>::iterator &pre
     if (hasSingleToken) {
         ParserToken & previousToken = previousLineTokens[0];
         const ParserToken &currentToken = currentLineTokens[0];
-        auto isSingleLineComment = previousToken.type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT && currentToken.type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT;
+        auto isSingleLineComment = previousToken.type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT && currentToken.type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT;
         if (isSingleLineComment) {
             auto previousLocation = previousToken.location;
             auto currentLocation = currentToken.location;
@@ -50,18 +50,18 @@ bool maybeMergeAdjacentMultiLineComments(std::vector<ParserLine>::iterator &prev
     if (hasTokens) {
         ParserToken & previousToken = previousLineTokens.back();
         const ParserToken &currentToken = currentLineTokens.front();
-        auto isPreviousMultiLineComment = (previousToken.type == ParserTokenType::BEGIN_MULTI_LINE_COMMENT) || (previousToken.type == ParserTokenType::MULTI_LINE_COMMENT_CONTENT);
-        auto isCurrentMultiLineComment = (currentToken.type == ParserTokenType::END_MULTI_LINE_COMMENT) || (currentToken.type == ParserTokenType::MULTI_LINE_COMMENT_CONTENT);
+        auto isPreviousMultiLineComment = (previousToken.type == ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT) || (previousToken.type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT);
+        auto isCurrentMultiLineComment = (currentToken.type == ParserTokenType::TMP_END_MULTI_LINE_COMMENT) || (currentToken.type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT);
         if (isPreviousMultiLineComment && isCurrentMultiLineComment) {
             auto previousLocation = previousToken.location;
             auto currentLocation = currentToken.location;
-            if (currentToken.type == ParserTokenType::END_MULTI_LINE_COMMENT) {
+            if (currentToken.type == ParserTokenType::TMP_END_MULTI_LINE_COMMENT) {
                 return true;
             }
-            if (previousToken.type != ParserTokenType::BEGIN_MULTI_LINE_COMMENT) {
+            if (previousToken.type != ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT) {
                 previousToken.text.append("\n");
             }
-            previousToken.type = ParserTokenType::MULTI_LINE_COMMENT_CONTENT;
+            previousToken.type = ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT;
             previousToken.text.append(currentToken.text);
             return true;
         }
@@ -91,12 +91,29 @@ void stripSingleLineCommentMarkers(std::vector<ParserLine> &parserLines) {
         std::vector<ParserToken>& mutableTokens = it->mutateTokens();
         if (!mutableTokens.empty()) {
             ParserToken& lastToken = *(mutableTokens.rbegin());
-            if (lastToken.type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT) {
+            if (lastToken.type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT) {
                 if (lastToken.text.size() > 2 && std::isspace(lastToken.text[2])) {
                     mutableTokens.rbegin()->text = lastToken.text.substr(3);
                 } else {
                     mutableTokens.rbegin()->text = lastToken.text.substr(2);
                 }
+            }
+        }
+    }    
+}
+
+void replaceTmpParserTokenTypesWithRealOnes(std::vector<ParserLine> &parserLines) {
+    for (auto it = parserLines.begin(); it != parserLines.end(); it++) {
+        std::vector<ParserToken>& mutableTokens = it->mutateTokens();
+        if (!mutableTokens.empty()) {
+            ParserToken& lastToken = *(mutableTokens.rbegin());
+            switch (lastToken.type) {
+                case ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT:
+                case ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT:
+                    mutableTokens.rbegin()->type = ParserTokenType::COMMENT;
+                    break;
+                default:
+                    break;
             }
         }
     }    
@@ -108,9 +125,9 @@ void normalizeMultiLineCommentLeadingWhiteSpace(std::vector<ParserLine> &parserL
         std::vector<ParserToken>& mutableTokens = it->mutateTokens();
         if (!mutableTokens.empty()) {
             ParserToken& lastToken = *(mutableTokens.rbegin());
-            if (lastToken.type == ParserTokenType::BEGIN_MULTI_LINE_COMMENT) {
+            if (lastToken.type == ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT) {
                 commentLineOffset = lastToken.location.getLineOffsetInBytes();
-            } else if (lastToken.type == ParserTokenType::MULTI_LINE_COMMENT_CONTENT) {
+            } else if (lastToken.type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT) {
                 // TODO: assert that there is only a single token in this line
                 int currentLineOffset = lastToken.location.getLineOffsetInBytes();
                 int incorrectSpaces = currentLineOffset - commentLineOffset;
@@ -119,7 +136,7 @@ void normalizeMultiLineCommentLeadingWhiteSpace(std::vector<ParserLine> &parserL
                     auto ws = std::string(incorrectSpaces, ' ');
                     mutableTokens.rbegin()->text = ws + lastToken.text;
                 }
-            } else if (lastToken.type == ParserTokenType::END_MULTI_LINE_COMMENT) {
+            } else if (lastToken.type == ParserTokenType::TMP_END_MULTI_LINE_COMMENT) {
                 commentLineOffset = -1;
             }
         }
@@ -142,7 +159,7 @@ void handleEndOfFile(ParserLines &lines, ParserContext& context) {
                 {
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
                     ParserToken newToken({
-                        ParserTokenType::END_SINGLE_LINE_COMMENT,
+                        ParserTokenType::TMP_END_SINGLE_LINE_COMMENT,
                         "",
                         context.getCurrentLine().getFileLocation()
                     });
@@ -205,6 +222,7 @@ void handleEndOfFile(ParserLines &lines, ParserContext& context) {
             ++it;
         }
     }
+    replaceTmpParserTokenTypesWithRealOnes(parserLines);
 }
 
 } // namespace states

@@ -96,11 +96,11 @@ std::string ParserLine::toString() const {
             case ParserTokenType::NORMAL:
                 ss << "  NORMAL" << maybeValue(token, "");
                 break;
-            case ParserTokenType::SINGLE_LINE_COMMENT_CONTENT:
-                ss << "  SINGLE_LINE_COMMENT_CONTENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT:
+                ss << "  TMP_SINGLE_LINE_COMMENT_CONTENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::MULTI_LINE_COMMENT_CONTENT:
-                ss << "  MULTI_LINE_COMMENT_CONTENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT:
+                ss << "  TMP_MULTI_LINE_COMMENT_CONTENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::STRING_CONTENT:
                 ss << "  STRING_CONTENT" << maybeValue(token, "");
@@ -123,17 +123,20 @@ std::string ParserLine::toString() const {
             case ParserTokenType::END_BLOCK:
                 ss << "  END_BLOCK" << maybeValue(token, "");
                 break;
-            case ParserTokenType::BEGIN_SINGLE_LINE_COMMENT:
-                ss << "  BEGIN_SINGLE_LINE_COMMENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_BEGIN_SINGLE_LINE_COMMENT:
+                ss << "  TMP_BEGIN_SINGLE_LINE_COMMENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::END_SINGLE_LINE_COMMENT:
-                ss << "  END_SINGLE_LINE_COMMENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_END_SINGLE_LINE_COMMENT:
+                ss << "  TMP_END_SINGLE_LINE_COMMENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::BEGIN_MULTI_LINE_COMMENT:
-                ss << "  BEGIN_MULTI_LINE_COMMENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT:
+                ss << "  TMP_BEGIN_MULTI_LINE_COMMENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::END_MULTI_LINE_COMMENT:
-                ss << "  END_MULTI_LINE_COMMENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_END_MULTI_LINE_COMMENT:
+                ss << "  TMP_END_MULTI_LINE_COMMENT" << maybeValue(token, "");
+                break;
+            case ParserTokenType::COMMENT:
+                ss << "  COMMENT" << maybeValue(token, "");
                 break;
             default:
                 throw ParserException("oops");

@@ -13,7 +13,7 @@ void handlingMultiLineComment(const TokenizerToken &token, ParserContext& contex
     switch (token.type) {
         case TokenizerTokenType::MINUS_MINUS_MINUS:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::END_MULTI_LINE_COMMENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_END_MULTI_LINE_COMMENT));
                 newToken.text = "";
                 context.pop(ParserState::HANDLING_MULTI_LINE_COMMENT, newToken);
             }
@@ -34,7 +34,7 @@ void handlingMultiLineComment(const TokenizerToken &token, ParserContext& contex
         case TokenizerTokenType::CLOSE_BRACKET:
             {
                 // nothing (except */)) has a special meaning within a multi-line comment in YAPL
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::MULTI_LINE_COMMENT_CONTENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT));
                 context.pushOutputToken(newToken);
             }
             break;
