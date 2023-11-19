@@ -25,6 +25,8 @@ public:
     iterator begin() const;
     iterator end() const;
 
+    std::vector<ParserLine> &mutate();
+
     void print() const;
     static ParserLines parse(const lexer::tokenizer::TokenizerLines& lines);
 

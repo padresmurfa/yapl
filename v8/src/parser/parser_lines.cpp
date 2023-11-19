@@ -101,13 +101,17 @@ ParserLines ParserLines::parse(const lexer::tokenizer::TokenizerLines& lines) {
         lineTokens.addLine(lineToAdd);
     }
     ParserContext eofContext(lines.getEOFAsTokenizerLine(), stateStack, indentation);
-    handleEndOfFile(eofContext);
+    handleEndOfFile(lineTokens, eofContext);
     if (!eofContext.getOutputTokens().empty())
     {
         auto lineToAdd = ParserLine(eofContext.getCurrentLine(), eofContext.getOutputTokens());
         lineTokens.addLine(lineToAdd);
     }
     return lineTokens;
+}
+
+std::vector<ParserLine> &ParserLines::mutate() {
+    return lines_;
 }
 
 void ParserLines::print() const {
@@ -119,7 +123,9 @@ void ParserLines::print() const {
         if (line.empty()) {
             continue;
         }
-        std::cout << line.toString();
+        auto lineNumber = line.getFileLocation().getLineNumber();
+        auto lineOffset = line.getFileLocation().getLineOffsetInBytes();
+        std::cout << lineNumber << ":" << lineOffset << "    " << line.toString() << std::endl;
     }
 }
 

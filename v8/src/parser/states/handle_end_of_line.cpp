@@ -10,22 +10,6 @@ using states::ParserContext;
 using lexer::tokenizer::TokenizerToken;
 using lexer::tokenizer::TokenizerTokenType;
 
-void mergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
-    // TODO: consider ensuring that the end position of currentToken is available to previousToken, as
-    // otherwise its not really possible to ensure that whoever is using our parse tree has totally
-    // correct positioning information.
-    previousToken.text.append(currentToken.text);
-}
-
-bool maybeMergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
-    auto expectedNextToken = previousToken.location.getFileOffset() + previousToken.text.size();
-    if (expectedNextToken == currentToken.location.getFileOffset()) {
-        mergeToken(previousToken, currentToken);
-        return true;
-    }
-    return false;
-}
-
 bool maybeMergeAdjacentContentTokens(std::vector<ParserToken>::iterator &previousToken, std::vector<ParserToken>::iterator &currentToken) {
     if (previousToken->type == currentToken->type) {
         if (currentToken->type == ParserTokenType::SINGLE_LINE_COMMENT_CONTENT

@@ -8,9 +8,10 @@
 namespace org {
 namespace yapllang {
 namespace parser {
+    class ParserLines;
 namespace states {
 
-void handleEndOfFile(ParserContext& context);
+void handleEndOfFile(ParserLines &lines, ParserContext& context);
 
 } // namespace states
 } // namespace parser

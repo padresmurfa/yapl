@@ -50,6 +50,17 @@ const std::vector<ParserToken>& ParserLine::getTokens() const {
     return tokens_;
 }
 
+std::vector<ParserToken>& ParserLine::mutateTokens() {
+    return tokens_;
+}
+
+std::string maybeValue(const ParserToken &token, const std::string &expected) {
+    if (token.text != expected) {
+        return "(value='" + token.text + "')";
+    }
+    return "";
+}
+
 std::string ParserLine::toString() const {
     std::stringstream ss;
 /*    ss
@@ -62,72 +73,73 @@ std::string ParserLine::toString() const {
     for (const ParserToken& token : getTokens()) {
         switch (token.type) {
             case ParserTokenType::OPEN_PARENTHESIS:
-                ss << "  OPEN_PARENTHESIS: " << token.text << std::endl;
+                ss << "  OPEN_PARENTHESIS" << maybeValue(token, "(");
                 break;
             case ParserTokenType::CLOSE_PARENTHESIS:
-                ss << "  CLOSE_PARENTHESIS: " << token.text << std::endl;
+                ss << "  CLOSE_PARENTHESIS" << maybeValue(token, ")");
                 break;
             case ParserTokenType::OPEN_BRACKET:
-                ss << "  OPEN_BRACKET: " << token.text << std::endl;
+                ss << "  OPEN_BRACKET" << maybeValue(token, "[");
                 break;
             case ParserTokenType::CLOSE_BRACKET:
-                ss << "  CLOSE_BRACKET: " << token.text << std::endl;
+                ss << "  CLOSE_BRACKET" << maybeValue(token, "]");
                 break;
             case ParserTokenType::OPEN_CURLY_BRACE:
-                ss << "  OPEN_CURLY_BRACE: " << token.text << std::endl;
+                ss << "  OPEN_CURLY_BRACE" << maybeValue(token, "{");
                 break;
             case ParserTokenType::CLOSE_CURLY_BRACE:
-                ss << "  CLOSE_CURLY_BRACE: " << token.text << std::endl;
+                ss << "  CLOSE_CURLY_BRACE" << maybeValue(token, "}");
                 break;
             case ParserTokenType::COMMA:
-                ss << "  COMMA: " << token.text << std::endl;
+                ss << "  COMMA" << maybeValue(token, ",");
                 break;
             case ParserTokenType::NORMAL:
-                ss << "  NORMAL: " << token.text << std::endl;
+                ss << "  NORMAL" << maybeValue(token, "");
                 break;
             case ParserTokenType::SINGLE_LINE_COMMENT_CONTENT:
-                ss << "  SINGLE_LINE_COMMENT_CONTENT: " << token.text << std::endl;
+                ss << "  SINGLE_LINE_COMMENT_CONTENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::MULTI_LINE_COMMENT_CONTENT:
-                ss << "  MULTI_LINE_COMMENT_CONTENT: " << token.text << std::endl;
+                ss << "  MULTI_LINE_COMMENT_CONTENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::STRING_CONTENT:
-                ss << "  STRING_CONTENT: " << token.text << std::endl;
+                ss << "  STRING_CONTENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_SINGLE_LINE_STRING:
-                ss << "  BEGIN_SINGLE_LINE_STRING: " << token.text << std::endl;
+                ss << "  BEGIN_SINGLE_LINE_STRING" << maybeValue(token, "");
                 break;
             case ParserTokenType::END_SINGLE_LINE_STRING:
-                ss << "  END_SINGLE_LINE_STRING: " << token.text << std::endl;
+                ss << "  END_SINGLE_LINE_STRING" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_MULTI_LINE_STRING:
-                ss << "  BEGIN_MULTI_LINE_STRING: " << token.text << std::endl;
+                ss << "  BEGIN_MULTI_LINE_STRING" << maybeValue(token, "");
                 break;
             case ParserTokenType::END_MULTI_LINE_STRING:
-                ss << "  END_MULTI_LINE_STRING: " << token.text << std::endl;
+                ss << "  END_MULTI_LINE_STRING" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_BLOCK:
-                ss << "  BEGIN_BLOCK: " << token.text << std::endl;
+                ss << "  BEGIN_BLOCK" << maybeValue(token, "");
                 break;
             case ParserTokenType::END_BLOCK:
-                ss << "  END_BLOCK: " << token.text << std::endl;
+                ss << "  END_BLOCK" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_SINGLE_LINE_COMMENT:
-                ss << "  BEGIN_SINGLE_LINE_COMMENT: " << token.text << std::endl;
+                ss << "  BEGIN_SINGLE_LINE_COMMENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::END_SINGLE_LINE_COMMENT:
-                ss << "  END_SINGLE_LINE_COMMENT: " << token.text << std::endl;
+                ss << "  END_SINGLE_LINE_COMMENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_MULTI_LINE_COMMENT:
-                ss << "  BEGIN_MULTI_LINE_COMMENT: " << token.text << std::endl;
+                ss << "  BEGIN_MULTI_LINE_COMMENT" << maybeValue(token, "");
                 break;
             case ParserTokenType::END_MULTI_LINE_COMMENT:
-                ss << "  END_MULTI_LINE_COMMENT: " << token.text << std::endl;
+                ss << "  END_MULTI_LINE_COMMENT" << maybeValue(token, "");
                 break;
             default:
                 throw ParserException("oops");
         }
     }
+    ss << std::endl;
     return ss.str();    
 }
 

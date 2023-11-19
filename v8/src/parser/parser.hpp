@@ -55,6 +55,9 @@ public:
     static ParserToken from(const lexer::tokenizer::TokenizerToken &token, ParserTokenType type);
 };
 
+void mergeToken(ParserToken& previousToken, const ParserToken& currentToken);
+bool maybeMergeToken(ParserToken& previousToken, const ParserToken& currentToken);
+
 
 } // namespace parser
 } // namespace yapllang

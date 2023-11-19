@@ -120,4 +120,5 @@ module org.yaplang.examples.hungry_rabbit:
                 the_rabbit = rabbit(forage_in_garden=the_garden)
 
                 -- let the rabbit loose in the garden
+                -- (this is a multi-line comment using single-line-syntax)
                 return eaten = the_rabbit.forage()

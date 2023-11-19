@@ -79,6 +79,21 @@ ParserToken ParserToken::from(const TokenizerToken &token) {
     return result;
 };
 
+void mergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
+    // TODO: consider ensuring that the end position of currentToken is available to previousToken, as
+    // otherwise its not really possible to ensure that whoever is using our parse tree has totally
+    // correct positioning information.
+    previousToken.text.append(currentToken.text);
+}
+
+bool maybeMergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
+    auto expectedNextToken = previousToken.location.getFileOffset() + previousToken.text.size();
+    if (expectedNextToken == currentToken.location.getFileOffset()) {
+        mergeToken(previousToken, currentToken);
+        return true;
+    }
+    return false;
+}
 
 } // namespace parser
 } // namespace yapllang

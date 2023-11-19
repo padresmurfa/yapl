@@ -23,6 +23,7 @@ public:
     const lexer::tokenizer::TokenizerLine& getTokenizerLine() const;
     const lexer::file_reader::FileLocation& getFileLocation() const;
     const std::vector<ParserToken>& getTokens() const;
+    std::vector<ParserToken>& mutateTokens();
 
     std::string toString() const;
 
