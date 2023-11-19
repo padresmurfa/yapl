@@ -14,7 +14,7 @@ bool maybeMergeAdjacentContentTokens(std::vector<ParserToken>::iterator &previou
     if (previousToken->type == currentToken->type) {
         if (currentToken->type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT
         || currentToken->type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT
-        || currentToken->type == ParserTokenType::STRING_CONTENT) {
+        || currentToken->type == ParserTokenType::TMP_STRING_CONTENT) {
             if (maybeMergeToken(*previousToken, *currentToken)) {
                 return true;
             }
@@ -41,14 +41,18 @@ bool maybeMergeSingleLineCommentTokens(std::vector<ParserToken>::iterator &previ
 }
 
 bool maybeMergeSingleLineStringTokens(std::vector<ParserToken>::iterator &previousToken, std::vector<ParserToken>::iterator &currentToken) {
-    if (previousToken->type == ParserTokenType::BEGIN_SINGLE_LINE_STRING && currentToken->type == ParserTokenType::STRING_CONTENT) {
+    if (previousToken->type == ParserTokenType::TMP_BEGIN_SINGLE_LINE_STRING && currentToken->type == ParserTokenType::TMP_STRING_CONTENT) {
+        // skip the leading quote
+        previousToken->text = previousToken->text.substr(1);
+        previousToken->location = previousToken->location.offsetByBytes(1);
         if (maybeMergeToken(*previousToken, *currentToken)) {
             return true;
         }
     }
-    if (previousToken->type == ParserTokenType::BEGIN_SINGLE_LINE_STRING && currentToken->type == ParserTokenType::END_SINGLE_LINE_STRING) {
+    if (previousToken->type == ParserTokenType::TMP_BEGIN_SINGLE_LINE_STRING && currentToken->type == ParserTokenType::TMP_END_SINGLE_LINE_STRING) {
+        currentToken->text = "";
         mergeToken(*previousToken, *currentToken);
-        previousToken->type = ParserTokenType::STRING_CONTENT;
+        previousToken->type = ParserTokenType::TMP_STRING_CONTENT;
         return true;
     }
     return false;

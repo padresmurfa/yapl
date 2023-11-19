@@ -14,13 +14,13 @@ void handlingQuotedString(const TokenizerToken &token, ParserContext& context) {
     switch (token.type) {
         case TokenizerTokenType::QUOTED_STRING:
             {
-                context.pop(ParserState::HANDLING_QUOTED_STRING, ParserToken::from(token, ParserTokenType::END_SINGLE_LINE_STRING));
+                context.pop(ParserState::HANDLING_QUOTED_STRING, ParserToken::from(token, ParserTokenType::TMP_END_SINGLE_LINE_STRING));
             }
             break;
 
         case TokenizerTokenType::ESCAPED_CHARACTER:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::STRING_CONTENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_STRING_CONTENT));
                 newToken.text = unescapeCharacter(newToken.text.substr(1), newToken);
                 context.pushOutputToken(newToken);
             }
@@ -40,7 +40,7 @@ void handlingQuotedString(const TokenizerToken &token, ParserContext& context) {
         case TokenizerTokenType::CLOSE_BRACKET:
             {
                 // nothing (except */)) has a special meaning within a multi-line comment in YAPL
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::STRING_CONTENT));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_STRING_CONTENT));
                 context.pushOutputToken(newToken);
             }
             break;

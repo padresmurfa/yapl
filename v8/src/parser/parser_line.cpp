@@ -102,20 +102,20 @@ std::string ParserLine::toString() const {
             case ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT:
                 ss << "  TMP_MULTI_LINE_COMMENT_CONTENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::STRING_CONTENT:
-                ss << "  STRING_CONTENT" << maybeValue(token, "");
+            case ParserTokenType::TMP_STRING_CONTENT:
+                ss << "  TMP_STRING_CONTENT" << maybeValue(token, "");
                 break;
-            case ParserTokenType::BEGIN_SINGLE_LINE_STRING:
-                ss << "  BEGIN_SINGLE_LINE_STRING" << maybeValue(token, "");
+            case ParserTokenType::TMP_BEGIN_SINGLE_LINE_STRING:
+                ss << "  TMP_BEGIN_SINGLE_LINE_STRING" << maybeValue(token, "");
                 break;
-            case ParserTokenType::END_SINGLE_LINE_STRING:
-                ss << "  END_SINGLE_LINE_STRING" << maybeValue(token, "");
+            case ParserTokenType::TMP_END_SINGLE_LINE_STRING:
+                ss << "  TMP_END_SINGLE_LINE_STRING" << maybeValue(token, "");
                 break;
-            case ParserTokenType::BEGIN_MULTI_LINE_STRING:
-                ss << "  BEGIN_MULTI_LINE_STRING" << maybeValue(token, "");
+            case ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING:
+                ss << "  TMP_BEGIN_MULTI_LINE_STRING" << maybeValue(token, "");
                 break;
-            case ParserTokenType::END_MULTI_LINE_STRING:
-                ss << "  END_MULTI_LINE_STRING" << maybeValue(token, "");
+            case ParserTokenType::TMP_END_MULTI_LINE_STRING:
+                ss << "  TMP_END_MULTI_LINE_STRING" << maybeValue(token, "");
                 break;
             case ParserTokenType::BEGIN_BLOCK:
                 ss << "  BEGIN_BLOCK" << maybeValue(token, "");
@@ -137,6 +137,9 @@ std::string ParserLine::toString() const {
                 break;
             case ParserTokenType::COMMENT:
                 ss << "  COMMENT" << maybeValue(token, "");
+                break;
+            case ParserTokenType::STRING:
+                ss << "  STRING" << maybeValue(token, "");
                 break;
             default:
                 throw ParserException("oops");

@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
         std::cout << " TOKENIZER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;*/
         auto tokenizerLines = lexer::tokenizer::TokenizerLines::tokenize(fileReader.getLines());
-/*        tokenizerLines.print();
+        /*
+        tokenizerLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 

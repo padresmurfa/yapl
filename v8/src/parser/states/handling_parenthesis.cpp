@@ -45,14 +45,14 @@ void handlingParenthesis(const TokenizerToken &token, ParserContext& context) {
 
         case TokenizerTokenType::QUOTED_STRING:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_SINGLE_LINE_STRING));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_BEGIN_SINGLE_LINE_STRING));
                 context.push(ParserState::HANDLING_QUOTED_STRING, newToken);
             }
             break;
 
         case TokenizerTokenType::MULTI_LINE_STRING:
             {
-                ParserToken newToken(ParserToken::from(token, ParserTokenType::BEGIN_MULTI_LINE_STRING));
+                ParserToken newToken(ParserToken::from(token, ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING));
                 context.push(ParserState::HANDLING_MULTI_LINE_STRING, newToken);
             }
             break;
