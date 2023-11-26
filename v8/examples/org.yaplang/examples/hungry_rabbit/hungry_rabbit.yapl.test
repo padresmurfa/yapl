@@ -1,0 +1,35 @@
+------------------------------------------------------------------------------------------------------------------------
+Test the singleton containing the main entry point of the executable
+------------------------------------------------------------------------------------------------------------------------
+test module org.yaplang.examples.hungry_rabbit:
+
+
+    test public interface:
+
+
+	    ----------------------------------------------------------------------------------------------------------------
+	    test the only flow that is valid through the main function
+	    ----------------------------------------------------------------------------------------------------------------
+	    scenario main:
+	        when:
+	            -- the main method is invoked
+	            main()
+	        then:
+	            -- the hungry rabbit ate a bunch of carrots in the garden
+	            eaten == 27
+
+
+    test private helper methods:
+
+
+        ----------------------------------------------------------------------------------------------------------------
+        test the scenario of spawning a hungry rabbit, and making it go foraging for carrots in a garden
+        ----------------------------------------------------------------------------------------------------------------
+        scenario forage:
+        	given:
+        		carrot_matrix_to_forage = matrix[3,3](1,1,1,2,2,2,3,3,3)
+        	when:
+        		forage(carrot_matrix_to_forage)
+        	then:
+        		eaten == 18
+        		carrot_matrix_to_forage == matrix[3,3](0,0,0,0,0,0,0,0,0)

@@ -1,0 +1,346 @@
+------------------------------------------------------------------------------------------------------------------------
+test the abstraction for a garden that can be foraged by a rabbit for carrots.
+------------------------------------------------------------------------------------------------------------------------
+test module org.yaplang.examples.hungry_rabbit.garden:
+
+	test class garden:
+
+		test public constructor:
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of constructing a garden object
+			----------------------------------------------------------------------------------------------------------------
+			scenario constructor:
+				given:
+					-- an arbitrary initial state
+					initial_state = fake matrix
+				when:
+					-- we construct a garden
+					instantiate garden(initial_state)
+				then:
+					-- the initial state is stored in my_carrot_matrix
+					my_carrot_matrix == initial_state
+
+
+		test public properties:
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of calling the rows property
+			----------------------------------------------------------------------------------------------------------------
+			scenario rows:
+				given:
+					-- that m_carrot_matrix is a matrix with two rows and one column
+					my_carrot_matrix = matrix[2,1]( 1, 1 )
+				then:
+					-- the rows property returns 2
+					rows() == 2
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of calling the columns property
+			----------------------------------------------------------------------------------------------------------------
+			scenario columns:
+				given:
+					-- that m_carrot_matrix is a matrix with two rows and one column
+					my_carrot_matrix = matrix[2,1]( 1, 1 )
+				then:
+					-- the columns property returns 1
+					columns() == 1
+
+
+		test public methods:
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test a suite of scenarios for determining a list of squares that could be considered the center of this garden
+			----------------------------------------------------------------------------------------------------------------
+			suite get_possible_centers:
+				when:
+					-- the get_possible_centers() method is invoked
+					get_possible_centers()
+				then:
+					-- the returned possible centers should be as expected
+					possible_centers == expected
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where both rows and columns have multiple possible centers
+				------------------------------------------------------------------------------------------------------------
+				scenario four_possible_centers:
+					given:
+						-- that there are two possible center rows
+						possible_rows = collection(1, 2)
+						-- and that there are two possible center columns
+						possible_columns = collection(3,4)
+					then:
+						-- we expect four possible centers
+						expected = collection(
+							position(row=1, column=3),
+							position(row=1, column=4),
+							position(row=2, column=3),
+							position(row=2, column=4),
+						)
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where rows have multiple possible centers
+				------------------------------------------------------------------------------------------------------------
+				scenario two_possible_centers_due_to_rows:
+					given:
+						-- that there are two possible center rows
+						possible_rows = collection(1, 2)
+						-- and that there is one possible center column
+						possible_columns = collection(3)
+					then:
+						-- we expect two possible centers
+						expected = collection(
+							position(row=1, column=3),
+							position(row=2, column=3),
+						)
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where columns have multiple possible centers
+				------------------------------------------------------------------------------------------------------------
+				scenario two_possible_centers_due_to_columns:
+					given:
+						-- that there is one possible center row
+						possible_rows = collection(1)
+						-- and that there are two possible center columns
+						possible_columns = collection(3, 4)
+					then:
+						-- we expect two possible centers
+						expected = collection(
+							position(row=1, column=3),
+							position(row=1, column=4),
+						)
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where there is a single possible center
+				------------------------------------------------------------------------------------------------------------
+				scenario single_possible_center:
+					given:
+						-- that there is one possible center row
+						possible_rows = collection(1)
+						-- and that there is one possible center column
+						possible_columns = collection(3)
+					then:
+						-- we expect one possible center
+						expected = collection(position(row=1, column=3))
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test a suite of scenarios for determining a list of possible squares to move to within the garden, from a
+			given position.
+			----------------------------------------------------------------------------------------------------------------
+			suite get_possible_moves:
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario when there is a possible move
+				------------------------------------------------------------------------------------------------------------
+				scenario a_single_possible_move_is_within_bounds:
+					given:
+						within_bounds=[false, false, false, true]
+					when:
+						-- we ask for possible moves
+						around_position = fake position
+						get_possible_moves(around_position)
+					then:
+						-- we expect only possible moves to be returned
+						moves == collection(squares[3])
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario when there are multiple possible moves
+				------------------------------------------------------------------------------------------------------------
+				scenario all_possible_moves_are_within_bounds:
+					given:
+						within_bounds=[true, true, true, true]
+					when:
+						-- we ask for possible moves
+						around_position = fake position
+						get_possible_moves(around_position)
+					then:
+						-- we expect all the moves to be returned
+						moves == squares
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario when there are no possible moves
+				------------------------------------------------------------------------------------------------------------
+				scenario no_possible_moves_are_within_bounds:
+					given:
+						within_bounds=[false, false, false, false]
+					when:
+						-- we ask for possible moves
+						around_position = fake position
+						get_possible_moves(around_position)
+					then:
+						-- we expect all the moves to be returned
+						moves == []
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of retrieving the number of carrots in a given garden-square.
+			----------------------------------------------------------------------------------------------------------------
+			scenario get_carrots:
+				given:
+					-- an arbitrary garden 
+					my_carrot_matrix = matrix[2,2](1,2,3,4)
+				when:
+					-- the get_carrots method is invoked
+					at_position = position(1,1)
+					get_carrots(at_position)
+				then:
+					-- the carrot count for the square is returned
+					got_carrots == 4
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of eating carrots at a given position
+			----------------------------------------------------------------------------------------------------------------
+			scenario eat_carrots_at:
+				given:
+					-- an arbitrary garden 
+					the_matrix = matrix[2,2](1,2,3,4)
+				when:
+					-- the position where we shall eat carrots
+					the_position = position(1,1)
+					-- we eat the carrots at the position
+					eat_carrots(the_position)
+				then:
+					-- the carrot count for the square is returned
+					eaten == 4
+					-- and the carrot count of the square is set to 0
+					the_matrix[1,1] == 0
+
+
+		test private helper methods:
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test a suite of scenarios determining the possible centers for rows or columns of the provided length
+			----------------------------------------------------------------------------------------------------------------
+			suite get_possible_center_values:
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where we ask for the center of an odd number of rows/columns 
+				------------------------------------------------------------------------------------------------------------
+				scenario length_is_odd:
+					when:
+						-- we ask for a possible center value of an odd number
+						get_possible_center_values(for_length=3)
+					then:
+						-- a single possibility is returned
+						possibilities == [ 1 ]
+
+
+				------------------------------------------------------------------------------------------------------------
+				test the scenario where we ask for the center of an even number of rows/columns 
+				------------------------------------------------------------------------------------------------------------
+				scenario length_is_even:
+					when:
+						-- we ask for a possible center value of an even number
+						get_possible_center_values(for_length=4)
+					then:
+						-- two possibilities are returned
+						possibilities == [ 1, 2 ]
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test the scenario of creating a square at an offset around a position
+			----------------------------------------------------------------------------------------------------------------
+			scenario offset_square:
+				when:
+					-- we offset a square around a position
+					around_position = position(row=1, column=2)
+					offset_square(around_position, delta_row=9, delta_column=-12)
+				then:
+					-- the row should have been offset by delta_row
+					square.row == 10
+					-- the column should have been offset by delta_column
+					square.column == -10
+
+
+			----------------------------------------------------------------------------------------------------------------
+			test a suite of scenarios for determining whether or not position is within the bounds of this garden
+			----------------------------------------------------------------------------------------------------------------
+			suite is_within_our_bounds:
+				given:
+					-- that the garden has two rows
+					rows = 2
+					-- and that the garden has two columns
+					columns = 2
+					-- and that our row is by default 0
+					row = 0
+					-- and that our column is by default 0
+					column = 0
+					check_position = position(row, column)
+				when:
+					-- we check to determine if our position is within our bounds
+					is_within_our_bounds(check_position)
+				then:
+					-- the answer should match our expectations
+					answer == expected
+
+
+				----------------------------------------------------------------------------------------------------------------
+				test the scenario where the position is left of the garden
+				----------------------------------------------------------------------------------------------------------------
+				scenario too_far_left:
+					given:
+						-- that the column is further left than the starting column
+						column = -1
+					then:
+						-- we do not expect the answer to be that the position is within our bounds
+						expected = false
+
+
+				----------------------------------------------------------------------------------------------------------------
+				test the scenario where the position is right of the garden
+				----------------------------------------------------------------------------------------------------------------
+				scenario too_far_right:
+					given:
+						-- that the column is further right than the final column
+						column = columns
+					then:
+						-- we do not expect the answer to be that the position is within our bounds
+						expected = false
+
+
+				----------------------------------------------------------------------------------------------------------------
+				test the scenario where the position is above the garden
+				----------------------------------------------------------------------------------------------------------------
+				scenario too_far_up:
+					given:
+						-- that the column is further up than the starting row
+						row = -1
+					then:
+						-- we do not expect the answer to be that the position is within our bounds
+						expected = false
+
+
+				----------------------------------------------------------------------------------------------------------------
+				test the scenario where the position is below the garden
+				----------------------------------------------------------------------------------------------------------------
+				scenario too_far_down:
+					given:
+						-- that the column is further down than the final row
+						row = rows
+					then:
+						-- we do not expect the answer to be that the position is within our bounds
+						expected = false
+
+
+				----------------------------------------------------------------------------------------------------------------
+				test the scenario where the position is within the garden
+				----------------------------------------------------------------------------------------------------------------
+				scenario within_the_garden:
+					then:
+						-- we expect the answer to be that the position is within our bounds
+						expected = true
