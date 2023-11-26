@@ -14,29 +14,33 @@ int main(int argc, char* argv[]) {
 
         std::string filename = argv[1];
 
-/*
+        /*
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " FILE READER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
         */
         auto fileReader = lexer::file_reader::FileReader(filename);
-        /*fileReader.print();
+        /*
+        fileReader.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
 
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " TOKENIZER" << std::endl;
-        std::cout << "--------------------------------------------------------" << std::endl;*/
+        std::cout << "--------------------------------------------------------" << std::endl;
+
+        */
         auto tokenizerLines = lexer::tokenizer::TokenizerLines::tokenize(fileReader.getLines());
         /*
         tokenizerLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << std::endl;
+        */
 
         std::cout << "--------------------------------------------------------" << std::endl;
         std::cout << " PARSER" << std::endl;
         std::cout << "--------------------------------------------------------" << std::endl;
-        */
+
         auto parserLines = parser::ParserLines::parse(tokenizerLines);
         parserLines.print();
         std::cout << "--------------------------------------------------------" << std::endl;

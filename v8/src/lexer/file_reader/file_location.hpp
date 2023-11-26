@@ -13,11 +13,11 @@ namespace file_reader {
 class FileLocation {
 public:
     FileLocation();
-    FileLocation(const std::string& filename, size_t lineNumber, size_t fileOffset, size_t lineOffsetInBytes = 0);
+    FileLocation(size_t lineNumber, size_t fileOffset, size_t lineOffsetInBytes);
     FileLocation(const FileLocation& other);
     FileLocation& operator=(const FileLocation& other);
+    bool operator==(const FileLocation& other) const;
 
-    const std::string& getFilename() const;
     size_t getLineNumber() const;
     size_t getFileOffset() const;
     size_t getLineOffsetInBytes() const;
@@ -27,7 +27,6 @@ public:
     FileLocation offsetByBytes(size_t offsetInBytes) const;
 
 private:
-    std::string filename_;
     size_t lineNumber_;
     size_t fileOffset_;
     size_t lineOffsetInBytes_;

@@ -28,12 +28,9 @@ TokenizerLine::TokenizerLine(const TokenizerLine& other)
 
 TokenizerLine TokenizerLine::atEOF() const {
     auto lineLength = line_.getText().size();
-    auto location = line_.getFileLocation();
-    auto filename = location.getFilename();
-    auto lineNumber = location.getLineNumber() + 1;
-    auto fileOffset = location.getFileOffset() + lineLength;
-    auto newLocation = lexer::file_reader::FileLocation(filename, lineNumber, fileOffset);
-    auto newFileLine = lexer::file_reader::FileLine("", newLocation);
+    auto area = line_.getFileArea();
+    auto newArea = file_reader::FileArea(area.getFilename(), area.getEnd(), area.getEnd());
+    auto newFileLine = lexer::file_reader::FileLine("", newArea);
     TokenizerLine result(newFileLine);
     return result;
 }
@@ -57,8 +54,8 @@ const lexer::file_reader::FileLine& TokenizerLine::getFileLine() const {
     return line_;
 }
 
-const lexer::file_reader::FileLocation& TokenizerLine::getFileLocation() const {
-    return line_.getFileLocation();
+const lexer::file_reader::FileArea TokenizerLine::getFileArea() const {
+    return line_.getFileArea();
 }
 
 const std::string& TokenizerLine::getLeadingWhitespace() const {
@@ -112,7 +109,9 @@ void TokenizerLine::initializeText() {
 void TokenizerLine::initializeTokens() {
     std::smatch match;
     std::string remainingText = lineWithoutWhitespace_;
-    lexer::file_reader::FileLocation location = line_.getFileLocation().offsetByBytes(leadingWhitespace_.size());
+    lexer::file_reader::FileLocation newBeginLocation = line_.getFileArea().getBegin().offsetByBytes(leadingWhitespace_.size());
+    lexer::file_reader::FileLocation newEndLocation = newBeginLocation;
+    file_reader::FileArea newArea = file_reader::FileArea(line_.getFileArea().getFilename(), newBeginLocation, newEndLocation);
 
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
     // #CharacterEscapesNeedToBeKeptInSync
@@ -121,35 +120,39 @@ void TokenizerLine::initializeTokens() {
         if (match.position() > 0) {
             // Add normal text before the match as a token
             auto normalText = remainingText.substr(0, match.position());
-            tokens_.push_back({TokenizerTokenType::NORMAL, normalText, location});
-            location = location.offsetByBytes(normalText.size());
+            newEndLocation = newBeginLocation.offsetByBytes(normalText.size()+1);
+            newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
+            tokens_.push_back({TokenizerTokenType::NORMAL, normalText, newArea});
+            newBeginLocation = newEndLocation;
         }
 
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
         auto matchedText = std::string(match[0]);
+        newEndLocation = newBeginLocation.offsetByBytes(matchedText.size()+1);
+        newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
         // Determine the type of token
         if (matchedText == "\"\"\"") {
-            tokens_.push_back({TokenizerTokenType::MULTI_LINE_STRING, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::MULTI_LINE_STRING, matchedText, newArea});
         } else if (matchedText == "\"") {
-            tokens_.push_back({TokenizerTokenType::QUOTED_STRING, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::QUOTED_STRING, matchedText, newArea});
         } else if (matchedText[0] == '\\') {
-            tokens_.push_back({TokenizerTokenType::ESCAPED_CHARACTER, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::ESCAPED_CHARACTER, matchedText, newArea});
         } else if (matchedText == ":") {
-            tokens_.push_back({TokenizerTokenType::COLON, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::COLON, matchedText, newArea});
         } else if (matchedText == "(") {
-            tokens_.push_back({TokenizerTokenType::OPEN_PARENTHESIS, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::OPEN_PARENTHESIS, matchedText, newArea});
         } else if (matchedText == ")") {
-            tokens_.push_back({TokenizerTokenType::CLOSE_PARENTHESIS, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::CLOSE_PARENTHESIS, matchedText, newArea});
         } else if (matchedText == "[") {
-            tokens_.push_back({TokenizerTokenType::OPEN_BRACKET, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::OPEN_BRACKET, matchedText, newArea});
         } else if (matchedText == "]") {
-            tokens_.push_back({TokenizerTokenType::CLOSE_BRACKET, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::CLOSE_BRACKET, matchedText, newArea});
         } else if (matchedText == "{") {
-            tokens_.push_back({TokenizerTokenType::OPEN_CURLY_BRACE, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::OPEN_CURLY_BRACE, matchedText, newArea});
         } else if (matchedText == "}") {
-            tokens_.push_back({TokenizerTokenType::CLOSE_CURLY_BRACE, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::CLOSE_CURLY_BRACE, matchedText, newArea});
         } else if (matchedText == ",") {
-            tokens_.push_back({TokenizerTokenType::COMMA, matchedText, location});
+            tokens_.push_back({TokenizerTokenType::COMMA, matchedText, newArea});
         } else if (matchedText[0] == '-') {
             TokenizerTokenType tokenType;
             if (matchedText.size() > 2) {
@@ -158,10 +161,11 @@ void TokenizerLine::initializeTokens() {
                 tokenType = TokenizerTokenType::MINUS_MINUS;
             }
             // NOTE: this will conflict if we add - or -- to the token list 
-            tokens_.push_back({tokenType, matchedText, location});
+            tokens_.push_back({tokenType, matchedText, newArea});
         }
         if (!matchedText.empty()) {
-            location = location.offsetByBytes(matchedText.size());
+            newBeginLocation = newEndLocation;
+            newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
         }
 
         // Update the remaining text
@@ -170,7 +174,8 @@ void TokenizerLine::initializeTokens() {
 
     // Add any remaining normal text as a token
     if (!remainingText.empty()) {
-        tokens_.push_back({TokenizerTokenType::NORMAL, remainingText, location});
+        newArea = file_reader::FileArea(newArea.getFilename(), newArea.getBegin(), line_.getFileArea().getEnd());
+        tokens_.push_back({TokenizerTokenType::NORMAL, remainingText, newArea});
     }
 }
 
@@ -180,7 +185,7 @@ std::string TokenizerLine::toString() const {
     ss
         << "=============================================" << std::endl
         << "TokenizerLine: \"" << getLineWithoutWhitespace() << "\"" << std::endl
-        << "FileLine " << getFileLocation().toString()
+        << "FileArea " << getFileArea().toString()
         << " Leading Whitespace: " << getLeadingWhitespace().size()
         << " Tokens: " << std::endl;
 
@@ -188,52 +193,7 @@ std::string TokenizerLine::toString() const {
     using tokenizer::TokenizerTokenType;
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
     for (const TokenizerToken& token : getTokens()) {
-        switch (token.type) {
-            case TokenizerTokenType::QUOTED_STRING:
-                ss << "  QUOTED_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::ESCAPED_CHARACTER:
-                ss << "  ESCAPED_CHARACTER: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::MULTI_LINE_STRING:
-                ss << "  MULTI_LINE_STRING: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::COLON:
-                ss << "  COLON: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::OPEN_PARENTHESIS:
-                ss << "  OPEN_PARENTHESIS: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::CLOSE_PARENTHESIS:
-                ss << "  CLOSE_PARENTHESIS: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::OPEN_BRACKET:
-                ss << "  OPEN_BRACKET: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::CLOSE_BRACKET:
-                ss << "  CLOSE_BRACKET: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::OPEN_CURLY_BRACE:
-                ss << "  OPEN_CURLY_BRACE: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::CLOSE_CURLY_BRACE:
-                ss << "  CLOSE_CURLY_BRACE: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::COMMA:
-                ss << "  COMMA: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::MINUS_MINUS:
-                ss << "  MINUS_MINUS: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::MINUS_MINUS_MINUS:
-                ss << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
-                break;
-            case TokenizerTokenType::NORMAL:
-                ss << "  NORMAL: " << token.text << std::endl;
-                break;
-            default:
-                throw lexer::LexerException("oops");
-        }
+        ss << token.toString() << std::endl;
     }
     return ss.str();    
 }

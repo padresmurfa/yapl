@@ -141,7 +141,7 @@ std::string ParserContext::addContextToErrorMessage(const std::string &message) 
         ss << "    <empty>" << std::endl;
     }
     ss << "message: " << message << std::endl;
-    ss << "location: " << line_.getFileLocation().toString() << std::endl;
+    ss << "area: " << line_.getFileArea().toString() << std::endl;
     return ss.str();
 }
 

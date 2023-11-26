@@ -1,6 +1,6 @@
 CC = clang++
-CFLAGS = -std=c++11 -I ./include -I ./src -fcolor-diagnostics -fansi-escape-codes
-LDFLAGS =
+CFLAGS = -std=c++11 -I ./include -I ./src -fcolor-diagnostics -fansi-escape-codes -fsanitize=address
+LDFLAGS = -fsanitize=address
 
 # Source files
 SRCS = \
@@ -25,6 +25,7 @@ SRCS = \
         src/parser/parser_line.cpp \
         src/parser/parser_lines.cpp \
         src/parser/parser.cpp \
+        src/lexer/file_reader/file_area.cpp \
         src/lexer/file_reader/file_line.cpp \
         src/lexer/file_reader/file_lines.cpp \
         src/lexer/file_reader/file_location.cpp \

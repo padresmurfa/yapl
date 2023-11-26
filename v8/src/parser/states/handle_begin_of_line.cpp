@@ -18,10 +18,15 @@ void handleBeginOfLine_StartingIndentedBlock(ParserContext& context, const Token
     }
     context.indent(line.getLeadingWhitespace());
     context.pop(ParserState::STARTING_INDENTED_BLOCK);
+    auto bob = lexer::file_reader::FileArea(
+        line.getFileArea().getFilename(),
+        line.getFileArea().getBegin(),
+        line.getFileArea().getBegin().offsetByBytes(line.getLeadingWhitespace().size())
+    );
     parser::ParserToken newToken({
         ParserTokenType::BEGIN_BLOCK,
         "",
-        context.getCurrentLine().getFileLocation()
+        bob
     });
     context.push(ParserState::HANDLING_INDENTED_BLOCK, newToken);
 }
@@ -41,12 +46,17 @@ void handleBeginOfLine_BeginFileOrNormalStuff(ParserContext& context, const Toke
         );
     }
     int dedents = context.maybeDedent(line.getLeadingWhitespace());
+    auto eob = lexer::file_reader::FileArea(
+        line.getFileArea().getFilename(),
+        line.getFileArea().getBegin(),
+        line.getFileArea().getBegin().offsetByBytes(line.getLeadingWhitespace().size())
+    );
     while (dedents-- > 0) {
         context.pop(ParserState::HANDLING_INDENTED_BLOCK);
         parser::ParserToken newToken({
             ParserTokenType::END_BLOCK,
             "",
-            context.getCurrentLine().getFileLocation()
+            eob
         });
         context.pushOutputToken(newToken);
     }
@@ -59,7 +69,6 @@ void handleBeginOfLine(ParserContext& context) {
         loop = false;
         auto line = context.getCurrentLine();
         auto state = context.getCurrentState();
-        auto location = line.getFileLocation();
         switch (state) {
             case ParserState::STARTING_INDENTED_BLOCK:
                 handleBeginOfLine_StartingIndentedBlock(context, line);

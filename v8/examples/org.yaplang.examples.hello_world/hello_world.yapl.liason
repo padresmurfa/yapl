@@ -1,8 +1,0 @@
-language english:
-	hello_world.main.hello_world="Hello World!"
-	country us:
-		persona texan:
-			hello_world.main.hello_world="Howdy, Partner!"
-
-language icelandic:
-	hello_world.main.hello_world="Halló, heimur!"

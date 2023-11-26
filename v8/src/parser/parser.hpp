@@ -4,7 +4,7 @@
 #define ORG_YAPLLANG_PARSER_HPP
 
 #include "include.hpp"
-#include "lexer/file_reader/file_location.hpp"
+#include "lexer/file_reader/file_area.hpp"
 
 namespace org {
 namespace yapllang {
@@ -50,7 +50,7 @@ class ParserToken {
 public:
     ParserTokenType type;
     std::string text;
-    lexer::file_reader::FileLocation location;
+    lexer::file_reader::FileArea area;
 
     std::string toString() const;
     static ParserToken from(const lexer::tokenizer::TokenizerToken &token);

@@ -39,13 +39,13 @@ const std::string parserTokenTypeNames[] = {
 
 std::string ParserToken::toString() const {
     std::string typeStr = parserTokenTypeNames[static_cast<int>(type)];
-    return std::string("ParserToken (type=" + typeStr + ", text=\"" + text + "\", location=\"" + location.toString() + "\")");
+    return std::string("ParserToken (type=" + typeStr + ", text=\"" + text + "\", area=\"" + area.toString() + "\")");
 }
 
 ParserToken ParserToken::from(const lexer::tokenizer::TokenizerToken &token, ParserTokenType type) {
     ParserToken result;
     result.text = token.text;
-    result.location = token.location;
+    result.area = token.area;
     result.type = type;
     return result;
 }
@@ -76,7 +76,7 @@ ParserTokenType tokenizerTokenTypeToParserTokenType(lexer::tokenizer::TokenizerT
 ParserToken ParserToken::from(const TokenizerToken &token) {
     ParserToken result;
     result.text = token.text;
-    result.location = token.location;
+    result.area = token.area;
     result.type = tokenizerTokenTypeToParserTokenType(token.type);
     return result;
 };
@@ -86,11 +86,15 @@ void mergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
     // otherwise its not really possible to ensure that whoever is using our parse tree has totally
     // correct positioning information.
     previousToken.text.append(currentToken.text);
+    previousToken.area = lexer::file_reader::FileArea(
+        previousToken.area.getFilename(),
+        previousToken.area.getBegin(),
+        currentToken.area.getEnd()
+    );
 }
 
 bool maybeMergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
-    auto expectedNextToken = previousToken.location.getFileOffset() + previousToken.text.size();
-    if (expectedNextToken == currentToken.location.getFileOffset()) {
+    if (previousToken.area.getEnd() == currentToken.area.getBegin()) {
         mergeToken(previousToken, currentToken);
         return true;
     }

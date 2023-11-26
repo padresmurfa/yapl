@@ -120,12 +120,11 @@ void ParserLines::print() const {
 
     // Print the tokens per line
     for (const ParserLine& line : lines_) {
-        if (line.empty()) {
-            continue;
-        }
-        auto lineNumber = line.getFileLocation().getLineNumber();
-        auto lineOffset = line.getFileLocation().getLineOffsetInBytes();
-        std::cout << lineNumber << ":" << lineOffset << "    " << line.toString() << std::endl;
+        auto beginLineNumber = line.getFileArea().getBegin().getLineNumber();
+        auto beginLineOffset = line.getFileArea().getBegin().getLineOffsetInBytes();
+        auto endLineNumber = line.getFileArea().getEnd().getLineNumber();
+        auto endLineOffset = line.getFileArea().getEnd().getLineOffsetInBytes();
+        std::cout << "[" << beginLineNumber << ":" << beginLineOffset << "]..[" << endLineNumber << ":" << endLineOffset << ">    " << line.toString() << std::endl;
     }
 }
 

@@ -37,12 +37,13 @@ void FileReader::print() const {
     const FileLines &fileLines = getLines();
     for (auto it = fileLines.begin(); it != fileLines.end(); ++it) {
         auto line = *it;
-        auto fileLocation = line.getFileLocation();
+        auto fileArea = line.getFileArea();
 
-        std::cout << "Original Line: " << line.getText() << std::endl;
-        std::cout << "FileLocation: Line " << fileLocation.getLineNumber()
-                    << " (File Offset " << fileLocation.getFileOffset()
-                    << " (bytes)) in " << fileLocation.getFilename() << std::endl;
+        std::cout << std::endl;
+        std::cout << "line.text: '" << line.getText() << "'" << std::endl;
+        std::cout << "line.text.size: '" << line.getText().size() << "'" << std::endl;
+        std::cout << "line.fileArea: " << fileArea.toString() << std::endl;
+        std::cout << std::endl;
     }
 }
 

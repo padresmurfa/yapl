@@ -23,7 +23,7 @@ public:
     std::string toString() const;
     bool empty() const;
     const lexer::file_reader::FileLine& getFileLine() const;
-    const lexer::file_reader::FileLocation& getFileLocation() const;
+    const lexer::file_reader::FileArea getFileArea() const;
     const std::string& getLeadingWhitespace() const;
     const std::string& getTrailingWhitespace() const;
     const std::string& getLineWithoutWhitespace() const;

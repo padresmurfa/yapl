@@ -50,63 +50,15 @@ void TokenizerLines::print() const {
 
     // Print the tokens per line
     for (const TokenizerLine& line : lines_) {
-        if (line.empty()) {
-            continue;
-        }
         std::cout
             << "=============================================" << std::endl
             << "\"" << line.getLineWithoutWhitespace() << "\"" << std::endl
-            << "FileLine " << line.getFileLine().getFileLocation().toString()
-            << " Leading Whitespace: " << line.getLeadingWhitespace().size()
+            << "FileArea " << line.getFileLine().getFileArea().toString() << std::endl
+            << " Leading Whitespace: " << line.getLeadingWhitespace().size() << std::endl
             << " Tokens: " << std::endl;
         // #TokenizerTokenTypeNamesNeedToBeKeptInSync
         for (const TokenizerToken& token : line.getTokens()) {
-            switch (token.type) {
-                case TokenizerTokenType::QUOTED_STRING:
-                    std::cout << "  QUOTED_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::ESCAPED_CHARACTER:
-                    std::cout << "  ESCAPED_CHARACTER: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::MULTI_LINE_STRING:
-                    std::cout << "  MULTI_LINE_STRING: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::COLON:
-                    std::cout << "  COLON: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::OPEN_PARENTHESIS:
-                    std::cout << "  OPEN_PARENTHESIS: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::CLOSE_PARENTHESIS:
-                    std::cout << "  CLOSE_PARENTHESIS: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::OPEN_BRACKET:
-                    std::cout << "  OPEN_BRACKET: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::CLOSE_BRACKET:
-                    std::cout << "  CLOSE_BRACKET: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::OPEN_CURLY_BRACE:
-                    std::cout << "  OPEN_CURLY_BRACE: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::CLOSE_CURLY_BRACE:
-                    std::cout << "  CLOSE_CURLY_BRACE: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::COMMA:
-                    std::cout << "  COMMA: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::MINUS_MINUS:
-                    std::cout << "  MINUS_MINUS: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::MINUS_MINUS_MINUS:
-                    std::cout << "  MINUS_MINUS_MINUS: " << token.text << std::endl;
-                    break;
-                case TokenizerTokenType::NORMAL:
-                    std::cout << "  NORMAL: " << token.text << std::endl;
-                    break;
-                default:
-                    throw Exception("oops");
-            }
+            std::cout << std::endl << token.toString() << std::endl;
         }
     }
 }

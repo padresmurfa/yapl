@@ -4,7 +4,7 @@
 #define ORG_YAPLLANG_TOKENIZER_HPP
 
 #include "include.hpp"
-#include "lexer/file_reader/file_location.hpp"
+#include "lexer/file_reader/file_area.hpp"
 
 namespace org {
 namespace yapllang {
@@ -34,7 +34,7 @@ enum class TokenizerTokenType {
 struct TokenizerToken {
     TokenizerTokenType type;
     std::string text;
-    lexer::file_reader::FileLocation location;
+    lexer::file_reader::FileArea area;
 
     std::string toString() const;
 };

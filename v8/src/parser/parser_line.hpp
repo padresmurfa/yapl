@@ -21,7 +21,7 @@ public:
 
     bool empty() const;
     const lexer::tokenizer::TokenizerLine& getTokenizerLine() const;
-    const lexer::file_reader::FileLocation& getFileLocation() const;
+    const lexer::file_reader::FileArea getFileArea() const;
     const std::vector<ParserToken>& getTokens() const;
     std::vector<ParserToken>& mutateTokens();
 

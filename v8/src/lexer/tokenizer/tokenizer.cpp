@@ -25,7 +25,7 @@ const std::string tokenizerTokenTypeNames[] = {
 
 std::string TokenizerToken::toString() const {
     std::string typeStr = tokenizerTokenTypeNames[static_cast<int>(type)];
-    return std::string("TokenizerToken (type=" + typeStr + ", text=\"" + text + "\", location=\"" + location.toString() + "\")");
+    return std::string("TokenizerToken (type=" + typeStr + ", text=\"" + text + "\", area=\"" + area.toString() + "\")");
 }
 
 } // namespace tokenizer

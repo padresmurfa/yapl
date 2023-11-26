@@ -38,8 +38,16 @@ bool ParserLine::empty() const {
     return tokens_.empty();
 }
 
-const lexer::file_reader::FileLocation& ParserLine::getFileLocation() const {
-    return tokenizerLine_.getFileLocation();
+const lexer::file_reader::FileArea ParserLine::getFileArea() const {
+    if (tokens_.empty()) {
+        return tokenizerLine_.getFileArea();
+    }
+    lexer::file_reader::FileArea actualArea(
+        tokenizerLine_.getFileArea().getFilename(),
+        tokens_.begin()->area.getBegin(),
+        tokens_.rbegin()->area.getEnd()
+    );
+    return actualArea;
 }
 
 const lexer::tokenizer::TokenizerLine& ParserLine::getTokenizerLine() const {

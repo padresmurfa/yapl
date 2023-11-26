@@ -49,19 +49,22 @@ void File::readLines() {
 
     try {
         while (std::getline(inputFile, lineText)) {
-            FileLocation fileLocation(filename_, lineNumber, fileOffset);
+            FileLocation fileBegin(lineNumber, fileOffset, 0);
 
             // Validate UTF-8 encoding
             if (!utf8::is_valid(lineText.begin(), lineText.end())) {
                 size_t invalidUtf8Offset = utf8::find_invalid(lineText);
-                auto invalidUtf8Location = fileLocation.withLineOffsetInBytes(invalidUtf8Offset);
+                auto invalidUtf8Location = fileBegin.withLineOffsetInBytes(invalidUtf8Offset);
+                // TODO: this location should include a filename as well
                 throw FileContainedInvalidUTF8Exception(invalidUtf8Location);
             }
+            FileLocation fileEnd(lineNumber + 1, fileOffset + lineText.size() + 1, 0);
+            FileArea fileArea(filename_, fileBegin, fileEnd);
 
             std::string preprocessedLineText;
             expandTabs(lineText, preprocessedLineText);
 
-            FileLine line(preprocessedLineText, fileLocation);
+            FileLine line(preprocessedLineText, fileArea);
 
             // Add the line to the Lines collection
             lines_.addLine(line);

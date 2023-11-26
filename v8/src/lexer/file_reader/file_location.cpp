@@ -12,9 +12,8 @@ FileLocation::FileLocation()
 {
 }
 
-FileLocation::FileLocation(const std::string& filename, size_t lineNumber, size_t fileOffset, size_t lineOffsetInBytes)
-    : filename_(filename)
-    , lineNumber_(lineNumber)
+FileLocation::FileLocation(size_t lineNumber, size_t fileOffset, size_t lineOffsetInBytes)
+    : lineNumber_(lineNumber)
     , fileOffset_(fileOffset)
     , lineOffsetInBytes_(lineOffsetInBytes)
 {
@@ -22,8 +21,7 @@ FileLocation::FileLocation(const std::string& filename, size_t lineNumber, size_
 
 // Copy constructor
 FileLocation::FileLocation(const FileLocation& other)
-    : filename_(other.filename_)
-    , lineNumber_(other.lineNumber_)
+    : lineNumber_(other.lineNumber_)
     , fileOffset_(other.fileOffset_)
     , lineOffsetInBytes_(other.lineOffsetInBytes_)
 {
@@ -32,7 +30,6 @@ FileLocation::FileLocation(const FileLocation& other)
 // Copy assignment operator
 FileLocation& FileLocation::operator=(const FileLocation& other) {
     if (this != &other) {
-        filename_ = other.filename_;
         lineNumber_ = other.lineNumber_;
         fileOffset_ = other.fileOffset_;
         lineOffsetInBytes_ = other.lineOffsetInBytes_;
@@ -40,8 +37,10 @@ FileLocation& FileLocation::operator=(const FileLocation& other) {
     return *this;
 }
 
-const std::string& FileLocation::getFilename() const {
-    return filename_;
+bool FileLocation::operator==(const FileLocation& other) const {
+    return lineNumber_ == other.lineNumber_
+        && fileOffset_ == other.fileOffset_
+        && lineOffsetInBytes_ == other.lineOffsetInBytes_;
 }
 
 size_t FileLocation::getLineNumber() const {
@@ -57,18 +56,17 @@ size_t FileLocation::getLineOffsetInBytes() const {
 }
 
 FileLocation FileLocation::withLineOffsetInBytes(size_t lineOffsetInBytes) const {
-    return FileLocation(filename_, lineNumber_, fileOffset_ + lineOffsetInBytes, lineOffsetInBytes_ + lineOffsetInBytes);
+    return FileLocation(lineNumber_, fileOffset_ + lineOffsetInBytes, lineOffsetInBytes_ + lineOffsetInBytes);
 }
 
 FileLocation FileLocation::offsetByBytes(size_t offsetInBytes) const {
-    return FileLocation(filename_, lineNumber_, fileOffset_ + offsetInBytes, lineOffsetInBytes_ + offsetInBytes);
+    return FileLocation(lineNumber_, fileOffset_ + offsetInBytes, lineOffsetInBytes_ + offsetInBytes);
 }
 
 std::string FileLocation::toString() const {
-    return "File: " + filename_
-        + ", File Offset: " + std::to_string(fileOffset_) + " (bytes)" 
-        + ", Line Number: " + std::to_string(lineNumber_)
-        + ", Line Offset: " + std::to_string(lineOffsetInBytes_) + " (bytes)" 
+    return "FileLocation(fileOffset='" + std::to_string(fileOffset_) + " (bytes)'" 
+        + ", lineNumber='" + std::to_string(lineNumber_) + "'"
+        + ", lineOffset='" + std::to_string(lineOffsetInBytes_) + " (bytes)')" 
         ;
 }
 

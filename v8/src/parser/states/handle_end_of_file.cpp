@@ -23,18 +23,47 @@ bool maybeMergeAdjacentSingleLineComments(std::vector<ParserLine>::iterator &pre
         const ParserToken &currentToken = currentLineTokens[0];
         auto isSingleLineComment = previousToken.type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT && currentToken.type == ParserTokenType::TMP_SINGLE_LINE_COMMENT_CONTENT;
         if (isSingleLineComment) {
-            auto previousLocation = previousToken.location;
-            auto currentLocation = currentToken.location;
+            auto previousLocation = previousToken.area.getEnd();
+            auto currentLocation = currentToken.area.getBegin();
             auto startsAtSameLineOffset = previousLocation.getLineOffsetInBytes() == currentLocation.getLineOffsetInBytes();
             if (startsAtSameLineOffset) {
                 auto areAdjacentLines = previousLocation.getLineNumber() + 1 == currentLocation.getLineNumber();
                 if (areAdjacentLines) {
                     previousToken.text.append("\n");
                     previousToken.text.append(currentToken.text);
+                    // note: we simply assume that the caller isn't mixing up tokens from different files
+                    previousToken.area = lexer::file_reader::FileArea(
+                        previousToken.area.getFilename(),
+                        previousToken.area.getBegin(),
+                        currentToken.area.getEnd()
+                    );
                     return true;
                 } 
             }
         }
+    }
+    return false;
+}
+
+bool maybeMergeEmptyLineWithPriorLine(std::vector<ParserLine>::iterator &previousLine, std::vector<ParserLine>::iterator &currentLine) 
+{
+    if (currentLine->empty()) {
+        previousLine->mutateTokens().rbegin()->area = lexer::file_reader::FileArea(
+            previousLine->getFileArea().getFilename(),
+            previousLine->getFileArea().getBegin(),
+            currentLine->getFileArea().getEnd()
+        );
+        switch (previousLine->getTokens().rbegin()->type) {
+            case ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT:
+            case ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING:
+            case ParserTokenType::TMP_STRING_CONTENT: // assuming that we're in a multi-line-string
+            case ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT:
+                previousLine->mutateTokens().rbegin()->text += "\n";
+                break;
+            default:
+                break;
+        }
+        return true;
     }
     return false;
 }
@@ -53,16 +82,35 @@ bool maybeMergeAdjacentMultiLineComments(std::vector<ParserLine>::iterator &prev
         auto isPreviousMultiLineComment = (previousToken.type == ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT) || (previousToken.type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT);
         auto isCurrentMultiLineComment = (currentToken.type == ParserTokenType::TMP_END_MULTI_LINE_COMMENT) || (currentToken.type == ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT);
         if (isPreviousMultiLineComment && isCurrentMultiLineComment) {
-            auto previousLocation = previousToken.location;
-            auto currentLocation = currentToken.location;
+            auto previousLocation = previousToken.area.getEnd();
+            auto currentLocation = currentToken.area.getBegin();
             if (currentToken.type == ParserTokenType::TMP_END_MULTI_LINE_COMMENT) {
+                previousToken.area = lexer::file_reader::FileArea(
+                    previousToken.area.getFilename(), // also make that same assumption as above here
+                    previousToken.area.getBegin(),
+                    currentToken.area.getEnd()
+                );
                 return true;
             }
+            auto prevWS = previousLine->getTokenizerLine().getLeadingWhitespace();
+            auto currWS = currentLine->getTokenizerLine().getLeadingWhitespace();
+            int shouldIndent = currWS.size() > prevWS.size();
             if (previousToken.type != ParserTokenType::TMP_BEGIN_MULTI_LINE_COMMENT) {
                 previousToken.text.append("\n");
+                if (shouldIndent) {
+                    previousToken.text.append(currWS.substr(prevWS.size()));
+                }
             }
             previousToken.type = ParserTokenType::TMP_MULTI_LINE_COMMENT_CONTENT;
             previousToken.text.append(currentToken.text);
+            if (shouldIndent) {
+                previousToken.text.append(currWS.substr(prevWS.size()));
+            }
+            previousToken.area = lexer::file_reader::FileArea(
+                previousToken.area.getFilename(), // also make that same assumption as above here
+                previousToken.area.getBegin(),
+                currentToken.area.getEnd()
+            );
             return true;
         }
     }
@@ -79,32 +127,51 @@ bool maybeMergeAdjacentMultiLineStrings(std::vector<ParserLine>::iterator &previ
         auto isPreviousMultiLineString = (previousToken.type == ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING) || (previousToken.type == ParserTokenType::TMP_STRING_CONTENT);
         auto isCurrentMultiLineString = (currentToken.type == ParserTokenType::TMP_END_MULTI_LINE_STRING) || (currentToken.type == ParserTokenType::TMP_STRING_CONTENT);
         if (isPreviousMultiLineString && isCurrentMultiLineString) {
-            auto previousLocation = previousToken.location;
-            auto currentLocation = currentToken.location;
+            auto previousLocation = previousToken.area.getEnd();
+            // BUG xcxc: multi-line strings can have the begin + string tokens in the same line, likewise the end + string tokens.
+            // e.g.
+            // """asdf
+            // basdf"""
+            // this code is copy-pasta from multi-line comments, which can't do that.
+            auto currentLocation = currentToken.area.getBegin();
+            auto prevWS = previousLine->getTokenizerLine().getLeadingWhitespace();
+            auto currWS = currentLine->getTokenizerLine().getLeadingWhitespace();
+            int shouldIndent = currWS.size() > prevWS.size();
             if (previousToken.type != ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING) {
                 // TODO: empty lines are wreaking havoc... deal with that
                 previousToken.text.append("\n");
+                if (shouldIndent) {
+                    previousToken.text.append(currWS.substr(prevWS.size()));
+                }
             }
             previousToken.type = ParserTokenType::TMP_STRING_CONTENT;
             previousToken.text.append(currentToken.text);
+            if (shouldIndent) {
+                previousToken.text.append(currWS.substr(prevWS.size()));
+            }
+            previousToken.area = lexer::file_reader::FileArea(
+                previousToken.area.getFilename(), // and we make the same assumption as above here
+                previousToken.area.getBegin(),
+                currentToken.area.getEnd()
+            );
             return true;
         }
     }
     return false;
 }
 
-bool maybeMergeParserLines(const std::vector<ParserLine>::iterator &firstLine, std::vector<ParserLine>::iterator &currentLine) {
+bool maybeMergeParserLines(std::vector<ParserLine>::iterator &currentLine) {
     /*
     TODO: multi-line constructs should be merged at this point in time
     */
-    auto previousLine = std::prev(currentLine);
-    while (previousLine->empty() && previousLine != firstLine) {
-        previousLine = std::prev(previousLine);
-    }
-    if (maybeMergeAdjacentSingleLineComments(previousLine, currentLine)) {
+    std::vector<ParserLine>::iterator previousLine = std::prev(currentLine);
+    if (maybeMergeEmptyLineWithPriorLine(previousLine, currentLine)) {
         return true;
     }
     if (maybeMergeAdjacentMultiLineComments(previousLine, currentLine)) {
+        return true;
+    }
+    if (maybeMergeAdjacentSingleLineComments(previousLine, currentLine)) {
         return true;
     }
     if (maybeMergeAdjacentMultiLineStrings(previousLine, currentLine)) {
@@ -171,7 +238,12 @@ void normalizeMultiLineLeadingWhiteSpace(std::vector<ParserLine> &parserLines) {
                 int currentWhitespace = it->getTokenizerLine().getLeadingWhitespace().size();
                 int incorrectSpaces = currentWhitespace - leadingWhitespace - 4;
                 if (incorrectSpaces > 0) {
-                    mutableTokens.rbegin()->location = lastToken.location.offsetByBytes(-incorrectSpaces);
+                    lexer::file_reader::FileArea& area = mutableTokens.rbegin()->area;
+                    mutableTokens.rbegin()->area = lexer::file_reader::FileArea(
+                        area.getFilename(),
+                        area.getBegin().offsetByBytes(-incorrectSpaces),
+                        area.getEnd()
+                    );
                     auto ws = std::string(incorrectSpaces, ' ');
                     mutableTokens.rbegin()->text = ws + mutableTokens.rbegin()->text;
                 }
@@ -196,11 +268,17 @@ void handleEndOfFile(ParserLines &lines, ParserContext& context) {
 
             case ParserState::HANDLING_SINGLE_LINE_COMMENT:
                 {
+                    const lexer::file_reader::FileArea currentArea = context.getCurrentLine().getFileArea();
+                    auto eol = lexer::file_reader::FileArea(
+                        currentArea.getFilename(),
+                        currentArea.getEnd(),
+                        currentArea.getEnd()
+                    );
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
                     ParserToken newToken({
                         ParserTokenType::TMP_END_SINGLE_LINE_COMMENT,
                         "",
-                        context.getCurrentLine().getFileLocation()
+                        eol
                     });
                     context.pushOutputToken(newToken);
                     loop = true;
@@ -230,13 +308,19 @@ void handleEndOfFile(ParserLines &lines, ParserContext& context) {
 
             case ParserState::HANDLING_INDENTED_BLOCK:
                 {
+                    const lexer::file_reader::FileArea currentArea = context.getCurrentLine().getFileArea();
+                    auto eol = lexer::file_reader::FileArea(
+                        currentArea.getFilename(),
+                        currentArea.getEnd(),
+                        currentArea.getEnd()
+                    );
                     int dedents = context.maybeDedent("");
                     while (dedents-- > 0) {
                         context.pop(ParserState::HANDLING_INDENTED_BLOCK);
                         ParserToken newToken({
                             ParserTokenType::END_BLOCK,
                             "",
-                            context.getCurrentLine().getFileLocation()
+                            eol
                         });
                         context.pushOutputToken(newToken);
                     }
@@ -252,10 +336,10 @@ void handleEndOfFile(ParserLines &lines, ParserContext& context) {
     }
     std::vector<ParserLine> &parserLines = lines.mutate();
     stripCommentAndStringDeliminators(parserLines);
-    //normalizeMultiLineLeadingWhiteSpace(parserLines);
+    normalizeMultiLineLeadingWhiteSpace(parserLines);
     auto it = parserLines.begin();
     while (it != parserLines.end()) {
-        if (it != parserLines.begin() && maybeMergeParserLines(parserLines.begin(), it)) {
+        if (it != parserLines.begin() && maybeMergeParserLines(it)) {
             it = parserLines.erase(it);
         } else {
             ++it;
