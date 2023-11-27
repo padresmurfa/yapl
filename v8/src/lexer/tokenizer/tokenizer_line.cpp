@@ -116,11 +116,11 @@ void TokenizerLine::initializeTokens() {
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
     // #CharacterEscapesNeedToBeKeptInSync
 
-    while (std::regex_search(remainingText, match, std::regex(R"((-{2,}|"""|"|\\[0-7]{1,3}|\\x[0-9A-Fa-F]+|\\u[0-9A-Fa-F]{4}|\\U[0-9A-Fa-F]{8}|\\[\"tnr\\bfva'\?]|:|\(|\)|\[|\]|\{|\}|\,))"))) {
+    while (std::regex_search(remainingText, match, std::regex(R"((-{2,}|"""|"|\\0[0-7]{1,3}|\\x[0-9A-Fa-F]{1,6}|\\u[0-9A-Fa-F]{4}|\\U[0-9A-Fa-F]{8}|\\[\"tnr\\bfvae'\?]|:|\(|\)|\[|\]|\{|\}|\,))"))) {
         if (match.position() > 0) {
             // Add normal text before the match as a token
             auto normalText = remainingText.substr(0, match.position());
-            newEndLocation = newBeginLocation.offsetByBytes(normalText.size()+1);
+            newEndLocation = newBeginLocation.offsetByBytes(normalText.size());
             newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
             tokens_.push_back({TokenizerTokenType::NORMAL, normalText, newArea});
             newBeginLocation = newEndLocation;
@@ -128,7 +128,7 @@ void TokenizerLine::initializeTokens() {
 
     // #TokenizerTokenTypeNamesNeedToBeKeptInSync
         auto matchedText = std::string(match[0]);
-        newEndLocation = newBeginLocation.offsetByBytes(matchedText.size()+1);
+        newEndLocation = newBeginLocation.offsetByBytes(matchedText.size());
         newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
         // Determine the type of token
         if (matchedText == "\"\"\"") {
