@@ -26,6 +26,17 @@ bool maybeMergeAdjacentSingleLineComments(std::vector<ParserLine>::iterator &pre
             auto previousLocation = previousToken.area.getEnd();
             auto currentLocation = currentToken.area.getBegin();
             auto startsAtSameLineOffset = previousLocation.getLineOffsetInBytes() == currentLocation.getLineOffsetInBytes();
+            if (!startsAtSameLineOffset) {
+                // lines end at the "row=next line, column=0" position
+                // so matching adjacent lines is a bit of a pain.
+                if (previousLocation.getLineNumber() == currentLocation.getLineNumber()) {
+                    if (currentToken.area.getEnd().getLineOffsetInBytes() == 0) {
+                        if (previousToken.area.getBegin().getLineOffsetInBytes() == currentLocation.getLineOffsetInBytes()) {
+                            startsAtSameLineOffset = true;
+                        }
+                    }
+                }
+            }
             if (startsAtSameLineOffset) {
                 auto areAdjacentLines = previousLocation.getLineNumber() == currentLocation.getLineNumber();
                 if (areAdjacentLines) {
@@ -69,10 +80,6 @@ bool maybeMergeEmptyLineWithPriorLine(std::vector<ParserLine>::iterator &previou
 }
 
 bool maybeMergeAdjacentMultiLineComments(std::vector<ParserLine>::iterator &previousLine, std::vector<ParserLine>::iterator &currentLine) {
-    // TODO: fix so that this code catches this kind of scenario:
-    // asdf ---------------
-    //      asdfasdf
-    //      ---------------
     std::vector<ParserToken>& previousLineTokens = previousLine->mutateTokens();
     const std::vector<ParserToken>& currentLineTokens = currentLine->getTokens();
     auto hasTokens = previousLineTokens.size() >= 1 && currentLineTokens.size() == 1;
