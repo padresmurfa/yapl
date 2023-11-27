@@ -98,6 +98,34 @@ void assertMultiLineCommentDelimiterIsAloneOnLine(ParserContext& context) {
     }
 }
 
+void assertMultiLineStringDelimiterIsAloneOnLine(ParserContext& context) {
+    const std::vector<parser::ParserToken>& outputTokens = context.getOutputTokens();
+    int foundDelimiter = 0;
+    bool foundSomethingElse = false;
+    for (auto it = outputTokens.begin(); it != outputTokens.end(); it++) {
+        switch (it->type) {
+            case ParserTokenType::BEGIN_BLOCK:
+            case ParserTokenType::END_BLOCK:
+                // a multi-line comment delimiter may indent/dedent blocks
+                break;
+
+            case ParserTokenType::TMP_BEGIN_MULTI_LINE_STRING:
+            case ParserTokenType::TMP_END_MULTI_LINE_STRING:
+                foundDelimiter++;
+                break;
+            default:
+                foundSomethingElse = true;
+                break;
+        }
+    }
+    if (foundDelimiter > 1) {
+        throw context.exception("at most one multi-line string delimiter token may be present in each line of code");
+    }
+    if (foundDelimiter > 0 && foundSomethingElse) {
+        throw context.exception("multi-line string delimiters must be alone in a line of code");
+    }
+}
+
 void handleEndOfLine(ParserContext& context) {
     bool loop = true;
     while (loop) {
@@ -143,6 +171,7 @@ void handleEndOfLine(ParserContext& context) {
     }
     std::vector<ParserToken> &tokens = context.mutateOutputTokens();
     assertMultiLineCommentDelimiterIsAloneOnLine(context);
+    assertMultiLineStringDelimiterIsAloneOnLine(context);
     auto it = tokens.begin();
     while (it != tokens.end()) {
         // Check if the current element is equal to the previous one
