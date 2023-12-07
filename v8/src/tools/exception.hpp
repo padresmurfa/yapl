@@ -4,6 +4,9 @@
 
 #include "stacktrace.hpp"
 
+#define BEGIN_SECTION() try {
+#define END_SECTION(x) } catch (std::exception &ex) { std::cerr << "@" << x << std::endl; throw; }
+
 namespace org {
 namespace yapllang {
 namespace tools {

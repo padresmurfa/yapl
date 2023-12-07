@@ -52,6 +52,8 @@ public:
     std::string text;
     lexer::file_reader::FileArea area;
 
+    bool isImmediatePredecessorOf(const ParserToken& other) const;
+    bool isPredecessorLineOf(const ParserToken& other) const;
     std::string toString() const;
     static ParserToken from(const lexer::tokenizer::TokenizerToken &token);
     static ParserToken from(const lexer::tokenizer::TokenizerToken &token, ParserTokenType type);

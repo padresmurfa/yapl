@@ -19,6 +19,11 @@ public:
     FileArea& operator=(const FileArea& other);
     bool operator==(const FileArea& other) const;
 
+    bool isImmediatePredecessorOf(const FileArea& other) const;
+    bool isPredecessorLineOf(const FileArea& other) const;
+    void extendTo(const FileArea& other);
+    FileArea asEndOfArea() const;
+
     const std::string& getFilename() const;
 
     const FileLocation &getBegin() const;

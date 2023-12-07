@@ -42,6 +42,14 @@ std::string ParserToken::toString() const {
     return std::string("ParserToken (type=" + typeStr + ", text=\"" + text + "\", area=\"" + area.toString() + "\")");
 }
 
+bool ParserToken::isImmediatePredecessorOf(const ParserToken& other) const {
+    return area.isImmediatePredecessorOf(other.area);
+}
+
+bool ParserToken::isPredecessorLineOf(const ParserToken& other) const {
+    return area.isPredecessorLineOf(other.area);
+}
+
 ParserToken ParserToken::from(const lexer::tokenizer::TokenizerToken &token, ParserTokenType type) {
     ParserToken result;
     result.text = token.text;
@@ -94,7 +102,7 @@ void mergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
 }
 
 bool maybeMergeToken(ParserToken& previousToken, const ParserToken& currentToken) {
-    if (previousToken.area.getEnd() == currentToken.area.getBegin()) {
+    if (previousToken.area.isImmediatePredecessorOf(currentToken.area)) {
         mergeToken(previousToken, currentToken);
         return true;
     }

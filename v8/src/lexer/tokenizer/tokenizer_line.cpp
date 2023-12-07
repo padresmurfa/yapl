@@ -106,6 +106,28 @@ void TokenizerLine::initializeText() {
     lineWithoutWhitespace_ = text.substr(leadingWhitespaceLength, text.size() - trailingWhitespaceLength - leadingWhitespaceLength);
 }
 
+void stripSurroundingWhitespace(std::string& text) {
+    int trimFirst = 0;
+    for (auto it = text.begin(); it != text.end(); it++) {
+        if (std::isspace(*it)) {
+            trimFirst++;
+        } else {
+            break;
+        }
+    }
+    int trimLast = 0;
+    for (auto it = text.rbegin(); it != text.rend(); it++) {
+        if (std::isspace(*it)) {
+            trimLast++;
+        } else {
+            break;
+        }
+    }
+    if (trimFirst > 0 || trimLast > 0) {
+        text = text.substr(trimFirst, text.length() - trimLast - trimFirst);
+    }
+}
+
 void TokenizerLine::initializeTokens() {
     std::smatch match;
     std::string remainingText = lineWithoutWhitespace_;
@@ -122,6 +144,7 @@ void TokenizerLine::initializeTokens() {
             auto normalText = remainingText.substr(0, match.position());
             newEndLocation = newBeginLocation.offsetByBytes(normalText.size());
             newArea = file_reader::FileArea(newArea.getFilename(), newBeginLocation, newEndLocation);
+            stripSurroundingWhitespace(normalText);
             tokens_.push_back({TokenizerTokenType::NORMAL, normalText, newArea});
             newBeginLocation = newEndLocation;
         }
@@ -175,6 +198,7 @@ void TokenizerLine::initializeTokens() {
     // Add any remaining normal text as a token
     if (!remainingText.empty()) {
         newArea = file_reader::FileArea(newArea.getFilename(), newArea.getBegin(), line_.getFileArea().getEnd());
+        stripSurroundingWhitespace(remainingText);
         tokens_.push_back({TokenizerTokenType::NORMAL, remainingText, newArea});
     }
 }

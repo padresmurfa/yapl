@@ -58,50 +58,75 @@ ParserLines ParserLines::parse(const lexer::tokenizer::TokenizerLines& lines) {
     std::vector<ParserState> stateStack;
     std::vector<size_t> indentation;
     stateStack.push_back(ParserState::HANDLING_BEGIN_FILE);
+    size_t line_number = 0;
     for (auto line : lines) {
         ParserContext context(line, stateStack, indentation);
+        BEGIN_SECTION()
         handleBeginOfLine(context);
+        END_SECTION("handleBeginOfLine")
         for (auto token : line.getTokens()) {
             auto currentState = context.getCurrentState();
             switch (currentState) {
                 case ParserState::HANDLING_BEGIN_FILE:
                 case ParserState::HANDLING_NORMAL_STUFF:
+                    BEGIN_SECTION()
                     handlingNormalStuff(token, context);
+                    END_SECTION("handlingNormalStuff")
                     break;
                 case ParserState::HANDLING_SINGLE_LINE_COMMENT:
+                    BEGIN_SECTION()
                     handlingSingleLineComment(token, context);
+                    END_SECTION("handlingSingleLineComment")
                     break;
                 case ParserState::HANDLING_MULTI_LINE_COMMENT:
+                    BEGIN_SECTION()
                     handlingMultiLineComment(token, context);
+                    END_SECTION("handlingMultiLineComment")
                     break;
                 case ParserState::HANDLING_QUOTED_STRING:
+                    BEGIN_SECTION()
                     handlingQuotedString(token, context);
+                    END_SECTION("handlingQuotedString")
                     break;
                 case ParserState::HANDLING_MULTI_LINE_STRING:
+                    BEGIN_SECTION()
                     handlingMultiLineString(token, context);
+                    END_SECTION("handlingMultiLineString")
                     break;
                 case ParserState::HANDLING_PARENTHESIS:
+                    BEGIN_SECTION()
                     handlingParenthesis(token, context);
+                    END_SECTION("handlingParenthesis")
                     break;
                 case ParserState::HANDLING_BRACKETS:
+                    BEGIN_SECTION()
                     handlingBrackets(token, context);
+                    END_SECTION("handlingBrackets")
                     break;
                 case ParserState::HANDLING_CURLY_BRACES:
+                    BEGIN_SECTION()
                     handlingCurlyBraces(token, context);
+                    END_SECTION("handlingCurlyBraces")
                     break;
                 case ParserState::HANDLING_INDENTED_BLOCK:
+                    BEGIN_SECTION()
                     handlingIndentedBlock(token, context);
+                    END_SECTION("handlingIndentedBlock")
                     break;
                 default:
                     throw context.exception("unexpected state (" + to_string(currentState) + ") encountered during decontextualization");
             }
         }
+        BEGIN_SECTION()
         handleEndOfLine(context);
+        END_SECTION("handleEndOfLine")
         auto lineToAdd = ParserLine(line, context.getOutputTokens());
         lineTokens.addLine(lineToAdd);
     }
     ParserContext eofContext(lines.getEOFAsTokenizerLine(), stateStack, indentation);
+    BEGIN_SECTION()
     handleEndOfFile(lineTokens, eofContext);
+    END_SECTION("handleEndOfFile")
     if (!eofContext.getOutputTokens().empty())
     {
         auto lineToAdd = ParserLine(eofContext.getCurrentLine(), eofContext.getOutputTokens());
@@ -120,11 +145,18 @@ void ParserLines::print() const {
 
     // Print the tokens per line
     for (const ParserLine& line : lines_) {
-        auto beginLineNumber = line.getFileArea().getBegin().getLineNumber();
-        auto beginLineOffset = line.getFileArea().getBegin().getLineOffsetInBytes();
-        auto endLineNumber = line.getFileArea().getEnd().getLineNumber();
-        auto endLineOffset = line.getFileArea().getEnd().getLineOffsetInBytes();
-        std::cout << "[" << beginLineNumber << ":" << beginLineOffset << "]..[" << endLineNumber << ":" << endLineOffset << ">    " << line.toString() << std::endl;
+        auto begin = line.getFileArea().getBegin();
+        auto beginLineNumber = begin.getLineNumber();
+        auto beginLineOffset = begin.getLineOffsetInBytes();
+        auto beginFileOffset = begin.getFileOffset();
+        auto end = line.getFileArea().getEnd();
+        auto endLineNumber = end.getLineNumber();
+        auto endLineOffset = end.getLineOffsetInBytes();
+        auto endFileOffset = end.getFileOffset();
+        std::cout   << "[" << beginFileOffset << "|" << beginLineNumber << ":" << beginLineOffset << "]..["
+                    << endFileOffset << "|" <<endLineNumber << ":" << endLineOffset << ">    "
+                    << line.toString()
+                    << std::endl;
     }
 }
 

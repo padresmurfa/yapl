@@ -145,12 +145,7 @@ void handleEndOfLine(ParserContext& context) {
 
             case ParserState::HANDLING_SINGLE_LINE_COMMENT:
                 {
-                    const lexer::file_reader::FileArea currentArea = context.getCurrentLine().getFileArea();
-                    auto eol = lexer::file_reader::FileArea(
-                        currentArea.getFilename(),
-                        currentArea.getEnd(),
-                        currentArea.getEnd()
-                    );
+                    auto eol = context.getCurrentLine().getFileArea().asEndOfArea();
                     context.pop(ParserState::HANDLING_SINGLE_LINE_COMMENT);
                     ParserToken newToken({
                         ParserTokenType::TMP_END_SINGLE_LINE_COMMENT,

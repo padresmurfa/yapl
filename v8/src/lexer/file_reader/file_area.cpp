@@ -40,6 +40,41 @@ bool FileArea::operator==(const FileArea& other) const {
         && end_ == other.end_;
 }
 
+bool FileArea::isImmediatePredecessorOf(const FileArea& other) const {
+    if (filename_ != other.filename_) {
+        throw std::runtime_error("predecessor checks are only valid within the same file");
+    }
+    return end_.getFileOffset() == other.begin_.getFileOffset();
+}
+
+bool FileArea::isPredecessorLineOf(const FileArea& other) const {
+    if (filename_ != other.filename_) {
+        throw std::runtime_error("predecessor checks are only valid within the same file");
+    }
+    if ((1 + begin_.getLineNumber()) != other.begin_.getLineNumber()) {
+        return false;
+    }
+    if (begin_.getLineOffsetInBytes() != other.begin_.getLineOffsetInBytes()) {
+        return false;
+    }
+    return true;
+}
+
+void FileArea::extendTo(const FileArea& other) {
+    if (filename_ != other.filename_) {
+        throw std::runtime_error("cannot extend file areas across multiple files");
+    }
+    end_ = other.end_;
+}
+
+FileArea FileArea::asEndOfArea() const {
+    return FileArea(
+        filename_,
+        end_,
+        end_
+    );
+}
+
 const std::string& FileArea::getFilename() const {
     return filename_;
 }
